@@ -86,6 +86,10 @@ where
         for extension in &agent.extensions {
             for registration in extension.hooks.iter().filter(|hook| hook.task == self.task) {
                 let Some(handlers) = registration.handlers.downcast_ref::<H>() else {
+                    self.inner.report(Error::Invalid(format!(
+                        "Hook handlers registered for {} do not match the task's hook type",
+                        self.task
+                    )));
                     continue;
                 };
                 if let Err(error) = invoke(handlers) {
