@@ -1,4 +1,8 @@
 use super::*;
+use crate::harness::context::{ContextView, capture_context_bounds, read_context_from};
+use crate::harness::runtime::HarnessTaskRuntime;
+use crate::ids::EntryId;
+use crate::tasks::TaskOutcome;
 
 pub struct InvocationRuntime {
     scheduler: TaskScheduler,
@@ -31,7 +35,10 @@ impl InvocationRuntime {
             .ended
             .load(std::sync::atomic::Ordering::SeqCst)
         {
-            return Err(Error::Aborted);
+            return Err(Error::Invalid(format!(
+                "Task {} invocation has ended",
+                self.invocation.task_id
+            )));
         }
         Ok(())
     }
@@ -95,6 +102,73 @@ fn memo_of(record: &AnyTaskRecord, name: &str) -> Option<JsonValue> {
         .memos
         .as_ref()
         .and_then(|memos| memos.get(name).cloned())
+}
+
+impl HarnessTaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for InvocationRuntime {
+    fn context(&self, at: Option<EntryId>, cancel: &CancelToken) -> Result<ContextView> {
+        self.ensure_live()?;
+        let conversation = self.invocation.conversation_id;
+        let storage = self.scheduler.0.storage.as_ref();
+        let previous = self
+            .scheduler
+            .lock()
+            .contexts
+            .get(&conversation)
+            .map(|kept| kept.range.clone());
+        let bounds = self
+            .scheduler
+            .0
+            .session
+            .read_on_line(|| capture_context_bounds(storage, conversation, at, cancel))?;
+        let (view, range) =
+            read_context_from(storage, conversation, bounds, previous.as_ref(), cancel)?;
+        let mut st = self.scheduler.lock();
+        let kept_tail = st
+            .contexts
+            .get(&conversation)
+            .map(|kept| kept.range.bounds.tail);
+        let kept_since = st
+            .contexts
+            .get(&conversation)
+            .and_then(|kept| kept.idle_since);
+        if let Some(range) = range
+            && !st.closing
+            && !self
+                .invocation
+                .ended
+                .load(std::sync::atomic::Ordering::SeqCst)
+            && kept_tail.is_none_or(|tail| tail <= range.bounds.tail)
+        {
+            if !idle(&st, Some(conversation)) {
+                st.contexts.insert(
+                    conversation,
+                    KeptContext {
+                        range,
+                        idle_since: None,
+                    },
+                );
+            } else if self.scheduler.retention() > 0 {
+                let now = (self.scheduler.0.now)();
+                st.contexts.insert(
+                    conversation,
+                    KeptContext {
+                        range,
+                        idle_since: Some(kept_since.unwrap_or(now)),
+                    },
+                );
+                self.scheduler.schedule_expiry(&mut st);
+            }
+        }
+        Ok(view)
+    }
+
+    fn wait_for_task(&self, id: TaskId, cancel: &CancelToken) -> Result<TaskOutcome<JsonValue>> {
+        self.ensure_live()?;
+        match self.scheduler.wait_for_task(id, cancel)?.state {
+            TaskState::Terminal { outcome } => Ok(outcome),
+            _ => Err(Error::Invalid(format!("Task {id} is not terminal"))),
+        }
+    }
 }
 
 impl TaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for InvocationRuntime {
