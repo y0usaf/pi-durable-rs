@@ -1,4 +1,3 @@
-use std::collections::BTreeMap;
 use std::ops::Deref;
 
 use serde::{Deserialize, Serialize};
@@ -208,14 +207,8 @@ impl<S, R> NextTaskState<S, R> {
     }
 }
 
-pub type PhaseHandler<I, S, R, H> = Box<
-    dyn Fn(RunningTask<I, S, R>, &(dyn TaskRuntime<I, S, R, H> + Sync), &CancelToken) -> Result<()>
-        + Send
-        + Sync,
->;
-
 pub trait HookRunner<H> {
-    fn each(&self, name: &str, invoke: &mut dyn FnMut(&H) -> Result<()>) -> Result<()>;
+    fn each(&self, invoke: &mut dyn FnMut(&H) -> Result<()>) -> Result<()>;
 }
 
 pub type RuntimeChange<'a, I, S, R> =
@@ -246,70 +239,4 @@ pub trait TaskRuntime<I, S, R, H>: DocumentObserver + DocumentReader {
     fn now(&self) -> u64;
     fn report(&self, error: Error);
     fn sleep(&self, until: u64, cancel: &CancelToken) -> Result<()>;
-}
-
-pub type PhaseMap<I, S, R, H> = BTreeMap<String, PhaseHandler<I, S, R, H>>;
-
-pub type Initial<I, S> = Box<dyn Fn(&I) -> S + Send + Sync>;
-
-pub type Migrate<I, S> = Box<dyn Fn(&JsonValue, &JsonValue, u64) -> Result<(I, S)> + Send + Sync>;
-
-pub struct TaskDefinition<I, S, R, H> {
-    pub name: String,
-    pub version: u64,
-    pub initial: Initial<I, S>,
-    pub phases: PhaseMap<I, S, R, H>,
-    pub abort: PhaseHandler<I, S, R, H>,
-    pub migrate: Option<Migrate<I, S>>,
-    pub hooks: Option<H>,
-}
-
-pub struct Task<I, S, R, H> {
-    pub definition: TaskDefinition<I, S, R, H>,
-}
-
-pub fn define_task<I, S, R, H>(definition: TaskDefinition<I, S, R, H>) -> Task<I, S, R, H> {
-    Task { definition }
-}
-
-type Defines<H> = Box<dyn Fn(&H, &str) -> bool + Send + Sync>;
-
-pub struct PhaseHooks<H> {
-    handlers: Vec<H>,
-    defines: Defines<H>,
-    signal: CancelToken,
-    report: Box<dyn Fn(Error) + Send + Sync>,
-}
-
-impl<H> PhaseHooks<H> {
-    pub fn new(
-        handlers: Vec<H>,
-        defines: impl Fn(&H, &str) -> bool + Send + Sync + 'static,
-        signal: CancelToken,
-        report: impl Fn(Error) + Send + Sync + 'static,
-    ) -> Self {
-        Self {
-            handlers,
-            defines: Box::new(defines),
-            signal,
-            report: Box::new(report),
-        }
-    }
-}
-
-impl<H> HookRunner<H> for PhaseHooks<H> {
-    fn each(&self, name: &str, invoke: &mut dyn FnMut(&H) -> Result<()>) -> Result<()> {
-        for handler in &self.handlers {
-            if !(self.defines)(handler, name) {
-                continue;
-            }
-            if let Err(error) = invoke(handler) {
-                if self.signal.is_cancelled() {
-                    return Err(error);
-                }
-                (self.report)(error);
-            }
-        }
-        Ok(())
-    }
 }

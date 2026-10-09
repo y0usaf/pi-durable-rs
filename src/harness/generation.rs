@@ -624,7 +624,7 @@ fn request(
     };
     let view = runtime.context(Some(cutoff), cancel)?;
     let mut messages = view.messages.clone();
-    runtime.hooks().each("beforeRequest", &mut |hooks| {
+    runtime.hooks().each(&mut |hooks| {
         if let Some(hook) = hooks.before_request.as_ref()
             && let Some(replaced) = hook(&messages)?
         {

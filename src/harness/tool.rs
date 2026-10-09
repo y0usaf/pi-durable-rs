@@ -25,6 +25,7 @@ use crate::harness::output::{
 };
 use crate::harness::progress::{Progress, Waiter};
 use crate::harness::registry::RegistrySnapshot;
+use crate::harness::runtime::{HarnessPhaseHandler, HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::types::{
     Replay, ToolControl, ToolExecutionApi, ToolExecutionResult, ToolRegistration,
 };
@@ -33,8 +34,7 @@ use crate::harness::util::{edit_doc, read_draft, write_draft};
 use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::types::{DocRef, DocumentObserver, DocumentReader, Tx};
 use crate::tasks::{
-    NextTaskState, PhaseHandler, RunningTask, TaskDefinition, TaskOutcome, TaskOutcomeError,
-    TaskRuntime,
+    NextTaskState, RunningTask, TaskOutcome, TaskOutcomeError,
 };
 use crate::truncate::{DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, utf8_byte_length};
 use crate::types::{
@@ -43,7 +43,7 @@ use crate::types::{
 };
 
 pub type ToolRuntime<'a> =
-    dyn TaskRuntime<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> + Sync + 'a;
+    dyn HarnessTaskRuntime<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> + Sync + 'a;
 
 const OVERLAP_SCAN: usize = 65_536;
 const OVERLAP_PROBE: usize = 64;
@@ -103,18 +103,17 @@ pub struct ToolHooks {
     pub after_tool: Option<AfterTool>,
 }
 
-pub fn tool_task() -> TaskDefinition<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> {
-    let call: PhaseHandler<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> =
+pub fn tool_task() -> HarnessTaskDefinition<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> {
+    let call: HarnessPhaseHandler<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> =
         Box::new(call_phase);
-    let execute: PhaseHandler<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> =
+    let execute: HarnessPhaseHandler<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> =
         Box::new(execute_phase);
-    TaskDefinition {
+    HarnessTaskDefinition {
         name: "pi.tool".to_owned(),
         version: 1,
         initial: Box::new(|_| ToolTaskCheckpoint::Call),
         phases: BTreeMap::from([("call".to_owned(), call), ("execute".to_owned(), execute)]),
         abort: Box::new(abort_phase),
-        migrate: None,
         hooks: None,
     }
 }
@@ -157,7 +156,7 @@ fn call_phase(
         }
     };
     let mut block: Option<String> = None;
-    rt.hooks().each("beforeTool", &mut |hook: &ToolHooks| {
+    rt.hooks().each(&mut |hook: &ToolHooks| {
         if block.is_some() {
             return Ok(());
         }
@@ -610,7 +609,7 @@ fn final_result(
         ),
         ..result
     };
-    rt.hooks().each("afterTool", &mut |hook: &ToolHooks| {
+    rt.hooks().each(&mut |hook: &ToolHooks| {
         let Some(after) = &hook.after_tool else {
             return Ok(());
         };

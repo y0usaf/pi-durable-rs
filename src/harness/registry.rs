@@ -1,7 +1,14 @@
 use std::sync::{Arc, Mutex};
 
+use std::collections::BTreeMap;
+
 use crate::errors::{Error, Result};
 use crate::harness::agent::INSTRUCTIONS_KEY;
+use crate::harness::compaction;
+use crate::harness::erased::erase;
+use crate::harness::generation;
+use crate::harness::scheduler::ErasedTask;
+use crate::harness::tool;
 use crate::harness::types::{Extension, PromptSection, ToolRegistration};
 
 pub type Listener = Arc<dyn Fn() + Send + Sync>;
@@ -9,9 +16,46 @@ pub type Listener = Arc<dyn Fn() + Send + Sync>;
 #[derive(Clone, Default)]
 pub struct RegistrySnapshot {
     extensions: Vec<Arc<Extension>>,
+    tasks: BTreeMap<String, Arc<dyn ErasedTask>>,
+}
+
+pub fn builtin_tasks() -> Vec<Arc<dyn ErasedTask>> {
+    vec![
+        erase(generation::definition()),
+        erase(tool::tool_task()),
+        erase(compaction::definition()),
+    ]
 }
 
 impl RegistrySnapshot {
+    fn build(extensions: Vec<Arc<Extension>>) -> Result<Self> {
+        let mut tasks = BTreeMap::new();
+        for task in builtin_tasks() {
+            tasks.insert(task.name().to_owned(), task);
+        }
+        for extension in &extensions {
+            for task in &extension.tasks {
+                if tasks.contains_key(task.name()) {
+                    return Err(Error::Invalid(format!(
+                        "Task {} of extension {} is already installed",
+                        task.name(),
+                        extension.name
+                    )));
+                }
+                tasks.insert(task.name().to_owned(), Arc::clone(task));
+            }
+        }
+        Ok(Self { extensions, tasks })
+    }
+
+    pub fn task(&self, name: &str) -> Option<&Arc<dyn ErasedTask>> {
+        self.tasks.get(name)
+    }
+
+    pub fn tasks(&self) -> impl Iterator<Item = &Arc<dyn ErasedTask>> {
+        self.tasks.values()
+    }
+
     pub fn installed(&self) -> &[Arc<Extension>] {
         &self.extensions
     }
@@ -80,14 +124,14 @@ impl Registry {
             }
             extensions
         };
-        self.publish(next);
+        self.publish(RegistrySnapshot::build(next)?);
         Ok(())
     }
 
-    pub fn uninstall(&self, name: &str) {
+    pub fn uninstall(&self, name: &str) -> Result<()> {
         let current = self.snapshot();
         if current.extension(name).is_none() {
-            return;
+            return Ok(());
         }
         let next = current
             .extensions
@@ -95,12 +139,13 @@ impl Registry {
             .filter(|installed| installed.name != name)
             .cloned()
             .collect();
-        self.publish(next);
+        self.publish(RegistrySnapshot::build(next)?);
+        Ok(())
     }
 
-    fn publish(&self, extensions: Vec<Arc<Extension>>) {
+    fn publish(&self, snapshot: RegistrySnapshot) {
         let listeners = self.with(|current| {
-            current.snapshot = Arc::new(RegistrySnapshot { extensions });
+            current.snapshot = Arc::new(snapshot);
             current
                 .listeners
                 .iter()

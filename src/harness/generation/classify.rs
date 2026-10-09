@@ -140,7 +140,7 @@ pub fn classify(
         )?;
         return Ok(());
     }
-    runtime.hooks().each("afterResponse", &mut |hooks| {
+    runtime.hooks().each(&mut |hooks| {
         if let Some(hook) = hooks.after_response.as_ref() {
             hook(&message)?;
         }
