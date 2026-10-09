@@ -5,6 +5,7 @@ pub mod documents;
 pub mod entries;
 pub mod env;
 pub mod errors;
+pub mod harness;
 pub mod ids;
 pub mod session;
 pub mod storage;
