@@ -13,7 +13,7 @@ use crate::harness::context::ContextView;
 use crate::harness::registry::RegistrySnapshot;
 use crate::harness::runtime::{HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::scheduler::{ErasedTask, Runtime};
-use crate::harness::types::Settings;
+use crate::harness::types::{ConversationHandle, Settings};
 use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::types::{DocRef, DocumentObserver, DocumentReader, DocumentWatch};
 use crate::tasks::{
@@ -219,6 +219,14 @@ where
 
     fn wait_for_task(&self, id: TaskId, cancel: &CancelToken) -> Result<TaskOutcome<JsonValue>> {
         self.inner.wait_for_task(id, cancel)
+    }
+
+    fn conversation(
+        &self,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<Option<Box<dyn ConversationHandle>>> {
+        self.inner.conversation(id, cancel)
     }
 }
 

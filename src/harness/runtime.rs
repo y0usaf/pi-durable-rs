@@ -3,13 +3,19 @@ use std::collections::BTreeMap;
 use crate::cancel::CancelToken;
 use crate::errors::Result;
 use crate::harness::context::ContextView;
-use crate::ids::{EntryId, TaskId};
+use crate::harness::types::ConversationHandle;
+use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::tasks::{RunningTask, TaskOutcome, TaskRuntime};
 use crate::types::JsonValue;
 
 pub trait HarnessTaskRuntime<I, S, R, H>: TaskRuntime<I, S, R, H> {
     fn context(&self, at: Option<EntryId>, cancel: &CancelToken) -> Result<ContextView>;
     fn wait_for_task(&self, id: TaskId, cancel: &CancelToken) -> Result<TaskOutcome<JsonValue>>;
+    fn conversation(
+        &self,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<Option<Box<dyn ConversationHandle>>>;
 }
 
 pub type HarnessPhaseHandler<I, S, R, H> = Box<

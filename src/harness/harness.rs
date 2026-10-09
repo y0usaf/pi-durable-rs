@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, OnceLock, Weak};
 
 use crate::ai::models::Models;
 use crate::ai::types::{Message, UserContent, UserMessage, UserRole};
@@ -18,6 +18,7 @@ use crate::harness::registry::Registry;
 use crate::harness::scheduler::{Inspected, SchedulerOptions, Snapshot, TaskScheduler};
 use crate::harness::submissions::{AbortResult, SubmissionDraft, SubmissionHandle, Submissions};
 use crate::harness::task_graph::{GraphGuard, TaskGraphView};
+use crate::harness::types::{ConversationBinder, ConversationHandle, InvocationBinding};
 use crate::harness::types::{
     ConversationCreateOptions, ConversationCreated, ConversationInit, EnvBuilder, EnvTarget,
     ErrorReport, HarnessOptions, HarnessSettings, RootOptions,
@@ -117,7 +118,9 @@ impl Harness {
         let queue_settings = settings.clone();
         let report: ErrorReport = options.on_report.unwrap_or_else(|| Arc::new(|_| {}));
         let env = options.env;
+        let conversation_slot: Arc<OnceLock<Weak<Inner>>> = Arc::new(OnceLock::new());
         let tasks = scheduler(
+            conversation_binder(Arc::clone(&conversation_slot)),
             &session,
             &storage,
             &options.registry,
@@ -144,7 +147,7 @@ impl Harness {
             }
             return Err(error);
         }
-        Ok(Self(Arc::new(Inner {
+        let inner = Arc::new(Inner {
             session,
             storage,
             registry: options.registry,
@@ -157,7 +160,9 @@ impl Harness {
             tasks,
             env,
             closed: AtomicBool::new(false),
-        })))
+        });
+        let _ = conversation_slot.set(Arc::downgrade(&inner));
+        Ok(Self(inner))
     }
 
     pub fn session(&self) -> &Session {
@@ -333,7 +338,66 @@ fn snapshot_of(registry: &Registry) -> Snapshot {
 }
 
 #[allow(clippy::too_many_arguments)]
+fn conversation_binder(slot: Arc<OnceLock<Weak<Inner>>>) -> ConversationBinder {
+    Arc::new(move |id, binding, cancel| {
+        let Some(inner) = slot.get().and_then(Weak::upgrade) else {
+            return Ok(None);
+        };
+        let storage = &*inner.storage;
+        let record = inner
+            .session
+            .read_on_line(|| storage.conversation(id, cancel))?;
+        Ok(record.map(|record| {
+            Box::new(BoundConversation {
+                conversation: Conversation {
+                    id: record.id,
+                    inner,
+                },
+                binding,
+            }) as Box<dyn ConversationHandle>
+        }))
+    })
+}
+
+struct BoundConversation {
+    conversation: Conversation,
+    binding: InvocationBinding,
+}
+
+impl BoundConversation {
+    fn bound(&self, cancel: &CancelToken) -> Result<CancelToken> {
+        (self.binding.check)()?;
+        let token = self.binding.signal.child();
+        let link = token.clone();
+        cancel.on_cancel(move || link.cancel());
+        Ok(token)
+    }
+}
+
+impl ConversationHandle for BoundConversation {
+    fn id(&self) -> ConversationId {
+        self.conversation.id()
+    }
+
+    fn submit(&self, draft: SubmissionDraft, cancel: &CancelToken) -> Result<SubmissionHandle> {
+        let token = self.bound(cancel)?;
+        self.conversation.submit(draft, &token)
+    }
+
+    fn abort(&self, background: bool, cancel: &CancelToken) -> Result<()> {
+        let token = self.bound(cancel)?;
+        self.conversation.abort(background, &token)
+    }
+
+    fn wait_for_idle(&self, cancel: &CancelToken) -> Result<()> {
+        let token = self.bound(cancel)?;
+        self.conversation.wait_for_idle(&token)
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
 fn scheduler(
+    conversation: ConversationBinder,
     session: &Arc<Session>,
     storage: &Arc<dyn Storage>,
     registry: &Arc<Registry>,
@@ -374,6 +438,7 @@ fn scheduler(
         }),
         models: Arc::clone(models),
         env: Arc::new(move |id, cancel| build_env(&env_session, env_build.as_ref(), id, cancel)),
+        conversation,
         hooks_of: Arc::new(|_, _| Vec::new()),
         settings: Arc::new(move || resolve_settings(settings_of.as_ref())),
         now: Arc::new(move || clock()),

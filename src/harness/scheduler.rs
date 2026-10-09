@@ -8,7 +8,7 @@ use crate::cancel::CancelToken;
 use crate::env::ExecutionEnv;
 use crate::harness::agent::Agent;
 use crate::harness::registry::RegistrySnapshot;
-use crate::harness::types::Settings;
+use crate::harness::types::{ConversationBinder, Settings};
 use crate::session::types::{DocRef, DocumentObserver, DocumentReader, DocumentWatch};
 
 use crate::harness::util::closed_error;
@@ -238,6 +238,7 @@ pub struct SchedulerOptions {
     pub agent: AgentResolver,
     pub models: Arc<dyn Models + Send + Sync>,
     pub env: EnvResolver,
+    pub conversation: ConversationBinder,
     pub hooks_of: HooksOf,
     pub settings: SettingsSource,
     pub now: Clock,
@@ -254,6 +255,7 @@ struct Shared {
     agent: AgentResolver,
     models: Arc<dyn Models + Send + Sync>,
     env: EnvResolver,
+    conversation: ConversationBinder,
     hooks_of: HooksOf,
     settings: SettingsSource,
     now: Clock,
@@ -484,6 +486,7 @@ impl TaskScheduler {
             agent: options.agent,
             models: options.models,
             env: options.env,
+            conversation: options.conversation,
             hooks_of: options.hooks_of,
             settings: options.settings,
             now: options.now,
