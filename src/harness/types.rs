@@ -7,13 +7,13 @@ use crate::ai::models::Models;
 use crate::ai::types::{CacheRetention, Tool, Transport, Usage, UserBlock, UserContent};
 use crate::cancel::CancelToken;
 use crate::env::ExecutionEnv;
-use crate::errors::Result;
-use crate::harness::agent::Agent;
+use crate::errors::{Error, Result};
+use crate::harness::agent::{Agent, AgentChange};
 use crate::harness::output::{OutputChunk, Retain, ShellOutputSkip};
-use crate::harness::registry::RegistrySnapshot;
+use crate::harness::registry::{Registry, RegistrySnapshot};
 use crate::ids::{ConversationId, TaskId};
 use crate::session::types::{DocumentObserver, DocumentReader, Tx};
-use crate::types::{AnyTaskRecord, JsonValue, ToolDiagnostic};
+use crate::types::{AnyTaskRecord, ConversationOwnership, ConversationRecord, JsonValue, ToolDiagnostic};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -274,4 +274,30 @@ pub struct Settings {
     pub steering_mode: QueueMode,
     pub follow_up_mode: QueueMode,
     pub context_retention_ms: u64,
+}
+
+pub type ConversationCreated =
+    Arc<dyn Fn(&mut dyn Tx, &ConversationRecord) -> Result<()> + Send + Sync>;
+pub type ErrorReport = Arc<dyn Fn(Error) + Send + Sync>;
+pub type ConversationInit = Box<dyn FnOnce(&mut dyn Tx, ConversationId) -> Result<()> + Send>;
+
+pub struct HarnessOptions {
+    pub models: Arc<dyn Models + Send + Sync>,
+    pub registry: Arc<Registry>,
+    pub settings: Option<HarnessSettings>,
+    pub conversation_created: Option<ConversationCreated>,
+    pub now: Option<Arc<dyn Fn() -> u64 + Send + Sync>>,
+    pub on_report: Option<ErrorReport>,
+}
+
+#[derive(Default)]
+pub struct RootOptions {
+    pub agent: Option<AgentChange>,
+    pub init: Option<ConversationInit>,
+}
+
+pub struct ConversationCreateOptions {
+    pub ownership: ConversationOwnership,
+    pub agent: Option<AgentChange>,
+    pub init: Option<ConversationInit>,
 }

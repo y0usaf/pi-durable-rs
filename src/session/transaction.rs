@@ -13,7 +13,7 @@ use crate::documents::{
 };
 use crate::entries::Entry;
 use crate::errors::{Error, Result};
-use crate::ids::{ConversationId, DocumentId, EntryId, Seq, SubmissionId, TaskId};
+use crate::ids::{ConversationId, DocumentId, EntryId, ROOT_CONVERSATION_ID, Seq, SubmissionId, TaskId};
 use crate::session::forks::prepare_fork_document_copies;
 use crate::session::types::{DocRef, DraftId, TaskCreate, TaskOptions, Tx};
 use crate::tasks::{TaskOwnership, TaskState, TaskStatus};
@@ -1057,11 +1057,15 @@ impl Transaction<'_> {
 
     fn stage_conversation(
         &mut self,
+        id: Option<ConversationId>,
         parent: Option<ConversationParent>,
         ownership: ConversationOwnership,
     ) -> Result<ConversationRecord> {
         let host = self.host;
-        let id = ConversationId(host.storage().mint_id()?);
+        let id = match id {
+            Some(id) => id,
+            None => ConversationId(host.storage().mint_id()?),
+        };
         self.assert_open()?;
         let owner = match ownership {
             ConversationOwnership::Ownerless => None,
@@ -1194,7 +1198,12 @@ impl Tx for Transaction<'_> {
         ownership: ConversationOwnership,
     ) -> Result<ConversationRecord> {
         self.begin_write()?;
-        self.stage_conversation(None, ownership)
+        self.stage_conversation(None, None, ownership)
+    }
+
+    fn create_root_conversation(&mut self) -> Result<ConversationRecord> {
+        self.begin_write()?;
+        self.stage_conversation(Some(ROOT_CONVERSATION_ID), None, ConversationOwnership::Ownerless)
     }
 
     fn fork_conversation(
@@ -1205,6 +1214,7 @@ impl Tx for Transaction<'_> {
     ) -> Result<ConversationRecord> {
         self.begin_write()?;
         self.stage_conversation(
+            None,
             Some(ConversationParent {
                 conversation_id: parent,
                 at,
