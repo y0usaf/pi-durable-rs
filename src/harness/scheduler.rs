@@ -1584,9 +1584,16 @@ fn idle(st: &State, conversation: Option<ConversationId>) -> bool {
 pub enum Inspected {
     Running,
     Completing,
-    Waiting { on: Vec<TaskId> },
-    Blocked(BlockedReason),
-    Ready { migrates: bool },
+    Waiting {
+        on: Vec<TaskId>,
+    },
+    Blocked {
+        reason: BlockedReason,
+        error: Option<String>,
+    },
+    Ready {
+        migrates: bool,
+    },
 }
 
 pub struct Inspection {
@@ -1755,10 +1762,27 @@ impl TaskScheduler {
                     Inspected::Waiting { on }
                 } else {
                     match fit(&st, record, snapshot.lookup(&record.kind)) {
-                        Fit::Blocked(reason) => Inspected::Blocked(reason),
+                        Fit::Blocked(reason) => {
+                            let error = match reason {
+                                BlockedReason::MigrationFailed => st
+                                    .failed_migrations
+                                    .get(&record.id)
+                                    .map(|(_, error)| error.clone()),
+                                _ => None,
+                            };
+                            Inspected::Blocked { reason, error }
+                        }
                         Fit::Task { task, migrates } => {
                             if migrates && !task.can_migrate() {
-                                Inspected::Blocked(BlockedReason::MigrationFailed)
+                                Inspected::Blocked {
+                                    reason: BlockedReason::MigrationFailed,
+                                    error: Some(format!(
+                                        "Task {} version {} has no migration from {}",
+                                        record.kind,
+                                        task.version(),
+                                        record.version
+                                    )),
+                                }
                             } else {
                                 Inspected::Ready { migrates }
                             }

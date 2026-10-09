@@ -35,7 +35,10 @@ impl InvocationRuntime {
             .ended
             .load(std::sync::atomic::Ordering::SeqCst)
         {
-            return Err(Error::Aborted);
+            return Err(Error::Invalid(format!(
+                "Task {} invocation has ended",
+                self.invocation.task_id
+            )));
         }
         Ok(())
     }
