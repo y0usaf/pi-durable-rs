@@ -4,7 +4,9 @@ use crate::ai::types::AssistantMessage;
 use crate::documents::{DocSemantics, DocToken};
 use crate::errors::{Error, Result};
 use crate::harness::compaction::COMPACTION_KIND;
-use crate::harness::generation::{GENERATION_KIND, convert_partial, end_run, read_live, write_live};
+use crate::harness::generation::{
+    GENERATION_KIND, convert_partial, end_run, read_live, write_live,
+};
 use crate::harness::tool::TOOL_KIND;
 use crate::harness::util::doc_definition;
 use crate::ids::{EntryId, SubmissionId, TaskId};

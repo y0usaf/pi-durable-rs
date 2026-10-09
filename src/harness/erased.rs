@@ -16,14 +16,18 @@ use crate::harness::scheduler::{ErasedTask, Runtime};
 use crate::harness::types::Settings;
 use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::types::{DocRef, DocumentObserver, DocumentReader, DocumentWatch};
-use crate::tasks::{HookRunner, NextTaskState, RunningTask, RuntimeChange, TaskOutcome, TaskRuntime};
+use crate::tasks::{
+    HookRunner, NextTaskState, RunningTask, RuntimeChange, TaskOutcome, TaskRuntime,
+};
 use crate::types::{AnyTaskRecord, JsonObject, JsonValue};
 
 fn convert<A: Serialize + ?Sized, B: DeserializeOwned>(value: &A) -> Result<B> {
     Ok(serde_json::from_value(serde_json::to_value(value)?)?)
 }
 
-fn running<I, S, R>(record: RunningTask<JsonValue, JsonValue, JsonValue>) -> Result<RunningTask<I, S, R>>
+fn running<I, S, R>(
+    record: RunningTask<JsonValue, JsonValue, JsonValue>,
+) -> Result<RunningTask<I, S, R>>
 where
     I: Serialize + DeserializeOwned,
     S: Serialize + DeserializeOwned,
@@ -54,10 +58,12 @@ fn next_json<S: Serialize, R: Serialize>(
     })
 }
 
+type Shape<I, S, R, H> = fn() -> (I, S, R, H);
+
 pub struct Typed<'a, I, S, R, H> {
     inner: Runtime<'a>,
     task: &'a str,
-    types: PhantomData<fn() -> (I, S, R, H)>,
+    types: PhantomData<Shape<I, S, R, H>>,
 }
 
 impl<'a, I, S, R, H> Typed<'a, I, S, R, H> {
@@ -137,11 +143,7 @@ where
         self
     }
 
-    fn commit(
-        &self,
-        change: RuntimeChange<'_, I, S, R>,
-        cancel: &CancelToken,
-    ) -> Result<()> {
+    fn commit(&self, change: RuntimeChange<'_, I, S, R>, cancel: &CancelToken) -> Result<()> {
         self.inner.commit(
             Box::new(move |tx, record| {
                 let typed = running::<I, S, R>(record)?;
@@ -158,7 +160,12 @@ where
         self.inner.memo(name, cancel)
     }
 
-    fn memo_or_set(&self, name: &str, candidate: JsonValue, cancel: &CancelToken) -> Result<JsonValue> {
+    fn memo_or_set(
+        &self,
+        name: &str,
+        candidate: JsonValue,
+        cancel: &CancelToken,
+    ) -> Result<JsonValue> {
         self.inner.memo_or_set(name, candidate, cancel)
     }
 
@@ -166,11 +173,19 @@ where
         self.inner.get_task(id, cancel)
     }
 
-    fn outcomes(&self, ids: &[TaskId], cancel: &CancelToken) -> Result<Vec<TaskOutcome<JsonValue>>> {
+    fn outcomes(
+        &self,
+        ids: &[TaskId],
+        cancel: &CancelToken,
+    ) -> Result<Vec<TaskOutcome<JsonValue>>> {
         self.inner.outcomes(ids, cancel)
     }
 
-    fn entry(&self, id: EntryId, cancel: &CancelToken) -> Result<Option<crate::types::EntryRecord>> {
+    fn entry(
+        &self,
+        id: EntryId,
+        cancel: &CancelToken,
+    ) -> Result<Option<crate::types::EntryRecord>> {
         self.inner.entry(id, cancel)
     }
 
@@ -257,7 +272,12 @@ where
         false
     }
 
-    fn migrate(&self, _input: &JsonValue, _checkpoint: &JsonValue, from: u64) -> Result<(JsonValue, JsonValue)> {
+    fn migrate(
+        &self,
+        _input: &JsonValue,
+        _checkpoint: &JsonValue,
+        from: u64,
+    ) -> Result<(JsonValue, JsonValue)> {
         Err(Error::Invalid(format!(
             "Task {} version {from} cannot migrate",
             self.definition.name
@@ -272,14 +292,22 @@ where
         cancel: &CancelToken,
     ) -> Result<()> {
         let handler = self.definition.phases.get(phase).ok_or_else(|| {
-            Error::Invalid(format!("Task {} has no phase {phase}", self.definition.name))
+            Error::Invalid(format!(
+                "Task {} has no phase {phase}",
+                self.definition.name
+            ))
         })?;
         let task = running::<I, S, R>(RunningTask::new(record.clone())?)?;
         let typed = Typed::<I, S, R, H>::new(runtime, &self.definition.name);
         handler(task, &typed, cancel)
     }
 
-    fn run_abort(&self, record: &AnyTaskRecord, runtime: Runtime<'_>, cancel: &CancelToken) -> Result<()> {
+    fn run_abort(
+        &self,
+        record: &AnyTaskRecord,
+        runtime: Runtime<'_>,
+        cancel: &CancelToken,
+    ) -> Result<()> {
         let task = running::<I, S, R>(RunningTask::new(record.clone())?)?;
         let typed = Typed::<I, S, R, H>::new(runtime, &self.definition.name);
         (self.definition.abort)(task, &typed, cancel)

@@ -1,5 +1,5 @@
-use std::collections::BTreeMap;
 use std::any::Any;
+use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
@@ -10,9 +10,9 @@ use crate::cancel::CancelToken;
 use crate::env::ExecutionEnv;
 use crate::errors::{Error, Result};
 use crate::harness::agent::{Agent, AgentChange};
-use crate::harness::scheduler::ErasedTask;
 use crate::harness::output::{OutputChunk, Retain, ShellOutputSkip};
 use crate::harness::registry::{Registry, RegistrySnapshot};
+use crate::harness::scheduler::ErasedTask;
 use crate::ids::{ConversationId, TaskId};
 use crate::session::types::{DocumentObserver, DocumentReader, Tx};
 use crate::types::{
@@ -183,8 +183,9 @@ pub struct EnvTarget<'a> {
     pub read: &'a dyn DocumentReader,
 }
 
-pub type EnvBuilder =
-    Arc<dyn Fn(&EnvTarget<'_>, &CancelToken) -> Result<Option<Arc<dyn ExecutionEnv>>> + Send + Sync>;
+pub type EnvBuilder = Arc<
+    dyn Fn(&EnvTarget<'_>, &CancelToken) -> Result<Option<Arc<dyn ExecutionEnv>>> + Send + Sync,
+>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConversationRetryPolicy {
