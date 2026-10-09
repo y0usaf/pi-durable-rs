@@ -3,7 +3,19 @@ use std::sync::mpsc::{Receiver, Sender, channel};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::thread;
 
+use crate::ai::models::Models;
 use crate::cancel::CancelToken;
+use crate::env::ExecutionEnv;
+use crate::harness::agent::Agent;
+use crate::harness::registry::RegistrySnapshot;
+use crate::harness::types::Settings;
+use crate::session::types::{DocRef, DocumentObserver, DocumentReader, DocumentWatch};
+
+use crate::harness::util::closed_error;
+use crate::ids::EntryId;
+use crate::tasks::{HookRunner, RunningTask, RuntimeChange, TaskRuntime};
+use crate::types::{EntryRecord, JsonObject};
+
 use crate::errors::{Error, Result};
 use crate::harness::util::scan_all;
 use crate::ids::{ConversationId, TaskId};
@@ -19,6 +31,10 @@ use crate::types::{
 };
 
 const SCAN_PAGE_SIZE: usize = 256;
+const MAX_TIMER_DELAY: u64 = 2_147_483_647;
+
+mod invocation;
+pub use invocation::InvocationRuntime;
 const LIVE_STATUSES: [TaskStatus; 4] = [
     TaskStatus::Pending,
     TaskStatus::Running,
@@ -35,7 +51,10 @@ pub type WithdrawInputs =
     Arc<dyn Fn(&mut Transaction<'_>, ConversationId) -> Result<()> + Send + Sync>;
 pub type Report = Arc<dyn Fn(Error) + Send + Sync>;
 
+pub type Runtime<'a> = &'a (dyn TaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> + Sync);
+
 pub trait ErasedTask: Send + Sync {
+    fn name(&self) -> &str;
     fn version(&self) -> u64;
     fn can_migrate(&self) -> bool;
     fn migrate(
@@ -44,12 +63,42 @@ pub trait ErasedTask: Send + Sync {
         checkpoint: &JsonValue,
         from: u64,
     ) -> Result<(JsonValue, JsonValue)>;
-    fn run_phase(&self, phase: &str, record: &AnyTaskRecord, cancel: &CancelToken) -> Result<()>;
-    fn run_abort(&self, record: &AnyTaskRecord, cancel: &CancelToken) -> Result<()>;
+    fn run_phase(
+        &self,
+        phase: &str,
+        record: &AnyTaskRecord,
+        runtime: Runtime<'_>,
+        cancel: &CancelToken,
+    ) -> Result<()>;
+    fn run_abort(
+        &self,
+        record: &AnyTaskRecord,
+        runtime: Runtime<'_>,
+        cancel: &CancelToken,
+    ) -> Result<()>;
 }
 
-pub type Snapshot = Arc<dyn Fn(&str) -> Option<Arc<dyn ErasedTask>> + Send + Sync>;
+#[derive(Clone)]
+pub struct Snapshot {
+    pub registry: Arc<RegistrySnapshot>,
+    pub task: Arc<dyn Fn(&str) -> Option<Arc<dyn ErasedTask>> + Send + Sync>,
+}
+
+impl Snapshot {
+    fn lookup(&self, kind: &str) -> Option<Arc<dyn ErasedTask>> {
+        (self.task)(kind)
+    }
+}
+
 pub type TakeSnapshot = Arc<dyn Fn() -> Snapshot + Send + Sync>;
+pub type AgentResolver =
+    Arc<dyn Fn(ConversationId, &Snapshot, &CancelToken) -> Result<Agent> + Send + Sync>;
+pub type EnvResolver = Arc<
+    dyn Fn(ConversationId, &CancelToken) -> Result<Option<Arc<dyn ExecutionEnv>>> + Send + Sync,
+>;
+pub type HooksOf = Arc<dyn Fn(&Agent, &str) -> Vec<JsonValue> + Send + Sync>;
+pub type SettingsSource = Arc<dyn Fn() -> Settings + Send + Sync>;
+pub type Clock = Arc<dyn Fn() -> u64 + Send + Sync>;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum BlockedReason {
@@ -100,6 +149,7 @@ pub struct Invocation {
     pub mode: Mode,
     pub cancel: CancelToken,
     pub done: Latch,
+    pub ended: std::sync::atomic::AtomicBool,
 }
 
 struct Reservation {
@@ -157,6 +207,12 @@ pub struct SchedulerOptions {
     pub settle_outcome: SettleOutcome,
     pub withdraw_inputs: WithdrawInputs,
     pub take_snapshot: TakeSnapshot,
+    pub agent: AgentResolver,
+    pub models: Arc<dyn Models + Send + Sync>,
+    pub env: EnvResolver,
+    pub hooks_of: HooksOf,
+    pub settings: SettingsSource,
+    pub now: Clock,
 }
 
 struct Shared {
@@ -166,6 +222,12 @@ struct Shared {
     settle_outcome: SettleOutcome,
     withdraw_inputs: WithdrawInputs,
     take_snapshot: TakeSnapshot,
+    agent: AgentResolver,
+    models: Arc<dyn Models + Send + Sync>,
+    env: EnvResolver,
+    hooks_of: HooksOf,
+    settings: SettingsSource,
+    now: Clock,
     state: Mutex<State>,
     wake_rx: Mutex<Option<Receiver<()>>>,
 }
@@ -384,6 +446,12 @@ impl TaskScheduler {
             settle_outcome: options.settle_outcome,
             withdraw_inputs: options.withdraw_inputs,
             take_snapshot: options.take_snapshot,
+            agent: options.agent,
+            models: options.models,
+            env: options.env,
+            hooks_of: options.hooks_of,
+            settings: options.settings,
+            now: options.now,
             state: Mutex::new(state),
             wake_rx: Mutex::new(Some(wake_rx)),
         }))
@@ -869,6 +937,7 @@ fn create_invocation(st: &mut State, record: &AnyTaskRecord, mode: Mode) -> Arc<
         mode,
         cancel: CancelToken::new(),
         done: Latch::new(),
+        ended: std::sync::atomic::AtomicBool::new(false),
     });
     st.invocations.insert(record.id, Arc::clone(&invocation));
     invocation
@@ -876,7 +945,7 @@ fn create_invocation(st: &mut State, record: &AnyTaskRecord, mode: Mode) -> Arc<
 
 impl TaskScheduler {
     fn resolve(&self, st: &mut State, record: &AnyTaskRecord, snapshot: &Snapshot) -> Resolution {
-        match fit(st, record, snapshot(&record.kind)) {
+        match fit(st, record, snapshot.lookup(&record.kind)) {
             Fit::Blocked(reason) => Resolution::Blocked(reason),
             Fit::Task {
                 task,
@@ -1108,7 +1177,7 @@ impl TaskScheduler {
             ));
         }
         state.snapshot = (self.0.take_snapshot)();
-        let next = (state.snapshot)(&current.kind);
+        let next = state.snapshot.lookup(&current.kind);
         let differs = match &next {
             Some(task) => !Arc::ptr_eq(task, &state.task),
             None => true,
@@ -1225,9 +1294,16 @@ impl TaskScheduler {
                 .cloned()
                 .unwrap_or(JsonValue::Null);
             let phase = phase_of(&checkpoint);
+            let runtime = InvocationRuntime::new(
+                self.clone(),
+                Arc::clone(&invocation),
+                state.snapshot.clone(),
+                Arc::clone(&state.task),
+                (self.0.settings)(),
+            );
             let failure = state
                 .task
-                .run_phase(&phase, &current, &invocation.cancel)
+                .run_phase(&phase, &current, &runtime, &invocation.cancel)
                 .err()
                 .map(|error| error.to_string());
             previous = Some(PhaseResult {
@@ -1246,9 +1322,16 @@ impl TaskScheduler {
         if self.lock().closing {
             return;
         }
+        let runtime = InvocationRuntime::new(
+            self.clone(),
+            Arc::clone(&invocation),
+            reservation.snapshot.clone(),
+            Arc::clone(&reservation.task),
+            (self.0.settings)(),
+        );
         let failure = reservation
             .task
-            .run_abort(&current, &invocation.cancel)
+            .run_abort(&current, &runtime, &invocation.cancel)
             .err()
             .map(|error| error.to_string());
         let message = failure.unwrap_or_else(|| {
