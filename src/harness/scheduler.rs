@@ -10,7 +10,9 @@ use crate::ids::{ConversationId, TaskId};
 use crate::session::kernel::Session;
 use crate::session::transaction::{Transaction, TransactionScope};
 
-use crate::tasks::{TaskOutcome, TaskOutcomeError, TaskState, TaskStatus};
+use crate::tasks::{
+    JoinPolicy, NextTaskState, TaskOutcome, TaskOutcomeError, TaskState, TaskStatus,
+};
 use crate::types::{
     AnyTaskRecord, CommitChange, CommitPublication, ConversationRecord, JsonValue, Storage,
     SubmissionBody, SubmissionQuery, SubmissionStatus, TableChange, TaskQuery,
@@ -1307,5 +1309,83 @@ impl TaskScheduler {
                 }
             }
         }
+    }
+}
+
+impl TaskScheduler {
+    fn commit_state(
+        &self,
+        tx: &mut Transaction<'_>,
+        st: &mut State,
+        invocation: &Invocation,
+        current: &AnyTaskRecord,
+        next: NextTaskState<JsonValue, JsonValue>,
+    ) -> Result<()> {
+        if let NextTaskState::Waiting { on, policy, .. } = &next {
+            self.validate_wait(tx, st, invocation, current, on, *policy)?;
+        }
+        if let NextTaskState::Terminal { outcome } = &next {
+            let overlay = overlay_of(tx);
+            self.load_scopes(st, false)?;
+            for record in overlay.tasks.values() {
+                self.load_chain(st, parent_of(&node_of(record)), Some(&overlay))?;
+            }
+            if st.owned_live(Some(&overlay)).contains_key(&current.id) {
+                return tx.set_task(with_state(
+                    current,
+                    TaskState::Completing {
+                        outcome: outcome.clone(),
+                    },
+                ));
+            }
+        }
+        tx.set_task(with_state(current, next.into_state()))
+    }
+
+    fn validate_wait(
+        &self,
+        tx: &mut Transaction<'_>,
+        st: &mut State,
+        invocation: &Invocation,
+        current: &AnyTaskRecord,
+        on: &[TaskId],
+        policy: JoinPolicy,
+    ) -> Result<()> {
+        if invocation.mode == Mode::Abort {
+            return Err(Error::Invalid(format!(
+                "Abort handler of task {} cannot wait",
+                current.id
+            )));
+        }
+        let overlay = overlay_of(tx);
+        self.load_chain(st, parent_of(&node_of(current)), None)?;
+        let mut owners: BTreeSet<TaskId> = BTreeSet::new();
+        for step in st.above(parent_of(&node_of(current)), None) {
+            if let Step::Task(task, _) = step {
+                owners.insert(task);
+            }
+        }
+        for id in on {
+            if *id == current.id || owners.contains(id) {
+                return Err(Error::Invalid(format!(
+                    "Task {} cannot wait on itself or its owner {}",
+                    current.id, id
+                )));
+            }
+            let member = match overlay.tasks.get(id).or_else(|| st.live.get(id)) {
+                Some(member) => Some(member.clone()),
+                None => self.0.storage.task(*id, &CancelToken::new())?,
+            };
+            let Some(member) = member else {
+                return Err(Error::Invalid(format!("Task {id} does not exist")));
+            };
+            if policy == JoinPolicy::FailFast && member.owner != Some(current.id) {
+                return Err(Error::Invalid(format!(
+                    "Task {} can wait failFast only on tasks it owns; {} is not one",
+                    current.id, id
+                )));
+            }
+        }
+        Ok(())
     }
 }
