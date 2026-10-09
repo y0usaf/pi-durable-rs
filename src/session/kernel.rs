@@ -38,9 +38,21 @@ pub type Clock = Box<dyn Fn() -> u64 + Send + Sync>;
 
 type CloseListener = Box<dyn FnOnce() + Send>;
 
+pub type CreatedHook =
+    Arc<dyn Fn(&mut Transaction<'_>, &ConversationRecord) -> Result<()> + Send + Sync>;
+
 pub fn create_session(storage: impl Storage + 'static, now: Option<Clock>) -> Session {
+    open_session(Arc::new(storage), now, None)
+}
+
+pub fn open_session(
+    storage: Arc<dyn Storage>,
+    now: Option<Clock>,
+    created: Option<CreatedHook>,
+) -> Session {
     Session {
-        storage: Box::new(storage),
+        storage,
+        created,
         now: now.unwrap_or_else(|| Box::new(system_now)),
         line: Mutex::new(Line::default()),
         closing: AtomicBool::new(false),
@@ -88,7 +100,8 @@ pub struct ConversationDocument {
 }
 
 pub struct Session {
-    storage: Box<dyn Storage>,
+    storage: Arc<dyn Storage>,
+    created: Option<CreatedHook>,
     now: Clock,
     line: Mutex<Line>,
     closing: AtomicBool,
@@ -635,9 +648,12 @@ impl TransactionHost for Session {
 
     fn conversation_created(
         &self,
-        _tx: &mut Transaction<'_>,
-        _record: &ConversationRecord,
+        tx: &mut Transaction<'_>,
+        record: &ConversationRecord,
     ) -> Result<()> {
-        Ok(())
+        match &self.created {
+            Some(created) => created(tx, record),
+            None => Ok(()),
+        }
     }
 }
