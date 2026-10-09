@@ -407,7 +407,7 @@ impl Core {
                 .owner_task_id
                 .is_none_or(|task| owner.is_some_and(|owner| owner.task_id.get() == task.get()))
         });
-        Ok(page(values, limit, start.order, |record| record.id.0))
+        page(values, limit, start.order, |record| record.id.0)
     }
 
     fn committed(&self, entry: EntryRecord) -> CommittedEntry {
@@ -513,7 +513,7 @@ impl Core {
             order,
             limit + 1,
         )?;
-        Ok(page(values, limit, order, |entry| entry.id.0))
+        page(values, limit, order, |entry| entry.id.0)
     }
 
     fn visible(
@@ -627,7 +627,7 @@ impl Core {
                     .is_none_or(|flag| flag == task.abort_requested)
                 && query.background.is_none_or(|flag| flag == task.background)
         });
-        Ok(page(values, limit, start.order, |task| task.id.get()))
+        page(values, limit, start.order, |task| task.id.get())
     }
 
     pub(crate) fn submission(&self, id: SubmissionId) -> Result<Option<SubmissionRecord>> {
@@ -651,9 +651,7 @@ impl Core {
                     .status
                     .is_none_or(|status| status == submission_status(submission))
         });
-        Ok(page(values, limit, start.order, |submission| {
-            submission.id.0
-        }))
+        page(values, limit, start.order, |submission| submission.id.0)
     }
 
     pub(crate) fn submission_by_request(
@@ -720,9 +718,9 @@ impl Core {
             .take(limit + 1)
             .map(|stored| stored.record.clone())
             .collect();
-        Ok(page(values, limit, ScanOrder::Ascending, |record| {
+        page(values, limit, ScanOrder::Ascending, |record| {
             record.create.id.0
-        }))
+        })
     }
 
     fn materialize(&self, id: DocumentId, at: DocumentPoint) -> Result<Option<StoredDocument>> {

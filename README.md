@@ -43,4 +43,6 @@ Every place behaviour differs from the TypeScript, and why.
 - pi-ai `Message` is an opaque JSON value (`types::Message`) until the pi-ai types are ported, because the Rust port has no pi-ai dependency. TypeScript types it as `Message` from `@earendil-works/pi-ai`.
 - Document addresses take explicit owner and key arguments, not TypeScript's positional `args`, and owner IDs and versions are `u64`, so negative or non-integer values cannot be expressed. Scope and version checks run at runtime on `DocToken<T>`, where TypeScript checks them in overloads.
 - Rust strings are well-formed UTF-8, so lone surrogates cannot occur, and `truncate_head_of` panics on an empty prefix that TypeScript rejects with a `TypeError`.
+- A scan with `limit: 0` that finds a row fails with `Invalid("Storage scan limit must be at least 1")`. TypeScript's page helper crashes on the same input with an internal `TypeError` (`Cannot read properties of undefined`). With no matching row both return an empty page.
+- Memory storage takes typed records, so a malformed chord op or a submission missing its required field cannot be built in Rust. TypeScript's memory storage stores such values at commit without checking them, and fails later on read or never. The Rust driver therefore cannot submit them to the Rust side.
 

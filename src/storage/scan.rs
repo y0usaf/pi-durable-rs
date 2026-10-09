@@ -80,13 +80,17 @@ pub fn page<T>(
     limit: usize,
     order: ScanOrder,
     id_of: impl Fn(&T) -> u64,
-) -> Page<T> {
+) -> Result<Page<T>> {
     let overflow = items.len() > limit;
     items.truncate(limit);
-    let next = if overflow {
-        items.last().map(|item| next_cursor(id_of(item), order))
-    } else {
-        None
+    let next = match (overflow, items.last()) {
+        (false, _) => None,
+        (true, Some(item)) => Some(next_cursor(id_of(item), order)),
+        (true, None) => {
+            return Err(Error::Invalid(
+                "Storage scan limit must be at least 1".to_owned(),
+            ));
+        }
     };
-    Page { items, next }
+    Ok(Page { items, next })
 }
