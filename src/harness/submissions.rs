@@ -3,10 +3,6 @@ use std::sync::{Arc, Mutex};
 
 use crate::ai::types::{Message, UserMessage, UserRole};
 use crate::cancel::CancelToken;
-use crate::harness::util::{Waiters, closed_error};
-use crate::session::kernel::Session;
-use crate::session::types::Unsubscribe;
-use crate::types::{CommitChange, Storage, TableChange};
 use crate::entries::user_entry;
 use crate::errors::{Error, Result};
 use crate::harness::generation::start_run;
@@ -16,9 +12,13 @@ use crate::harness::inbox::{
 };
 use crate::harness::live::{LiveState, live_doc};
 use crate::harness::types::UserInput;
+use crate::harness::util::{Waiters, closed_error};
 use crate::harness::util::{read_draft, write_draft};
 use crate::ids::{ConversationId, SubmissionId};
+use crate::session::kernel::Session;
 use crate::session::types::Tx;
+use crate::session::types::Unsubscribe;
+use crate::types::{CommitChange, Storage, TableChange};
 use crate::types::{
     EntryDraft, InputState, SubmissionBody, SubmissionCreate, SubmissionRecord,
     SubmissionSettlement, WriteState,
