@@ -3,8 +3,15 @@ use std::ops::Deref;
 
 use serde::{Deserialize, Serialize};
 
+use std::sync::Arc;
+
+use crate::ai::models::Models;
 use crate::cancel::CancelToken;
+use crate::env::ExecutionEnv;
 use crate::errors::{Error, Result};
+use crate::harness::agent::Agent;
+use crate::harness::registry::RegistrySnapshot;
+use crate::harness::types::Settings;
 use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::types::{DocumentObserver, DocumentReader, Tx};
 use crate::types::{AnyTaskRecord, EntryRecord, JsonObject, JsonValue, present};
@@ -202,7 +209,7 @@ impl<S, R> NextTaskState<S, R> {
 }
 
 pub type PhaseHandler<I, S, R, H> = Box<
-    dyn Fn(RunningTask<I, S, R>, &mut dyn TaskRuntime<I, S, R, H>, &CancelToken) -> Result<()>
+    dyn Fn(RunningTask<I, S, R>, &(dyn TaskRuntime<I, S, R, H> + Sync), &CancelToken) -> Result<()>
         + Send
         + Sync,
 >;
@@ -211,15 +218,20 @@ pub trait HookRunner<H> {
     fn each(&self, name: &str, invoke: &mut dyn FnMut(&H) -> Result<()>) -> Result<()>;
 }
 
-pub type RuntimeChange<I, S, R> =
-    Box<dyn FnOnce(&mut dyn Tx, RunningTask<I, S, R>) -> Result<Option<NextTaskState<S, R>>>>;
+pub type RuntimeChange<'a, I, S, R> =
+    Box<dyn FnOnce(&mut dyn Tx, RunningTask<I, S, R>) -> Result<Option<NextTaskState<S, R>>> + 'a>;
 
 pub trait TaskRuntime<I, S, R, H>: DocumentObserver + DocumentReader {
     fn task_id(&self) -> TaskId<R>;
     fn conversation_id(&self) -> ConversationId;
+    fn agent(&self, cancel: &CancelToken) -> Result<Agent>;
+    fn models(&self) -> &dyn Models;
+    fn env(&self, cancel: &CancelToken) -> Result<Option<Arc<dyn ExecutionEnv>>>;
+    fn registry(&self) -> Arc<RegistrySnapshot>;
+    fn settings(&self) -> &Settings;
     fn signal(&self) -> &CancelToken;
     fn hooks(&self) -> &dyn HookRunner<H>;
-    fn commit(&mut self, change: RuntimeChange<I, S, R>, cancel: &CancelToken) -> Result<()>;
+    fn commit(&self, change: RuntimeChange<'_, I, S, R>, cancel: &CancelToken) -> Result<()>;
     fn memo(&self, name: &str, cancel: &CancelToken) -> Result<Option<JsonValue>>;
     fn memo_or_set(
         &self,

@@ -394,9 +394,9 @@ pub struct ToolResultMessage {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub nested_calls: Option<NestedToolCalls>,
     pub is_error: bool,
-    pub timestamp: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub duration_ms: Option<u64>,
+    pub timestamp: u64,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
