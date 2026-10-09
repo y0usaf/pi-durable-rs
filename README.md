@@ -52,4 +52,7 @@ Every place behaviour differs from the TypeScript, and why.
 - Temp names have no UUID: std has no UUID generator, so `uuid()` in `src/env/node.rs` builds a v4-shaped string from `RandomState` hashes of time, a counter, and the pid. It is unique in practice and not cryptographic.
 - Process groups use `CommandExt::process_group(0)` and a two-line `extern "C"` to `kill(2)`, instead of a libc crate.
 - `openNodeJsonlStorage` reads `process.cwd()`. `jsonl::open_node` reads `std::env::current_dir()` at open and fails with `JSONL current directory failed` if that fails, instead of taking a cwd argument. This follows Go's `os.Getwd` at open time; PiG has no JSONL port, so this is the nearest choice rather than a copied one.
+- Transaction methods return values directly, so TypeScript's rule that a commit callback must not settle with unawaited `Tx` operations (`Session commit callback settled before its pending Tx operations`) has no case to fire and is not ported.
+- `Tx::create_task` takes the initial checkpoint already computed (`TaskCreate::checkpoint`). TypeScript calls `definition.initial(input)` inside the write, so an exception from `initial` surfaces there instead of before the call.
+- A failed draft acquisition is replayed to later `doc` and `retire_doc` calls on the same address with the same message, as in TypeScript, but as `Error::Invalid(message)`, since `Error` is not `Clone`. The original variant is lost; the text is identical.
 
