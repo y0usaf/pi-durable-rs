@@ -68,5 +68,16 @@ Every place behaviour differs from the TypeScript, and why.
 - A cancelled session operation fails with the fixed text `The operation was aborted` (watch) or `This operation was aborted` (commit). TypeScript uses the signal's reason when that reason is an `Error`.
 - `create_session(storage, now)` takes `Option<Clock>` in place of TypeScript's `{ now }` options object. An absent clock reads the system time in milliseconds.
 
-- The tools port stops before `defineTool`, `defineExtension` and `CodingTools`: `src/tools` gives each tool a plain function over the `ExecutionEnv` and `CancelToken`, returning `ToolOutput` or `ToolError` (text, diagnostics, details). Milestone 6 wraps these in the harness registration. Schemas are JSON values built by hand, not typebox.
+- Tools are registered as plain `ToolRegistration` values in `src/harness/coding_tools.rs`, not through TypeScript's `defineTool`/`defineExtension`/`CodingTools`. Schemas are JSON values built by hand, not typebox. `createPowerShellTool` is not ported, since PowerShell is unsupported.
 - npm `diff` is not a dependency: `src/tools/jsdiff.rs` reproduces only `diffLines` and the `createTwoFilesPatch` hunk output that edit-diff.ts uses (Myers diff over lines, four lines of context). It has no change objects for word or character diffs, and it does not reproduce jsdiff's `oneChangePerToken` or option handling. NFKC normalization for fuzzy edit matching takes the `unicode-normalization` crate, since its tables would otherwise be rediscovered.
+
+- `bash` sends its output through `api.output` once, when the command ends, instead of as the command runs. The retained tail is the same, but the Harness does not show progress while the command runs.
+- A tool error (`ToolError`) becomes an `isError` result with a `tool_error` diagnostic. TypeScript throws, which also ends the tool task `failed`; the Rust adapter returns a result, so the task does not fail.
+- Harness cancellation is `Error::Aborted` (`aborted`), the code TypeScript's `abortResult` gives. A waiter registers `CancelToken::on_cancel` and blocks on a `Condvar`; it never polls.
+- `define.rs` has `section`, `wrap_tool` and `wrap_section`. `define_extension` and `define_tool` are struct literals (`Extension`, `ToolRegistration`), not functions.
+- `Extension` has no `tasks` or `hooks` yet, so the registry's duplicate-task check and `BUILTIN_TASKS` are not ported; they wait for the generation, tool and compaction tasks.
+- The Harness and Conversation API (`harness.ts`, `submissions.ts`) is not declared; it calls the scheduler and submissions, which are not ported.
+- `json.rs` keeps only `assign_value`; `assign_json` and `Slot` had no caller.
+- The provider session ID's initial value calls `uuidv7(None).expect(...)`, so an OS random-source failure panics. The `Initial` closure cannot return an error.
+- `ai::types::Transport` is added with TypeScript's string values.
+- `inbox.rs`, `provider.rs` and `live.rs` have serde shapes written from the TypeScript, with no differential probe yet. `live.rs` stores `AssistantMessage` directly where TypeScript stores a JSON representation.
