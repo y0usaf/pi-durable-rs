@@ -1,7 +1,13 @@
+use std::collections::BTreeMap;
+use std::ops::Deref;
+
 use serde::{Deserialize, Serialize};
 
-use crate::ids::{ConversationId, TaskId};
-use crate::types::{JsonObject, JsonValue, present};
+use crate::cancel::CancelToken;
+use crate::errors::{Error, Result};
+use crate::ids::{ConversationId, EntryId, TaskId};
+use crate::session::types::{DocumentObserver, DocumentReader, Tx};
+use crate::types::{AnyTaskRecord, EntryRecord, JsonObject, JsonValue, present};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -117,4 +123,139 @@ impl<I, S, R> TaskRecord<I, S, R> {
             TaskState::Terminal { .. } => TaskStatus::Terminal,
         }
     }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TaskOwnership {
+    Conversation,
+    Task { task_id: TaskId },
+}
+
+pub trait Phase {
+    fn phase(&self) -> &str;
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct RunningTask<I, S, R> {
+    record: TaskRecord<I, S, R>,
+}
+
+impl<I, S, R> RunningTask<I, S, R> {
+    pub fn new(record: TaskRecord<I, S, R>) -> Result<Self> {
+        match record.state {
+            TaskState::Running { .. } => Ok(Self { record }),
+            _ => Err(Error::Invalid(format!("Task {} is not running", record.id))),
+        }
+    }
+
+    pub fn checkpoint(&self) -> &S {
+        match &self.record.state {
+            TaskState::Running { checkpoint } => checkpoint,
+            _ => unreachable!("RunningTask is constructed only in the running state"),
+        }
+    }
+
+    pub fn into_record(self) -> TaskRecord<I, S, R> {
+        self.record
+    }
+}
+
+impl<I, S, R> Deref for RunningTask<I, S, R> {
+    type Target = TaskRecord<I, S, R>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.record
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum NextTaskState<S, R> {
+    Running {
+        checkpoint: S,
+    },
+    Waiting {
+        checkpoint: S,
+        on: Vec<TaskId>,
+        policy: JoinPolicy,
+    },
+    Terminal {
+        outcome: TaskOutcome<R>,
+    },
+}
+
+impl<S, R> NextTaskState<S, R> {
+    pub fn into_state(self) -> TaskState<S, R> {
+        match self {
+            Self::Running { checkpoint } => TaskState::Running { checkpoint },
+            Self::Waiting {
+                checkpoint,
+                on,
+                policy,
+            } => TaskState::Waiting {
+                checkpoint,
+                on,
+                policy,
+            },
+            Self::Terminal { outcome } => TaskState::Terminal { outcome },
+        }
+    }
+}
+
+pub type PhaseHandler<I, S, R, H> = Box<
+    dyn Fn(RunningTask<I, S, R>, &mut dyn TaskRuntime<I, S, R, H>, &CancelToken) -> Result<()>
+        + Send
+        + Sync,
+>;
+
+pub trait HookRunner<H> {
+    fn each(&self, name: &str, invoke: &mut dyn FnMut(&H) -> Result<()>) -> Result<()>;
+}
+
+pub type RuntimeChange<I, S, R> =
+    Box<dyn FnOnce(&mut dyn Tx, RunningTask<I, S, R>) -> Result<Option<NextTaskState<S, R>>>>;
+
+pub trait TaskRuntime<I, S, R, H>: DocumentObserver + DocumentReader {
+    fn task_id(&self) -> TaskId<R>;
+    fn conversation_id(&self) -> ConversationId;
+    fn signal(&self) -> &CancelToken;
+    fn hooks(&self) -> &dyn HookRunner<H>;
+    fn commit(&mut self, change: RuntimeChange<I, S, R>, cancel: &CancelToken) -> Result<()>;
+    fn memo(&self, name: &str, cancel: &CancelToken) -> Result<Option<JsonValue>>;
+    fn memo_or_set(
+        &self,
+        name: &str,
+        candidate: JsonValue,
+        cancel: &CancelToken,
+    ) -> Result<JsonValue>;
+    fn get_task(&self, id: TaskId, cancel: &CancelToken) -> Result<Option<AnyTaskRecord>>;
+    fn outcomes(&self, ids: &[TaskId], cancel: &CancelToken)
+    -> Result<Vec<TaskOutcome<JsonValue>>>;
+    fn entry(&self, id: EntryId, cancel: &CancelToken) -> Result<Option<EntryRecord>>;
+    fn now(&self) -> u64;
+    fn report(&self, error: Error);
+    fn sleep(&self, until: u64, cancel: &CancelToken) -> Result<()>;
+}
+
+pub type PhaseMap<I, S, R, H> = BTreeMap<String, PhaseHandler<I, S, R, H>>;
+
+pub type Initial<I, S> = Box<dyn Fn(&I) -> S + Send + Sync>;
+
+pub type Migrate<I, S> = Box<dyn Fn(&JsonValue, &JsonValue, u64) -> Result<(I, S)> + Send + Sync>;
+
+pub struct TaskDefinition<I, S, R, H> {
+    pub name: String,
+    pub version: u64,
+    pub initial: Initial<I, S>,
+    pub phases: PhaseMap<I, S, R, H>,
+    pub abort: PhaseHandler<I, S, R, H>,
+    pub migrate: Option<Migrate<I, S>>,
+    pub hooks: Option<H>,
+}
+
+pub struct Task<I, S, R, H> {
+    pub definition: TaskDefinition<I, S, R, H>,
+}
+
+pub fn define_task<I, S, R, H>(definition: TaskDefinition<I, S, R, H>) -> Task<I, S, R, H> {
+    Task { definition }
 }
