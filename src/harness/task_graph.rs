@@ -8,10 +8,11 @@ use crate::cancel::CancelToken;
 use crate::chord::delta::{Op, Seg, apply};
 use crate::errors::Result;
 use crate::harness::util::scan_all;
-use crate::harness::view::{Observer, notify, replicate};
+use crate::harness::view::{Observer, attached_watch, notify, replicate, watch_observer};
 use crate::ids::{ConversationId, TaskId};
 use crate::session::kernel::Session;
-use crate::session::observation::AttachedState;
+use crate::session::observation::{AttachedState, WatchShared};
+use crate::session::types::DocumentWatch;
 use crate::tasks::{JoinPolicy, TaskState, TaskStatus};
 use crate::types::Storage;
 use crate::types::{
@@ -181,6 +182,15 @@ impl TaskGraphView {
         let (_, guard, attached) =
             self.attach_with(session, cancel, |value, _| Ok(replicate(value)))?;
         Ok(AttachedState::new(attached, guard))
+    }
+
+    pub fn watch(&self, session: &Session, cancel: &CancelToken) -> Result<DocumentWatch> {
+        let deliveries = session.deliveries();
+        let (_, guard, shared) = self.attach_with(session, cancel, |value, _| {
+            let shared = WatchShared::new(value.as_object().cloned(), deliveries);
+            Ok((watch_observer(&shared), shared))
+        })?;
+        attached_watch(shared, guard, cancel)
     }
 }
 
