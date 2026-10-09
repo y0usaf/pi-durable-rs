@@ -8,10 +8,12 @@ use crate::cancel::CancelToken;
 use crate::chord::delta::{Op, Seg, apply};
 use crate::errors::Result;
 use crate::harness::util::scan_all;
-use crate::harness::view::{Change, Observer};
+use crate::harness::view::{Observer, notify, replicate};
 use crate::ids::{ConversationId, TaskId};
 use crate::session::kernel::Session;
+use crate::session::observation::AttachedState;
 use crate::tasks::{JoinPolicy, TaskState, TaskStatus};
+use crate::types::Storage;
 use crate::types::{
     AnyTaskRecord, CommitChange, CommitPublication, ConversationQuery, TableChange, TaskQuery,
 };
@@ -96,6 +98,8 @@ impl TaskGraphView {
     pub fn new(session: &Session) -> Result<Self> {
         let state = Arc::new(Mutex::new(State::default()));
         let listener_state = Arc::clone(&state);
+        let deliveries = session.deliveries();
+        let listener_deliveries = Arc::clone(&deliveries);
         let _unsubscribe = session.subscribe_commits(Box::new(move |publication, _cancel| {
             let mut state = listener_state.lock().expect(LOCK);
             let Some(mount) = state.mount.as_mut() else {
@@ -103,14 +107,17 @@ impl TaskGraphView {
             };
             let before = mount.value.clone();
             let ops = advance(mount, publication);
-            for (_, observer) in &mount.observers {
-                observer(&Change {
-                    before: &before,
-                    after: &mount.value,
-                    ops: &ops,
-                    publication,
-                });
+            if ops.is_empty() {
+                return;
             }
+            notify(
+                &listener_deliveries,
+                &mount.observers,
+                &before,
+                &mount.value,
+                &ops,
+                publication,
+            );
         }))?;
         Ok(Self { state })
     }
@@ -121,23 +128,59 @@ impl TaskGraphView {
         observer: Observer,
         cancel: &CancelToken,
     ) -> Result<(Value, GraphGuard)> {
+        let (value, guard, ()) = self.attach_with(session, cancel, |_, _| Ok((observer, ())))?;
+        Ok((value, guard))
+    }
+
+    pub fn attach_with<R>(
+        &self,
+        session: &Session,
+        cancel: &CancelToken,
+        create: impl FnOnce(&Value, &dyn Storage) -> Result<(Observer, R)>,
+    ) -> Result<(Value, GraphGuard, R)> {
         session.read_on_line(|| {
             let known = self.state.lock().expect(LOCK).mount.is_some();
-            if !known {
-                let mount = build(session, cancel)?;
-                self.state.lock().expect(LOCK).mount = Some(mount);
-            }
+            let built = match known {
+                true => None,
+                false => Some(build(session, cancel)?),
+            };
+            let value = match &built {
+                Some(mount) => mount.value.clone(),
+                None => self
+                    .state
+                    .lock()
+                    .expect(LOCK)
+                    .mount
+                    .as_ref()
+                    .expect("mount exists")
+                    .value
+                    .clone(),
+            };
+            let (observer, extra) = create(&value, session.storage())?;
             let mut state = self.state.lock().expect(LOCK);
+            if let Some(mount) = built {
+                state.mount = Some(mount);
+            }
             state.next += 1;
             let token = state.next;
-            let mount = state.mount.as_mut().expect("mount built above");
+            let mount = state.mount.as_mut().expect("mount inserted above");
             mount.observers.push((token, observer));
             let guard = GraphGuard {
                 state: Arc::clone(&self.state),
                 observer: token,
             };
-            Ok((mount.value.clone(), guard))
+            Ok((value, guard, extra))
         })
+    }
+
+    pub fn state(
+        &self,
+        session: &Session,
+        cancel: &CancelToken,
+    ) -> Result<AttachedState<GraphGuard>> {
+        let (_, guard, attached) =
+            self.attach_with(session, cancel, |value, _| Ok(replicate(value)))?;
+        Ok(AttachedState::new(attached, guard))
     }
 }
 

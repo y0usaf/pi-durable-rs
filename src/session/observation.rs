@@ -1,4 +1,5 @@
 use std::collections::VecDeque;
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
 use crate::cancel::CancelToken;
@@ -13,6 +14,8 @@ const MAX_PENDING_WATCH_FRAMES: usize = 100;
 const LOCK: &str = "session observer lock poisoned";
 
 pub type Detach = Box<dyn FnOnce() + Send>;
+
+pub type FrameListener<T> = Box<dyn FnMut(Option<&T>, &[Op], &CancelToken) -> Result<()> + Send>;
 
 type Job = Box<dyn FnOnce() + Send>;
 
@@ -64,6 +67,51 @@ fn value_json(value: &Option<JsonObject>) -> JsonValue {
     match value {
         Some(object) => JsonValue::Object(object.clone()),
         None => JsonValue::Null,
+    }
+}
+
+pub struct AttachedState<G> {
+    attached: Arc<Mutex<Attached>>,
+    guard: Option<G>,
+}
+
+impl<G> AttachedState<G> {
+    pub fn new(attached: Arc<Mutex<Attached>>, guard: G) -> Self {
+        Self {
+            attached,
+            guard: Some(guard),
+        }
+    }
+
+    pub fn value(&self) -> JsonValue {
+        self.attached.lock().expect(LOCK).value().clone()
+    }
+
+    pub fn subscribe(&self, cancel: &CancelToken, listener: Listener) -> Handle {
+        self.attached
+            .lock()
+            .expect(LOCK)
+            .subscribe(cancel, listener)
+    }
+
+    pub fn unsubscribe(&self, handle: Handle) {
+        self.attached.lock().expect(LOCK).unsubscribe(handle);
+    }
+
+    pub fn dispose(&mut self) {
+        self.guard.take();
+    }
+}
+
+pub fn feeder(attached: Arc<Mutex<Attached>>) -> impl Fn(&JsonValue, &[Op]) + Send + Sync {
+    let sequence = AtomicU64::new(0);
+    move |value, ops| {
+        let cursor = sequence.fetch_add(1, Ordering::SeqCst) + 1;
+        attached
+            .lock()
+            .expect(LOCK)
+            .receive(cursor, value.clone(), ops, &CancelToken::new())
+            .expect("state cursors are contiguous by construction");
     }
 }
 
@@ -145,23 +193,23 @@ impl StateSource {
     }
 }
 
-struct WatchCore {
-    value: Option<JsonObject>,
-    pending: VecDeque<(Option<JsonObject>, Vec<Op>)>,
+struct WatchCore<T> {
+    value: Option<T>,
+    pending: VecDeque<(Option<T>, Vec<Op>)>,
     started: bool,
     retired: bool,
-    listener: Option<WatchListener>,
+    listener: Option<FrameListener<T>>,
     end: Option<WatchEnd>,
     detach: Option<Detach>,
 }
 
-pub struct WatchShared {
-    core: Mutex<WatchCore>,
+pub struct WatchShared<T> {
+    core: Mutex<WatchCore<T>>,
     deliveries: Arc<Deliveries>,
 }
 
-impl WatchShared {
-    pub fn new(value: Option<JsonObject>, deliveries: Arc<Deliveries>) -> Arc<Self> {
+impl<T: Clone + Send + 'static> WatchShared<T> {
+    pub fn new(value: Option<T>, deliveries: Arc<Deliveries>) -> Arc<Self> {
         Arc::new(Self {
             core: Mutex::new(WatchCore {
                 value,
@@ -180,7 +228,12 @@ impl WatchShared {
         self.core.lock().expect(LOCK).detach = Some(detach);
     }
 
-    fn advance(self: &Arc<Self>, value: Option<JsonObject>, ops: Vec<Op>) {
+    pub fn advance(
+        self: &Arc<Self>,
+        value: Option<T>,
+        ops: Vec<Op>,
+        overflow: impl FnOnce(&Option<T>) -> Result<(Option<T>, Vec<Op>)>,
+    ) {
         let mut core = self.core.lock().expect(LOCK);
         if core.end.is_some() || core.retired {
             return;
@@ -188,23 +241,31 @@ impl WatchShared {
         if value.is_none() {
             core.retired = true;
         }
+        let mut failure = None;
         if core.pending.len() >= MAX_PENDING_WATCH_FRAMES {
-            core.pending.clear();
-            let replacement = value_json(&value);
-            core.pending
-                .push_back((value, vec![Op::Replace(replacement)]));
+            match overflow(&value) {
+                Ok(replacement) => {
+                    core.pending.clear();
+                    core.pending.push_back(replacement);
+                }
+                Err(error) => failure = Some(error),
+            }
         } else {
             core.pending.push_back((value, ops));
         }
         let started = core.started;
         drop(core);
+        if let Some(error) = failure {
+            self.terminate(WatchEnd::ListenerError(Arc::new(error)));
+            return;
+        }
         if started {
             let shared = Arc::clone(self);
             self.deliveries.push(move || shared.drain());
         }
     }
 
-    fn start(self: &Arc<Self>, listener: WatchListener) -> Result<()> {
+    pub fn start(self: &Arc<Self>, listener: FrameListener<T>) -> Result<()> {
         let mut core = self.core.lock().expect(LOCK);
         if core.started {
             return Err(Error::Invalid("Watch is already started".into()));
@@ -284,22 +345,26 @@ impl WatchShared {
         });
     }
 
-    fn closed(&self) -> Option<WatchEnd> {
+    pub fn value(&self) -> Option<T> {
+        self.core.lock().expect(LOCK).value.clone()
+    }
+
+    pub fn closed(&self) -> Option<WatchEnd> {
         self.core.lock().expect(LOCK).end.clone()
     }
 }
 
-pub struct Watch(Arc<WatchShared>);
+pub struct Watch(Arc<WatchShared<JsonObject>>);
 
 impl Watch {
-    pub fn boxed(shared: Arc<WatchShared>) -> DocumentWatch {
+    pub fn boxed(shared: Arc<WatchShared<JsonObject>>) -> DocumentWatch {
         Box::new(Watch(shared))
     }
 }
 
 impl WatchHandle for Watch {
     fn value(&self) -> Option<JsonObject> {
-        self.0.core.lock().expect(LOCK).value.clone()
+        self.0.value()
     }
 
     fn start(&mut self, listener: WatchListener) -> Result<()> {
@@ -318,14 +383,16 @@ impl WatchHandle for Watch {
 #[derive(Clone)]
 pub enum Sink {
     State(Arc<Mutex<StateSource>>),
-    Watch(Arc<WatchShared>),
+    Watch(Arc<WatchShared<JsonObject>>),
 }
 
 impl Sink {
     pub fn advance(&self, value: Option<JsonObject>, ops: Vec<Op>) {
         match self {
             Sink::State(source) => source.lock().expect(LOCK).advance(value, ops),
-            Sink::Watch(shared) => shared.advance(value, ops),
+            Sink::Watch(shared) => shared.advance(value, ops, |value| {
+                Ok((value.clone(), vec![Op::Replace(value_json(value))]))
+            }),
         }
     }
 
