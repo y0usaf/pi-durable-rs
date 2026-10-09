@@ -1,0 +1,285 @@
+use crate::ai::types::{
+    AssistantBlock, AssistantMessage, AssistantMessageEvent, Message, Model, SimpleStreamOptions,
+    StopReason, ToolCall,
+};
+use crate::ai::utils::overflow::is_context_overflow;
+use crate::ai::utils::retry::{is_retryable_assistant_error, retry_delay_ms};
+use crate::cancel::CancelToken;
+use crate::errors::{Error, Result};
+use crate::harness::compaction::{create_compaction, select_cut};
+use crate::harness::generation::{
+    GenerationCheckpoint, Runtime, append_assistant, edit_live, end_run, read_live, write_live,
+};
+use crate::harness::live::{DeferredStatus, GenerationStatus, RetryStatus};
+use crate::harness::types::{CompactionReason, ModelRef};
+use crate::ids::{EntryId, TaskId};
+use crate::tasks::{JoinPolicy, NextTaskState, TaskOutcome, TaskOutcomeError};
+use crate::types::SubmissionSettlement;
+
+pub const DEFAULT_POLL_AFTER_MS: u64 = 5000;
+
+pub struct Request {
+    pub attempt: u64,
+    pub compacted: Option<TaskId>,
+    pub model: ModelRef,
+    pub cutoff: EntryId,
+    pub messages: Option<Vec<Message>>,
+    pub poll_at: Option<u64>,
+}
+
+fn partial_of(event: &AssistantMessageEvent) -> Option<&AssistantMessage> {
+    match event {
+        AssistantMessageEvent::Start { partial }
+        | AssistantMessageEvent::TextStart { partial, .. }
+        | AssistantMessageEvent::TextDelta { partial, .. }
+        | AssistantMessageEvent::TextEnd { partial, .. }
+        | AssistantMessageEvent::ThinkingStart { partial, .. }
+        | AssistantMessageEvent::ThinkingDelta { partial, .. }
+        | AssistantMessageEvent::ThinkingEnd { partial, .. }
+        | AssistantMessageEvent::ToolcallStart { partial, .. }
+        | AssistantMessageEvent::ToolcallDelta { partial, .. }
+        | AssistantMessageEvent::ToolcallEnd { partial, .. } => Some(partial),
+        AssistantMessageEvent::Done { .. } | AssistantMessageEvent::Error { .. } => None,
+    }
+}
+
+pub fn stream_response(
+    runtime: Runtime<'_>,
+    model: &Model,
+    messages: &[Message],
+    options: SimpleStreamOptions,
+    attempt: u64,
+    cancel: &CancelToken,
+) -> Result<AssistantMessage> {
+    let interval = u128::from(runtime.settings().progress.partial_interval_ms);
+    let mut last_flush: Option<std::time::Instant> = None;
+    let stream = runtime.models().stream_simple(
+        model,
+        crate::ai::types::TranscriptContext {
+            messages: messages.to_vec(),
+        },
+        options,
+    );
+    while let Some(event) = stream.next_event() {
+        let Some(partial) = partial_of(&event) else {
+            continue;
+        };
+        if partial.content.is_empty() {
+            continue;
+        }
+        if last_flush.is_some_and(|at| at.elapsed().as_millis() < interval) {
+            continue;
+        }
+        last_flush = Some(std::time::Instant::now());
+        let snapshot = partial.clone();
+        let conversation_id = runtime.conversation_id();
+        runtime.commit(
+            Box::new(move |tx, _task| {
+                edit_live(tx, conversation_id, |live| {
+                    live.generation
+                        .get_or_insert(GenerationStatus {
+                            attempt,
+                            message: None,
+                            retry: None,
+                            deferred: None,
+                        })
+                        .message = Some(snapshot);
+                })?;
+                Ok(None)
+            }),
+            cancel,
+        )?;
+    }
+    stream
+        .result()
+        .ok_or_else(|| Error::Invalid("stream ended without a final message".to_owned()))
+}
+
+pub fn classify(
+    runtime: Runtime<'_>,
+    request: &Request,
+    message: AssistantMessage,
+    cancel: &CancelToken,
+) -> Result<()> {
+    if runtime.signal().is_cancelled() {
+        return Err(Error::Aborted);
+    }
+    let conversation_id = runtime.conversation_id();
+    let task_id = crate::harness::tool::erase(runtime.task_id());
+    if message.stop_reason == StopReason::Deferred
+        && let Some(handle) = message.deferred.clone()
+    {
+        let after = handle.poll_after_ms.unwrap_or(DEFAULT_POLL_AFTER_MS);
+        let poll_at = (runtime.now() + after).max(request.poll_at.map_or(0, |at| at + 1));
+        let attempt = request.attempt;
+        let compacted = request.compacted;
+        let model = request.model.clone();
+        let cutoff = request.cutoff;
+        runtime.commit(
+            Box::new(move |tx, _task| {
+                edit_live(tx, conversation_id, |live| {
+                    live.generation = Some(GenerationStatus {
+                        attempt,
+                        message: None,
+                        retry: None,
+                        deferred: Some(DeferredStatus { poll_at }),
+                    });
+                })?;
+                Ok(Some(NextTaskState::Running {
+                    checkpoint: GenerationCheckpoint::Poll {
+                        attempt,
+                        compacted,
+                        model,
+                        cutoff,
+                        handle,
+                        poll_at,
+                    },
+                }))
+            }),
+            cancel,
+        )?;
+        return Ok(());
+    }
+    runtime.hooks().each("afterResponse", &mut |hooks| {
+        if let Some(hook) = hooks.after_response.as_ref() {
+            hook(&message)?;
+        }
+        Ok(())
+    })?;
+    let calls: Vec<ToolCall> = message
+        .content
+        .iter()
+        .filter_map(|block| match block {
+            AssistantBlock::ToolCall(call) => Some(call.clone()),
+            _ => None,
+        })
+        .collect();
+    if message.stop_reason == StopReason::ToolUse && !calls.is_empty() {
+        return crate::harness::generation::rounds::start_tool_round(
+            runtime, request, message, calls, cancel,
+        );
+    }
+    if matches!(
+        message.stop_reason,
+        StopReason::Stop | StopReason::Length | StopReason::ToolUse
+    ) {
+        return crate::harness::generation::rounds::answer(runtime, message, cancel);
+    }
+    let settings = runtime.settings().clone();
+    let overflow = message.stop_reason == StopReason::Error && is_context_overflow(&message, None);
+    if overflow && request.compacted.is_none() && settings.compaction.enabled {
+        let view = runtime.context(Some(request.cutoff), cancel)?;
+        if select_cut(&view, settings.compaction.keep_recent_tokens).is_some() {
+            let text = message
+                .error_message
+                .clone()
+                .unwrap_or_else(|| "Context overflow".to_owned());
+            let attempt = request.attempt;
+            runtime.commit(
+                Box::new(move |tx, _task| {
+                    append_assistant(tx, conversation_id, &message)?;
+                    edit_live(tx, conversation_id, |live| live.generation = None)?;
+                    let child = create_compaction(
+                        tx,
+                        conversation_id,
+                        CompactionReason::Overflow,
+                        Some(task_id),
+                    )?;
+                    Ok(Some(NextTaskState::Waiting {
+                        checkpoint: GenerationCheckpoint::Prepare {
+                            attempt,
+                            compacted: Some(child),
+                            overflow: Some(text),
+                        },
+                        on: vec![child],
+                        policy: JoinPolicy::AllSettled,
+                    }))
+                }),
+                cancel,
+            )?;
+            return Ok(());
+        }
+    }
+    let policy = settings.retry;
+    let retry = message.stop_reason == StopReason::Error
+        && !overflow
+        && is_retryable_assistant_error(&message)
+        && policy.enabled
+        && request.attempt <= policy.max_retries;
+    let until = if retry {
+        runtime.now()
+            + retry_delay_ms(
+                policy.base_delay_ms,
+                policy.max_agent_delay_ms,
+                request.attempt,
+            )
+    } else {
+        0
+    };
+    let attempt = request.attempt;
+    let compacted = request.compacted;
+    runtime.commit(
+        Box::new(move |tx, _task| {
+            append_assistant(tx, conversation_id, &message)?;
+            if retry {
+                edit_live(tx, conversation_id, |live| {
+                    live.generation = Some(GenerationStatus {
+                        attempt,
+                        message: None,
+                        retry: Some(RetryStatus {
+                            at: until,
+                            error: message.error_message.clone().unwrap_or_default(),
+                        }),
+                        deferred: None,
+                    });
+                })?;
+                return Ok(Some(NextTaskState::Running {
+                    checkpoint: GenerationCheckpoint::Retry {
+                        attempt,
+                        compacted,
+                        until,
+                    },
+                }));
+            }
+            let text = message.error_message.clone().unwrap_or_else(|| {
+                format!(
+                    "Model response ended with stop reason {}",
+                    stop_reason_text(message.stop_reason)
+                )
+            });
+            let mut live = read_live(tx, conversation_id)?;
+            end_run(
+                tx,
+                &mut live,
+                task_id,
+                SubmissionSettlement::Unanswered {
+                    reason: "model_error".to_owned(),
+                    detail: Some(serde_json::Value::String(text.clone())),
+                },
+            )?;
+            write_live(tx, conversation_id, &live)?;
+            Ok(Some(NextTaskState::Terminal {
+                outcome: TaskOutcome::Failed {
+                    error: TaskOutcomeError {
+                        message: text,
+                        detail: Some(serde_json::json!({ "reason": "model_error" })),
+                    },
+                    result: None,
+                },
+            }))
+        }),
+        cancel,
+    )
+}
+
+fn stop_reason_text(reason: StopReason) -> &'static str {
+    match reason {
+        StopReason::Pending => "pending",
+        StopReason::Stop => "stop",
+        StopReason::Length => "length",
+        StopReason::ToolUse => "toolUse",
+        StopReason::Error => "error",
+        StopReason::Aborted => "aborted",
+        StopReason::Deferred => "deferred",
+    }
+}

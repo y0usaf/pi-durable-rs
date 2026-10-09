@@ -36,7 +36,7 @@ pub fn provider_doc() -> Result<DocToken<ProviderState>> {
 }
 
 pub fn ensure_provider_session_id<I, S, R, H>(
-    runtime: &mut dyn TaskRuntime<I, S, R, H>,
+    runtime: &dyn TaskRuntime<I, S, R, H>,
     cancel: &CancelToken,
 ) -> Result<String> {
     let token = provider_doc()?;
