@@ -81,6 +81,7 @@ pub struct DocumentCreate {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DocumentRecord {
     #[serde(flatten)]
     pub create: DocumentCreate,
