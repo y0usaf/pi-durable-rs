@@ -31,6 +31,18 @@ pub enum ModelThinkingLevel {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum Transport {
+    #[serde(rename = "sse")]
+    Sse,
+    #[serde(rename = "websocket")]
+    Websocket,
+    #[serde(rename = "websocket-cached")]
+    WebsocketCached,
+    #[serde(rename = "auto")]
+    Auto,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum CacheRetention {
     None,

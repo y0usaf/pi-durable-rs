@@ -14,6 +14,7 @@ pub enum Error {
         cause: Option<Box<dyn std::error::Error + Send + Sync>>,
     },
     ConversationBusy(ConversationId),
+    Aborted,
     Invalid(String),
     Json(serde_json::Error),
 }
@@ -31,6 +32,7 @@ impl fmt::Display for Error {
                 f.write_str(message)
             }
             Error::ConversationBusy(id) => write!(f, "Conversation {id} is busy"),
+            Error::Aborted => f.write_str("aborted"),
             Error::Json(error) => fmt::Display::fmt(error, f),
         }
     }
