@@ -12,11 +12,13 @@ use crate::harness::types::Settings;
 use crate::session::types::{DocRef, DocumentObserver, DocumentReader, DocumentWatch};
 
 use crate::harness::util::closed_error;
-use crate::ids::EntryId;
 use crate::tasks::{HookRunner, RunningTask, RuntimeChange, TaskRuntime};
 use crate::types::{EntryRecord, JsonObject};
 
 use crate::errors::{Error, Result};
+use crate::harness::context::ContextRange;
+use crate::harness::registry::Registry;
+use crate::harness::runtime::HarnessTaskRuntime;
 use crate::harness::util::{Ticket, Waiters, scan_all};
 use crate::ids::{ConversationId, TaskId};
 use crate::session::kernel::Session;
@@ -51,7 +53,8 @@ pub type WithdrawInputs =
     Arc<dyn Fn(&mut Transaction<'_>, ConversationId) -> Result<()> + Send + Sync>;
 pub type Report = Arc<dyn Fn(Error) + Send + Sync>;
 
-pub type Runtime<'a> = &'a (dyn TaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> + Sync);
+pub type Runtime<'a> =
+    &'a (dyn HarnessTaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> + Sync);
 
 pub trait ErasedTask: Send + Sync {
     fn name(&self) -> &str;
@@ -201,6 +204,11 @@ struct Overlay {
     edges: BTreeMap<ConversationId, Option<TaskId>>,
 }
 
+struct KeptContext {
+    range: ContextRange,
+    idle_since: Option<u64>,
+}
+
 struct State {
     live: BTreeMap<TaskId, AnyTaskRecord>,
     edges: BTreeMap<ConversationId, Option<TaskId>>,
@@ -209,6 +217,8 @@ struct State {
     fail_fast_checks: BTreeSet<TaskId>,
     failed_migrations: BTreeMap<TaskId, (Arc<dyn ErasedTask>, String)>,
     invocations: BTreeMap<TaskId, Arc<Invocation>>,
+    contexts: BTreeMap<ConversationId, KeptContext>,
+    expiry: Option<(u64, CancelToken)>,
     reconcile_scheduled: bool,
     cascade_pending: bool,
     enabled: bool,
@@ -231,6 +241,7 @@ pub struct SchedulerOptions {
     pub hooks_of: HooksOf,
     pub settings: SettingsSource,
     pub now: Clock,
+    pub registry: Arc<Registry>,
 }
 
 struct Shared {
@@ -248,6 +259,8 @@ struct Shared {
     now: Clock,
     task_waiters: Waiters<TaskId, AnyTaskRecord>,
     idle_waiters: Waiters<Option<ConversationId>, ()>,
+    registry: Arc<Registry>,
+    registry_listener: Mutex<Option<u64>>,
     state: Mutex<State>,
     wake_rx: Mutex<Option<Receiver<()>>>,
 }
@@ -451,6 +464,8 @@ impl TaskScheduler {
             fail_fast_checks: BTreeSet::new(),
             failed_migrations: BTreeMap::new(),
             invocations: BTreeMap::new(),
+            contexts: BTreeMap::new(),
+            expiry: None,
             reconcile_scheduled: false,
             cascade_pending: false,
             enabled: false,
@@ -474,6 +489,8 @@ impl TaskScheduler {
             now: options.now,
             task_waiters: Waiters::default(),
             idle_waiters: Waiters::default(),
+            registry: options.registry,
+            registry_listener: Mutex::new(None),
             state: Mutex::new(state),
             wake_rx: Mutex::new(Some(wake_rx)),
         }))
@@ -496,6 +513,13 @@ impl TaskScheduler {
             .0
             .session
             .subscribe_close(Box::new(move || closer.seal()))?;
+        let kicker = self.clone();
+        let listener = self.0.registry.subscribe(Arc::new(move || kicker.kick()));
+        *self
+            .0
+            .registry_listener
+            .lock()
+            .expect("registry listener lock") = Some(listener);
         let reconciler = self.clone();
         let wake = self
             .0
@@ -511,6 +535,7 @@ impl TaskScheduler {
         });
         self.0.session.commit_with(
             |tx| {
+                let mut records = Vec::new();
                 for status in LIVE_STATUSES {
                     let query = TaskQuery {
                         conversation_id: None,
@@ -520,35 +545,36 @@ impl TaskScheduler {
                         background: None,
                         order: None,
                     };
-                    let records =
-                        scan_all(|cursor| tx.scan_tasks(&query, SCAN_PAGE_SIZE, cursor.as_ref()))?;
-                    let mut st = self.lock();
-                    for record in records {
-                        if let TaskState::Running { checkpoint } = &record.state {
-                            let pending = TaskState::Pending {
-                                checkpoint: checkpoint.clone(),
-                            };
-                            let mut next = record.clone();
-                            next.state = pending;
-                            tx.set_task(next)?;
-                        }
-                        if let TaskState::Waiting {
-                            policy: crate::tasks::JoinPolicy::FailFast,
-                            ..
-                        } = record.state
-                        {
-                            st.fail_fast_checks.insert(record.id);
-                        }
-                        st.live.insert(record.id, record);
+                    records.extend(scan_all(|cursor| {
+                        tx.scan_tasks(&query, SCAN_PAGE_SIZE, cursor.as_ref())
+                    })?);
+                }
+                for record in records {
+                    self.lock().live.insert(record.id, record.clone());
+                    if let TaskState::Running { checkpoint } = &record.state {
+                        let mut next = record.clone();
+                        next.state = TaskState::Pending {
+                            checkpoint: checkpoint.clone(),
+                        };
+                        tx.set_task(next)?;
+                    }
+                    if let TaskState::Waiting {
+                        policy: crate::tasks::JoinPolicy::FailFast,
+                        ..
+                    } = record.state
+                    {
+                        self.lock().fail_fast_checks.insert(record.id);
                     }
                 }
-                self.lock().cascade_pending = true;
-                self.lock().schedule_reconcile();
                 Ok(())
             },
             &CancelToken::new(),
             TransactionScope::default(),
-        )
+        )?;
+        let mut st = self.lock();
+        st.cascade_pending = true;
+        st.schedule_reconcile();
+        Ok(())
     }
 
     pub fn resume(&self) {
@@ -557,8 +583,23 @@ impl TaskScheduler {
     }
 
     fn seal(&self) {
+        if let Some(listener) = self
+            .0
+            .registry_listener
+            .lock()
+            .expect("registry listener lock")
+            .take()
+        {
+            self.0.registry.unsubscribe(listener);
+        }
+        self.0.task_waiters.reject_all(closed_error);
+        self.0.idle_waiters.reject_all(closed_error);
         let mut st = self.lock();
         st.closing = true;
+        st.contexts.clear();
+        if let Some((_, token)) = st.expiry.take() {
+            token.cancel();
+        }
         for invocation in st.invocations.values() {
             invocation.cancel.cancel();
         }
@@ -670,7 +711,7 @@ impl TaskScheduler {
         if st.cascade_pending {
             st.schedule_reconcile();
         }
-        settle_idle(&st, &self.0.idle_waiters);
+        self.settle_idle(&mut st);
         drop(st);
         self.kick();
     }
@@ -1540,20 +1581,19 @@ fn idle(st: &State, conversation: Option<ConversationId>) -> bool {
     })
 }
 
-fn settle_idle(st: &State, idle_waiters: &Waiters<Option<ConversationId>, ()>) {
-    for key in idle_waiters.keys() {
-        if idle(st, key) {
-            idle_waiters.resolve(&key, &());
-        }
-    }
-}
-
 pub enum Inspected {
     Running,
     Completing,
-    Waiting { on: Vec<TaskId> },
-    Blocked(BlockedReason),
-    Ready { migrates: bool },
+    Waiting {
+        on: Vec<TaskId>,
+    },
+    Blocked {
+        reason: BlockedReason,
+        error: Option<String>,
+    },
+    Ready {
+        migrates: bool,
+    },
 }
 
 pub struct Inspection {
@@ -1722,10 +1762,27 @@ impl TaskScheduler {
                     Inspected::Waiting { on }
                 } else {
                     match fit(&st, record, snapshot.lookup(&record.kind)) {
-                        Fit::Blocked(reason) => Inspected::Blocked(reason),
+                        Fit::Blocked(reason) => {
+                            let error = match reason {
+                                BlockedReason::MigrationFailed => st
+                                    .failed_migrations
+                                    .get(&record.id)
+                                    .map(|(_, error)| error.clone()),
+                                _ => None,
+                            };
+                            Inspected::Blocked { reason, error }
+                        }
                         Fit::Task { task, migrates } => {
                             if migrates && !task.can_migrate() {
-                                Inspected::Blocked(BlockedReason::MigrationFailed)
+                                Inspected::Blocked {
+                                    reason: BlockedReason::MigrationFailed,
+                                    error: Some(format!(
+                                        "Task {} version {} has no migration from {}",
+                                        record.kind,
+                                        task.version(),
+                                        record.version
+                                    )),
+                                }
                             } else {
                                 Inspected::Ready { migrates }
                             }
@@ -1743,5 +1800,80 @@ impl TaskScheduler {
             "paused"
         };
         Ok(Inspection { scheduling, tasks })
+    }
+}
+
+impl TaskScheduler {
+    fn retention(&self) -> u64 {
+        (self.0.settings)().context_retention_ms
+    }
+
+    fn settle_idle(&self, st: &mut State) {
+        for key in self.0.idle_waiters.keys() {
+            if idle(st, key) {
+                self.0.idle_waiters.resolve(&key, &());
+            }
+        }
+        let now = (self.0.now)();
+        let retention = self.retention();
+        let ids: Vec<ConversationId> = st.contexts.keys().copied().collect();
+        for id in ids {
+            let expired = matches!(
+                st.contexts[&id].idle_since,
+                Some(since) if now.saturating_sub(since) >= retention
+            );
+            if expired {
+                st.contexts.remove(&id);
+            } else if !idle(st, Some(id)) {
+                if let Some(kept) = st.contexts.get_mut(&id) {
+                    kept.idle_since = None;
+                }
+            } else if retention > 0 {
+                if let Some(kept) = st.contexts.get_mut(&id) {
+                    kept.idle_since.get_or_insert(now);
+                }
+            } else {
+                st.contexts.remove(&id);
+            }
+        }
+        self.schedule_expiry(st);
+    }
+
+    fn schedule_expiry(&self, st: &mut State) {
+        let retention = self.retention();
+        let at = st
+            .contexts
+            .values()
+            .filter_map(|kept| kept.idle_since.map(|since| since + retention))
+            .min();
+        if let Some((current, _)) = &st.expiry
+            && Some(*current) == at
+        {
+            return;
+        }
+        if let Some((_, token)) = st.expiry.take() {
+            token.cancel();
+        }
+        let Some(at) = at else {
+            return;
+        };
+        if st.closing {
+            return;
+        }
+        let token = CancelToken::new();
+        st.expiry = Some((at, token.clone()));
+        let delay = at.saturating_sub((self.0.now)()).min(MAX_TIMER_DELAY);
+        let scheduler = self.clone();
+        thread::spawn(move || {
+            if !token.wait_timeout(std::time::Duration::from_millis(delay)) {
+                scheduler.expire();
+            }
+        });
+    }
+
+    fn expire(&self) {
+        let mut st = self.lock();
+        st.expiry = None;
+        self.settle_idle(&mut st);
     }
 }
