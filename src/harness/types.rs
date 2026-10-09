@@ -13,6 +13,7 @@ use crate::harness::agent::{Agent, AgentChange};
 use crate::harness::output::{OutputChunk, Retain, ShellOutputSkip};
 use crate::harness::registry::{Registry, RegistrySnapshot};
 use crate::harness::scheduler::ErasedTask;
+use crate::harness::submissions::{SubmissionDraft, SubmissionHandle};
 use crate::ids::{ConversationId, TaskId};
 use crate::session::types::{DocumentObserver, DocumentReader, Tx};
 use crate::types::{
@@ -78,6 +79,28 @@ pub struct OutputLimitsSpec {
     pub retain: Option<Retain>,
 }
 
+pub struct InvocationBinding {
+    pub signal: CancelToken,
+    pub check: Arc<dyn Fn() -> Result<()> + Send + Sync>,
+}
+
+pub type ConversationBinder = Arc<
+    dyn Fn(
+            ConversationId,
+            InvocationBinding,
+            &CancelToken,
+        ) -> Result<Option<Box<dyn ConversationHandle>>>
+        + Send
+        + Sync,
+>;
+
+pub trait ConversationHandle: Send + Sync {
+    fn id(&self) -> ConversationId;
+    fn submit(&self, draft: SubmissionDraft, cancel: &CancelToken) -> Result<SubmissionHandle>;
+    fn abort(&self, background: bool, cancel: &CancelToken) -> Result<()>;
+    fn wait_for_idle(&self, cancel: &CancelToken) -> Result<()>;
+}
+
 pub trait ToolExecutionApi: DocumentObserver + DocumentReader {
     fn task_id(&self) -> TaskId;
     fn conversation_id(&self) -> ConversationId;
@@ -86,6 +109,11 @@ pub trait ToolExecutionApi: DocumentObserver + DocumentReader {
     fn agent(&self, cancel: &CancelToken) -> Result<Agent>;
     fn models(&self) -> &dyn Models;
     fn env(&self) -> Option<&dyn ExecutionEnv>;
+    fn conversation(
+        &self,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<Option<Box<dyn ConversationHandle>>>;
     fn output(&self, chunk: OutputChunk<'_>, skipped: Option<ShellOutputSkip>) -> Result<()>;
     fn diagnostic(&self, diagnostic: ToolDiagnostic) -> Result<()>;
     fn details(&self, value: JsonValue, cancel: &CancelToken) -> Result<()>;
