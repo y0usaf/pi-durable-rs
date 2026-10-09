@@ -45,4 +45,9 @@ Every place behaviour differs from the TypeScript, and why.
 - Rust strings are well-formed UTF-8, so lone surrogates cannot occur, and `truncate_head_of` panics on an empty prefix that TypeScript rejects with a `TypeError`.
 - A scan with `limit: 0` that finds a row fails with `Invalid("Storage scan limit must be at least 1")`. TypeScript's page helper crashes on the same input with an internal `TypeError` (`Cannot read properties of undefined`). With no matching row both return an empty page.
 - Memory storage takes typed records, so a malformed chord op or a submission missing its required field cannot be built in Rust. TypeScript's memory storage stores such values at commit without checking them, and fails later on read or never. The Rust driver therefore cannot submit them to the Rust side.
+- Windows and PowerShell are not supported. Process groups and the shell are Unix only, so `Command::Line` runs `bash` (or `sh`) and nothing else.
+- File watching polls directory snapshots every 2000 ms (`WatchOptions::poll_interval`) instead of native `fs.watch`/inotify, which TypeScript reports as mode `native`. Polling needs no crate and no inotify FFI, at the cost of latency. There is no 50 ms debounce; changes found in one poll are reported together.
+- No `callback_error`. An output callback is a plain `FnMut` that cannot fail, so a panicking callback unwinds through `exec` instead of becoming an error.
+- Temp names have no UUID: std has no UUID generator, so `uuid()` in `src/env/node.rs` builds a v4-shaped string from `RandomState` hashes of time, a counter, and the pid. It is unique in practice and not cryptographic.
+- Process groups use `CommandExt::process_group(0)` and a two-line `extern "C"` to `kill(2)`, instead of a libc crate.
 
