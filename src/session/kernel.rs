@@ -1,5 +1,5 @@
 use std::collections::{BTreeMap, HashMap};
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -16,7 +16,7 @@ use crate::documents::{
 use crate::errors::{Error, Result};
 use crate::ids::{ConversationId, DocumentId, EntryId, Seq};
 use crate::session::observation::{
-    Deliveries, DocumentState, Observer, Target, Watch, WatchShared, state_target,
+    Deliveries, Detach, DocumentState, Sink, StateSource, Watch, WatchShared, observed_operations,
 };
 use crate::session::transaction::{LoadedDocument, Transaction, TransactionHost, TransactionScope};
 use crate::session::types::{
@@ -29,29 +29,24 @@ use crate::types::{
 };
 
 const LOCK: &str = "session lock poisoned";
-
-type CloseListener = Box<dyn FnOnce() + Send>;
 const CLOSED: &str = "Session is closed";
 const POISONED: &str = "Session is poisoned by a failed commit after storage admission; reopen it";
+const ABORTED_COMMIT: &str = "This operation was aborted";
+const ABORTED_WAIT: &str = "The operation was aborted";
 
-#[derive(Default)]
-pub struct SessionOptions {
-    pub now: Option<Box<dyn Fn() -> u64 + Send + Sync>>,
-}
+pub type Clock = Box<dyn Fn() -> u64 + Send + Sync>;
 
-pub fn create_session(storage: impl Storage + 'static, options: SessionOptions) -> Session {
-    let now: Box<dyn Fn() -> u64 + Send + Sync> =
-        options.now.unwrap_or_else(|| Box::new(system_now));
+type CloseListener = Box<dyn FnOnce() + Send>;
+
+pub fn create_session(storage: impl Storage + 'static, now: Option<Clock>) -> Session {
     Session {
         storage: Box::new(storage),
-        now,
+        now: now.unwrap_or_else(|| Box::new(system_now)),
         line: Mutex::new(Line::default()),
+        closing: AtomicBool::new(false),
         documents: Mutex::new(HashMap::new()),
-        observers: Arc::new(Mutex::new(BTreeMap::new())),
-        commit_listeners: Arc::new(Mutex::new(BTreeMap::new())),
-        close_listeners: Arc::new(Mutex::new(BTreeMap::new())),
+        listeners: Arc::new(Mutex::new(Listeners::default())),
         deliveries: Arc::new(Deliveries::default()),
-        ids: AtomicU64::new(0),
     }
 }
 
@@ -62,39 +57,28 @@ fn system_now() -> u64 {
     u64::try_from(elapsed.as_millis()).expect("system clock is out of range")
 }
 
-fn error_sink() -> Box<dyn FnMut(ChordError) + Send> {
+fn report_error() -> Box<dyn FnMut(ChordError) + Send> {
     Box::new(|error| eprintln!("{error}"))
-}
-
-fn aborted_commit() -> Error {
-    Error::Invalid("This operation was aborted".into())
-}
-
-fn aborted_watch() -> Error {
-    Error::Invalid("The operation was aborted".into())
 }
 
 #[derive(Default)]
 struct Line {
     poisoned: bool,
-    closed: bool,
     close_error: Option<String>,
 }
 
-impl Line {
-    fn check_healthy(&self) -> Result<()> {
-        if self.poisoned {
-            return Err(Error::Invalid(POISONED.into()));
-        }
-        Ok(())
+fn healthy(line: &Line) -> Result<()> {
+    if line.poisoned {
+        return Err(Error::Invalid(POISONED.into()));
     }
+    Ok(())
+}
 
-    fn check_usable(&self) -> Result<()> {
-        if self.closed {
-            return Err(Error::Invalid(CLOSED.into()));
-        }
-        self.check_healthy()
-    }
+#[derive(Default)]
+struct Listeners {
+    next: u64,
+    commits: BTreeMap<u64, CommitListener>,
+    closes: BTreeMap<u64, CloseListener>,
 }
 
 pub struct ConversationDocument {
@@ -103,49 +87,18 @@ pub struct ConversationDocument {
     pub value: JsonObject,
 }
 
-pub struct SessionLine<'a> {
-    session: &'a Session,
-}
-
-impl SessionLine<'_> {
-    pub fn conversation_document(
-        &self,
-        definition: &DocDefinition,
-        conversation_id: ConversationId,
-        cancel: &CancelToken,
-    ) -> Result<Option<ConversationDocument>> {
-        let resolved = resolve_address(definition, Some(conversation_id.0), None)?;
-        let Some(loaded) =
-            self.session
-                .load_document(definition, &resolved.id, &resolved.address, cancel)?
-        else {
-            return Ok(None);
-        };
-        check_record_scope(definition, &loaded.record.create)?;
-        check_record_version(definition, &loaded.record.create, loaded.stored_version)?;
-        Ok(Some(ConversationDocument {
-            value: object_of(&loaded)?,
-            version: loaded.value_version,
-            record: loaded.record,
-        }))
-    }
-}
-
 pub struct Session {
     storage: Box<dyn Storage>,
-    now: Box<dyn Fn() -> u64 + Send + Sync>,
+    now: Clock,
     line: Mutex<Line>,
+    closing: AtomicBool,
     documents: Mutex<HashMap<String, LoadedDocument>>,
-    observers: Arc<Mutex<BTreeMap<u64, Observer>>>,
-    commit_listeners: Arc<Mutex<BTreeMap<u64, CommitListener>>>,
-    close_listeners: Arc<Mutex<BTreeMap<u64, CloseListener>>>,
+    listeners: Arc<Mutex<Listeners>>,
     deliveries: Arc<Deliveries>,
-    ids: AtomicU64,
 }
 
-fn object_of(loaded: &LoadedDocument) -> Result<JsonObject> {
-    let tracker = loaded.tracker.lock().expect(LOCK);
-    match tracker.value() {
+fn tracked_object(loaded: &LoadedDocument) -> Result<JsonObject> {
+    match loaded.tracker.lock().expect(LOCK).value() {
         JsonValue::Object(object) => Ok(object.clone()),
         _ => Err(Error::Invalid(format!(
             "Document {} is not an object",
@@ -171,16 +124,18 @@ impl Session {
         self.line.lock().expect(LOCK)
     }
 
-    fn next_id(&self) -> u64 {
-        self.ids.fetch_add(1, Ordering::SeqCst)
-    }
-
     fn assert_usable(&self) -> Result<()> {
-        self.lock_line().check_usable()
+        if self.closing.load(Ordering::SeqCst) {
+            return Err(Error::Invalid(CLOSED.into()));
+        }
+        healthy(&self.lock_line())
     }
 
     fn enqueue<R>(&self, job: impl FnOnce(&mut Line) -> Result<R>) -> Result<R> {
-        let outcome = job(&mut self.lock_line());
+        let outcome = {
+            let mut line = self.lock_line();
+            job(&mut line)
+        };
         self.deliveries.drain();
         outcome
     }
@@ -210,9 +165,9 @@ impl Session {
         cancel: &CancelToken,
         scope: TransactionScope,
     ) -> Result<R> {
-        line.check_usable()?;
+        healthy(line)?;
         if cancel.is_cancelled() {
-            return Err(aborted_commit());
+            return Err(Error::Invalid(ABORTED_COMMIT.into()));
         }
         let mut tx = Transaction::new(self, cancel, scope);
         let result = match change(&mut tx) {
@@ -244,56 +199,148 @@ impl Session {
                 return Err(error);
             }
         };
-        self.publish(seq, &writes, &documents);
+        self.publish(seq, &writes, &documents, cancel);
         Ok(result)
     }
 
-    pub fn read_on_line<R>(&self, job: impl FnOnce(&SessionLine<'_>) -> Result<R>) -> Result<R> {
+    pub fn read_on_line<R>(&self, job: impl FnOnce() -> Result<R>) -> Result<R> {
         self.assert_usable()?;
         self.enqueue(|line| {
-            line.check_usable()?;
-            job(&SessionLine { session: self })
+            healthy(line)?;
+            job()
         })
     }
 
-    fn publish(&self, seq: Seq, writes: &[StorageWrite], documents: &[DocumentCommitChange]) {
-        let listeners = self.commit_listeners.lock().expect(LOCK);
-        if !listeners.is_empty() {
-            let mut changes: Vec<CommitChange> = writes
+    pub fn conversation_document_on_line(
+        &self,
+        definition: &DocDefinition,
+        conversation_id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<Option<ConversationDocument>> {
+        let resolved = resolve_address(definition, Some(conversation_id.0), None)?;
+        let Some(loaded) =
+            self.load_document(definition, &resolved.id, &resolved.address, cancel)?
+        else {
+            return Ok(None);
+        };
+        check_record_scope(definition, &loaded.record.create)?;
+        check_record_version(definition, &loaded.record.create, loaded.stored_version)?;
+        Ok(Some(ConversationDocument {
+            value: tracked_object(&loaded)?,
+            version: loaded.value_version,
+            record: loaded.record,
+        }))
+    }
+
+    fn publish(
+        &self,
+        seq: Seq,
+        writes: &[StorageWrite],
+        documents: &[DocumentCommitChange],
+        cancel: &CancelToken,
+    ) {
+        let listeners = self.listeners.lock().expect(LOCK);
+        if listeners.commits.is_empty() {
+            return;
+        }
+        let mut changes: Vec<CommitChange> = writes
+            .iter()
+            .filter_map(|write| match write {
+                StorageWrite::Table(change) => Some(CommitChange::Table((**change).clone())),
+                _ => None,
+            })
+            .collect();
+        changes.extend(
+            documents
                 .iter()
-                .filter_map(|write| match write {
-                    StorageWrite::Table(change) => Some(CommitChange::Table((**change).clone())),
-                    _ => None,
-                })
-                .collect();
-            changes.extend(
-                documents
-                    .iter()
-                    .map(|document| CommitChange::Document(document.clone())),
-            );
-            let publication = CommitPublication { seq, changes };
-            for listener in listeners.values() {
-                listener(&publication, &CancelToken::new());
-            }
+                .map(|document| CommitChange::Document(document.clone())),
+        );
+        let publication = CommitPublication { seq, changes };
+        for listener in listeners.commits.values() {
+            listener(&publication, cancel);
         }
-        drop(listeners);
-        let mut observers = self.observers.lock().expect(LOCK);
-        for change in documents {
-            if let DocumentCommitChange::Document {
-                record,
-                version,
-                value,
-                ops,
-                ..
-            } = change
-            {
-                for observer in observers.values_mut() {
-                    if observer.record == record.create.id {
-                        observer.observe(value, *version, ops, &self.deliveries);
-                    }
+    }
+
+    fn register(&self, sink: Sink, record: DocumentId, observed: u64) -> Detach {
+        let id = {
+            let mut listeners = self.listeners.lock().expect(LOCK);
+            listeners.next += 1;
+            listeners.next
+        };
+        let observed = Mutex::new(observed);
+        let commit_sink = sink.clone();
+        let commit: CommitListener = Box::new(move |publication, _cancel| {
+            for change in &publication.changes {
+                let CommitChange::Document(DocumentCommitChange::Document {
+                    record: changed,
+                    value,
+                    version,
+                    ops,
+                    ..
+                }) = change
+                else {
+                    continue;
+                };
+                if changed.create.id != record {
+                    continue;
                 }
+                let ops =
+                    observed_operations(&mut observed.lock().expect(LOCK), value, *version, ops);
+                if ops.is_empty() {
+                    continue;
+                }
+                commit_sink.advance(value.clone(), ops);
             }
+        });
+        let close: CloseListener = Box::new(move || sink.close_session());
+        {
+            let mut listeners = self.listeners.lock().expect(LOCK);
+            listeners.commits.insert(id, commit);
+            listeners.closes.insert(id, close);
         }
+        let listeners = Arc::clone(&self.listeners);
+        Box::new(move || {
+            let mut listeners = listeners.lock().expect(LOCK);
+            listeners.commits.remove(&id);
+            listeners.closes.remove(&id);
+        })
+    }
+
+    fn attach_state(
+        &self,
+        definition: &DocDefinition,
+        loaded: &LoadedDocument,
+    ) -> Result<DocumentState> {
+        check_record_scope(definition, &loaded.record.create)?;
+        check_record_version(definition, &loaded.record.create, loaded.stored_version)?;
+        let object = tracked_object(loaded)?;
+        let attached = Attached::new(0, JsonValue::Object(object.clone()), report_error());
+        let (state, source) =
+            StateSource::new(Some(object), attached, Arc::clone(&self.deliveries));
+        let detach = self.register(
+            Sink::State(Arc::clone(&source)),
+            loaded.record.create.id,
+            loaded.value_version,
+        );
+        source.lock().expect(LOCK).set_detach(detach);
+        Ok(state)
+    }
+
+    fn attach_watch(
+        &self,
+        definition: &DocDefinition,
+        loaded: &LoadedDocument,
+    ) -> Result<Arc<WatchShared>> {
+        check_record_scope(definition, &loaded.record.create)?;
+        check_record_version(definition, &loaded.record.create, loaded.stored_version)?;
+        let shared = WatchShared::new(Some(tracked_object(loaded)?), Arc::clone(&self.deliveries));
+        let detach = self.register(
+            Sink::Watch(Arc::clone(&shared)),
+            loaded.record.create.id,
+            loaded.value_version,
+        );
+        shared.set_detach(detach);
+        Ok(shared)
     }
 
     fn load_document(
@@ -326,12 +373,12 @@ impl Session {
                 record.create.id, record.create.kind
             )));
         };
-        let stored_record = stored.record.clone();
         let (stored_version, deltas_since_base) = (stored.version, stored.deltas_since_base);
+        let record = stored.record.clone();
         let value = materialize_document(definition, stored)?;
         let loaded = LoadedDocument {
             address_id: address_id.to_owned(),
-            record: stored_record,
+            record,
             stored_version,
             value_version: definition.version,
             deltas_since_base,
@@ -344,101 +391,6 @@ impl Session {
         Ok(Some(loaded))
     }
 
-    fn attach_state(
-        &self,
-        definition: &DocDefinition,
-        loaded: &LoadedDocument,
-    ) -> Result<DocumentState> {
-        check_record_scope(definition, &loaded.record.create)?;
-        check_record_version(definition, &loaded.record.create, loaded.stored_version)?;
-        let attached = Arc::new(Mutex::new(Attached::new(
-            0,
-            JsonValue::Object(object_of(loaded)?),
-            error_sink(),
-        )));
-        let id = self.next_id();
-        self.observers.lock().expect(LOCK).insert(
-            id,
-            Observer {
-                record: loaded.record.create.id,
-                version: loaded.value_version,
-                target: state_target(Arc::clone(&attached)),
-            },
-        );
-        Ok(DocumentState::new(attached))
-    }
-
-    fn attach_watch(
-        &self,
-        definition: &DocDefinition,
-        loaded: &LoadedDocument,
-    ) -> Result<Arc<WatchShared>> {
-        check_record_scope(definition, &loaded.record.create)?;
-        check_record_version(definition, &loaded.record.create, loaded.stored_version)?;
-        let id = self.next_id();
-        let observers = Arc::clone(&self.observers);
-        let shared = WatchShared::new(
-            Some(object_of(loaded)?),
-            Arc::clone(&self.deliveries),
-            Box::new(move || {
-                observers.lock().expect(LOCK).remove(&id);
-            }),
-        );
-        self.observers.lock().expect(LOCK).insert(
-            id,
-            Observer {
-                record: loaded.record.create.id,
-                version: loaded.value_version,
-                target: Target::Watch(Arc::clone(&shared)),
-            },
-        );
-        Ok(shared)
-    }
-
-    pub fn document_state(
-        &self,
-        doc: DocRef,
-        cancel: &CancelToken,
-    ) -> Result<Option<DocumentState>> {
-        self.assert_usable()?;
-        let resolved = resolve_address(doc.definition, doc.owner, doc.key)?;
-        self.enqueue(|line| {
-            line.check_healthy()?;
-            let Some(loaded) =
-                self.load_document(doc.definition, &resolved.id, &resolved.address, cancel)?
-            else {
-                return Ok(None);
-            };
-            self.attach_state(doc.definition, &loaded).map(Some)
-        })
-    }
-
-    pub fn subscribe_commits(&self, listener: CommitListener) -> Result<Unsubscribe> {
-        self.assert_usable()?;
-        let id = self.next_id();
-        self.commit_listeners
-            .lock()
-            .expect(LOCK)
-            .insert(id, listener);
-        let listeners = Arc::clone(&self.commit_listeners);
-        Ok(Box::new(move || {
-            listeners.lock().expect(LOCK).remove(&id);
-        }))
-    }
-
-    pub fn subscribe_close(&self, listener: Box<dyn FnOnce() + Send>) -> Result<Unsubscribe> {
-        self.assert_usable()?;
-        let id = self.next_id();
-        self.close_listeners
-            .lock()
-            .expect(LOCK)
-            .insert(id, listener);
-        let listeners = Arc::clone(&self.close_listeners);
-        Ok(Box::new(move || {
-            listeners.lock().expect(LOCK).remove(&id);
-        }))
-    }
-
     pub fn unload_documents(&self) -> Result<()> {
         self.enqueue(|_| {
             self.documents.lock().expect(LOCK).clear();
@@ -446,32 +398,60 @@ impl Session {
         })
     }
 
-    pub fn close(&self) -> Result<()> {
-        let mut line = self.lock_line();
-        if line.closed {
+    pub fn subscribe_commits(&self, listener: CommitListener) -> Result<Unsubscribe> {
+        self.assert_usable()?;
+        let id = {
+            let mut listeners = self.listeners.lock().expect(LOCK);
+            listeners.next += 1;
+            let id = listeners.next;
+            listeners.commits.insert(id, listener);
+            id
+        };
+        let listeners = Arc::clone(&self.listeners);
+        Ok(Box::new(move || {
+            listeners.lock().expect(LOCK).commits.remove(&id);
+        }))
+    }
+
+    pub fn subscribe_close(&self, listener: CloseListener) -> Result<Unsubscribe> {
+        self.assert_usable()?;
+        let id = {
+            let mut listeners = self.listeners.lock().expect(LOCK);
+            listeners.next += 1;
+            let id = listeners.next;
+            listeners.closes.insert(id, listener);
+            id
+        };
+        let listeners = Arc::clone(&self.listeners);
+        Ok(Box::new(move || {
+            listeners.lock().expect(LOCK).closes.remove(&id);
+        }))
+    }
+
+    pub fn close(&self, cancel: &CancelToken) -> Result<()> {
+        if self.closing.swap(true, Ordering::SeqCst) {
+            let line = self.lock_line();
+            if cancel.is_cancelled() {
+                return Err(Error::Invalid(ABORTED_WAIT.into()));
+            }
             return match &line.close_error {
                 None => Ok(()),
                 Some(message) => Err(Error::Invalid(message.clone())),
             };
         }
-        line.closed = true;
-        let close_listeners = std::mem::take(&mut *self.close_listeners.lock().expect(LOCK));
-        for listener in close_listeners.into_values() {
+        let closes = std::mem::take(&mut self.listeners.lock().expect(LOCK).closes);
+        for listener in closes.into_values() {
             listener();
         }
-        let observers = std::mem::take(&mut *self.observers.lock().expect(LOCK));
-        for observer in observers.into_values() {
-            observer.close();
-        }
-        self.commit_listeners.lock().expect(LOCK).clear();
+        let mut line = self.lock_line();
+        self.listeners.lock().expect(LOCK).commits.clear();
         self.documents.lock().expect(LOCK).clear();
-        match self.storage.close(&CancelToken::new()) {
-            Ok(()) => Ok(()),
-            Err(error) => {
-                line.close_error = Some(error.to_string());
-                Err(error)
-            }
+        let outcome = self.storage.close(&CancelToken::new());
+        line.close_error = outcome.as_ref().err().map(ToString::to_string);
+        if cancel.is_cancelled() {
+            return Err(Error::Invalid(ABORTED_WAIT.into()));
         }
+        outcome
     }
 
     pub fn snapshot_as<T: DeserializeOwned>(
@@ -485,6 +465,24 @@ impl Session {
             Some(object) => Ok(Some(serde_json::from_value(JsonValue::Object(object))?)),
             None => Ok(None),
         }
+    }
+
+    pub fn document_state(
+        &self,
+        doc: DocRef,
+        cancel: &CancelToken,
+    ) -> Result<Option<DocumentState>> {
+        self.assert_usable()?;
+        let resolved = resolve_address(doc.definition, doc.owner, doc.key)?;
+        self.enqueue(|line| {
+            healthy(line)?;
+            let Some(loaded) =
+                self.load_document(doc.definition, &resolved.id, &resolved.address, cancel)?
+            else {
+                return Ok(None);
+            };
+            self.attach_state(doc.definition, &loaded).map(Some)
+        })
     }
 }
 
@@ -502,7 +500,7 @@ impl DocumentReader for Session {
         let loaded = match cached {
             Some(loaded) => Some(loaded),
             None => self.enqueue(|line| {
-                line.check_healthy()?;
+                healthy(line)?;
                 self.load_document(doc.definition, &resolved.id, &resolved.address, cancel)
             })?,
         };
@@ -511,7 +509,7 @@ impl DocumentReader for Session {
         };
         check_record_scope(doc.definition, &loaded.record.create)?;
         check_record_version(doc.definition, &loaded.record.create, loaded.stored_version)?;
-        object_of(&loaded).map(Some)
+        tracked_object(&loaded).map(Some)
     }
 
     fn snapshot_as_of(
@@ -522,16 +520,13 @@ impl DocumentReader for Session {
     ) -> Result<Option<JsonObject>> {
         self.assert_usable()?;
         let resolved = resolve_address(doc.definition, doc.owner, doc.key)?;
-        let conversation_id = match &resolved.address.scope {
-            ScopeRef::Conversation { conversation_id } => *conversation_id,
-            _ => {
-                return Err(Error::Invalid(
-                    "Session.snapshotAsOf() requires a conversation document".into(),
-                ));
-            }
+        let ScopeRef::Conversation { conversation_id } = resolved.address.scope else {
+            return Err(Error::Invalid(
+                "Session.snapshotAsOf() requires a conversation document".into(),
+            ));
         };
         self.enqueue(|line| {
-            line.check_healthy()?;
+            healthy(line)?;
             let stored = self
                 .storage
                 .visible_entry(conversation_id, at, cancel)?
@@ -564,9 +559,9 @@ impl DocumentObserver for Session {
         self.assert_usable()?;
         let resolved = resolve_address(doc.definition, doc.owner, doc.key)?;
         let shared = self.enqueue(|line| {
-            line.check_healthy()?;
+            healthy(line)?;
             if cancel.is_cancelled() {
-                return Err(aborted_watch());
+                return Err(Error::Invalid(ABORTED_WAIT.into()));
             }
             let Some(loaded) =
                 self.load_document(doc.definition, &resolved.id, &resolved.address, cancel)?
@@ -574,20 +569,18 @@ impl DocumentObserver for Session {
                 return Ok(None);
             };
             if cancel.is_cancelled() {
-                return Err(aborted_watch());
+                return Err(Error::Invalid(ABORTED_WAIT.into()));
             }
             self.attach_watch(doc.definition, &loaded).map(Some)
         })?;
         let Some(shared) = shared else {
             return Ok(None);
         };
-        let on_cancel = Arc::clone(&shared);
-        cancel.on_cancel(move || {
-            on_cancel.terminate(WatchEnd::Cancelled);
-        });
         if cancel.is_cancelled() {
-            return Err(aborted_watch());
+            shared.terminate(WatchEnd::Cancelled);
+            return Err(Error::Invalid(ABORTED_WAIT.into()));
         }
+        shared.observe_cancellation(cancel);
         Ok(Some(Watch::boxed(shared)))
     }
 }

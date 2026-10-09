@@ -4,16 +4,21 @@ use std::sync::{Arc, Mutex};
 use crate::cancel::CancelToken;
 use crate::chord::delta::Op;
 use crate::chord::state::{Attached, Handle, Listener};
-use crate::errors::{Error, Result};
-use crate::ids::DocumentId;
 use crate::types::{JsonObject, JsonValue};
 
 use super::types::{DocumentWatch, WatchEnd, WatchHandle, WatchListener};
+use crate::errors::{Error, Result};
 
 const MAX_PENDING_WATCH_FRAMES: usize = 100;
 const LOCK: &str = "session observer lock poisoned";
 
+pub type Detach = Box<dyn FnOnce() + Send>;
+
 type Job = Box<dyn FnOnce() + Send>;
+
+pub fn retirement_operations() -> Vec<Op> {
+    vec![Op::Replace(JsonValue::Null)]
+}
 
 #[derive(Default)]
 pub struct Deliveries {
@@ -27,11 +32,11 @@ struct Queue {
 }
 
 impl Deliveries {
-    pub(super) fn push(&self, job: impl FnOnce() + Send + 'static) {
+    pub fn push(&self, job: impl FnOnce() + Send + 'static) {
         self.queue.lock().expect(LOCK).jobs.push_back(Box::new(job));
     }
 
-    pub(super) fn drain(&self) {
+    pub fn drain(&self) {
         {
             let mut queue = self.queue.lock().expect(LOCK);
             if queue.draining {
@@ -66,10 +71,6 @@ fn value_json(value: &Option<JsonObject>) -> JsonValue {
 pub struct DocumentState(Arc<Mutex<Attached>>);
 
 impl DocumentState {
-    pub(super) fn new(attached: Arc<Mutex<Attached>>) -> Self {
-        Self(attached)
-    }
-
     pub fn value(&self) -> JsonValue {
         self.0.lock().expect(LOCK).value().clone()
     }
@@ -83,35 +84,84 @@ impl DocumentState {
     }
 }
 
-struct Frame {
-    value: Option<JsonObject>,
-    ops: Vec<Op>,
+pub struct StateSource {
+    attached: Arc<Mutex<Attached>>,
+    deliveries: Arc<Deliveries>,
+    cursor: u64,
+    retired: bool,
+    closed: bool,
+    detach: Option<Detach>,
+}
+
+impl StateSource {
+    pub fn new(
+        value: Option<JsonObject>,
+        attached: Attached,
+        deliveries: Arc<Deliveries>,
+    ) -> (DocumentState, Arc<Mutex<StateSource>>) {
+        let retired = value.is_none();
+        let attached = Arc::new(Mutex::new(attached));
+        let source = Arc::new(Mutex::new(StateSource {
+            attached: Arc::clone(&attached),
+            deliveries,
+            cursor: 0,
+            retired,
+            closed: false,
+            detach: None,
+        }));
+        (DocumentState(attached), source)
+    }
+
+    pub fn set_detach(&mut self, detach: Detach) {
+        self.detach = Some(detach);
+    }
+
+    fn advance(&mut self, value: Option<JsonObject>, ops: Vec<Op>) {
+        if self.closed || self.retired {
+            return;
+        }
+        self.cursor += 1;
+        self.retired = value.is_none();
+        let attached = Arc::clone(&self.attached);
+        let cursor = self.cursor;
+        let value = value_json(&value);
+        self.deliveries.push(move || {
+            attached
+                .lock()
+                .expect(LOCK)
+                .receive(cursor, value, &ops, &CancelToken::new())
+                .expect("state cursors are contiguous by construction");
+        });
+    }
+
+    fn close_session(&mut self) {
+        if self.closed {
+            return;
+        }
+        self.closed = true;
+        if let Some(detach) = self.detach.take() {
+            detach();
+        }
+    }
 }
 
 struct WatchCore {
     value: Option<JsonObject>,
-    pending: VecDeque<Frame>,
+    pending: VecDeque<(Option<JsonObject>, Vec<Op>)>,
     started: bool,
     retired: bool,
     listener: Option<WatchListener>,
     end: Option<WatchEnd>,
-    detach: Option<Box<dyn FnOnce() + Send>>,
+    detach: Option<Detach>,
 }
 
 pub struct WatchShared {
     core: Mutex<WatchCore>,
     deliveries: Arc<Deliveries>,
-    never: CancelToken,
 }
 
-pub struct Watch(Arc<WatchShared>);
-
 impl WatchShared {
-    pub(super) fn new(
-        value: Option<JsonObject>,
-        deliveries: Arc<Deliveries>,
-        detach: Box<dyn FnOnce() + Send>,
-    ) -> Arc<Self> {
+    pub fn new(value: Option<JsonObject>, deliveries: Arc<Deliveries>) -> Arc<Self> {
         Arc::new(Self {
             core: Mutex::new(WatchCore {
                 value,
@@ -120,14 +170,17 @@ impl WatchShared {
                 retired: false,
                 listener: None,
                 end: None,
-                detach: Some(detach),
+                detach: None,
             }),
             deliveries,
-            never: CancelToken::new(),
         })
     }
 
-    pub(super) fn advance(self: &Arc<Self>, value: Option<JsonObject>, ops: Vec<Op>) {
+    pub fn set_detach(&self, detach: Detach) {
+        self.core.lock().expect(LOCK).detach = Some(detach);
+    }
+
+    fn advance(self: &Arc<Self>, value: Option<JsonObject>, ops: Vec<Op>) {
         let mut core = self.core.lock().expect(LOCK);
         if core.end.is_some() || core.retired {
             return;
@@ -135,17 +188,14 @@ impl WatchShared {
         if value.is_none() {
             core.retired = true;
         }
-        let frame = if core.pending.len() >= MAX_PENDING_WATCH_FRAMES {
+        if core.pending.len() >= MAX_PENDING_WATCH_FRAMES {
             core.pending.clear();
             let replacement = value_json(&value);
-            Frame {
-                value,
-                ops: vec![Op::Replace(replacement)],
-            }
+            core.pending
+                .push_back((value, vec![Op::Replace(replacement)]));
         } else {
-            Frame { value, ops }
-        };
-        core.pending.push_back(frame);
+            core.pending.push_back((value, ops));
+        }
         let started = core.started;
         drop(core);
         if started {
@@ -176,7 +226,7 @@ impl WatchShared {
 
     fn drain(&self) {
         loop {
-            let (frame, mut listener) = {
+            let (value, ops, mut listener) = {
                 let mut core = self.core.lock().expect(LOCK);
                 if core.end.is_some() {
                     return;
@@ -184,18 +234,19 @@ impl WatchShared {
                 let Some(listener) = core.listener.take() else {
                     return;
                 };
-                let Some(frame) = core.pending.pop_front() else {
+                let Some((value, ops)) = core.pending.pop_front() else {
                     core.listener = Some(listener);
                     return;
                 };
-                core.value = frame.value.clone();
-                (frame, listener)
+                core.value = value.clone();
+                (value, ops, listener)
             };
-            if let Err(error) = listener(frame.value.as_ref(), &frame.ops, &self.never) {
+            let retired = value.is_none();
+            if let Err(error) = listener(value.as_ref(), &ops, &CancelToken::new()) {
                 self.terminate(WatchEnd::ListenerError(Arc::new(error)));
                 return;
             }
-            if frame.value.is_none() {
+            if retired {
                 self.terminate(WatchEnd::Retired);
                 return;
             }
@@ -207,7 +258,7 @@ impl WatchShared {
         }
     }
 
-    pub(super) fn terminate(&self, end: WatchEnd) -> WatchEnd {
+    pub fn terminate(&self, end: WatchEnd) -> WatchEnd {
         let (end, detach) = {
             let mut core = self.core.lock().expect(LOCK);
             if let Some(existing) = &core.end {
@@ -223,13 +274,25 @@ impl WatchShared {
         end
     }
 
+    pub fn observe_cancellation(self: &Arc<Self>, cancel: &CancelToken) {
+        if self.core.lock().expect(LOCK).end.is_some() {
+            return;
+        }
+        let shared = Arc::clone(self);
+        cancel.on_cancel(move || {
+            shared.terminate(WatchEnd::Cancelled);
+        });
+    }
+
     fn closed(&self) -> Option<WatchEnd> {
         self.core.lock().expect(LOCK).end.clone()
     }
 }
 
+pub struct Watch(Arc<WatchShared>);
+
 impl Watch {
-    pub(super) fn boxed(shared: Arc<WatchShared>) -> DocumentWatch {
+    pub fn boxed(shared: Arc<WatchShared>) -> DocumentWatch {
         Box::new(Watch(shared))
     }
 }
@@ -252,80 +315,43 @@ impl WatchHandle for Watch {
     }
 }
 
-pub enum Target {
-    State {
-        attached: Arc<Mutex<Attached>>,
-        cursor: u64,
-        retired: bool,
-    },
+#[derive(Clone)]
+pub enum Sink {
+    State(Arc<Mutex<StateSource>>),
     Watch(Arc<WatchShared>),
 }
 
-pub struct Observer {
-    pub record: DocumentId,
-    pub version: u64,
-    pub target: Target,
-}
-
-impl Observer {
-    pub(super) fn observe(
-        &mut self,
-        value: &Option<JsonObject>,
-        version: Option<u64>,
-        ops: &[Op],
-        deliveries: &Deliveries,
-    ) {
-        let ops = match value {
-            None => vec![Op::Replace(JsonValue::Null)],
-            Some(_) if version == Some(self.version) => ops.to_vec(),
-            Some(object) => {
-                self.version = version.expect("a committed value carries its version");
-                vec![Op::Replace(JsonValue::Object(object.clone()))]
-            }
-        };
-        if ops.is_empty() {
-            return;
-        }
-        match &mut self.target {
-            Target::State {
-                attached,
-                cursor,
-                retired,
-            } => {
-                if *retired {
-                    return;
-                }
-                *cursor += 1;
-                if value.is_none() {
-                    *retired = true;
-                }
-                let attached = Arc::clone(attached);
-                let cursor = *cursor;
-                let value = value_json(value);
-                let never = CancelToken::new();
-                deliveries.push(move || {
-                    attached
-                        .lock()
-                        .expect(LOCK)
-                        .receive(cursor, value, &ops, &never)
-                        .expect("state cursors are contiguous by construction");
-                });
-            }
-            Target::Watch(shared) => shared.advance(value.clone(), ops),
+impl Sink {
+    pub fn advance(&self, value: Option<JsonObject>, ops: Vec<Op>) {
+        match self {
+            Sink::State(source) => source.lock().expect(LOCK).advance(value, ops),
+            Sink::Watch(shared) => shared.advance(value, ops),
         }
     }
 
-    pub(super) fn close(self) {
-        if let Target::Watch(shared) = self.target {
-            shared.terminate(WatchEnd::SessionClosed);
+    pub fn close_session(&self) {
+        match self {
+            Sink::State(source) => source.lock().expect(LOCK).close_session(),
+            Sink::Watch(shared) => {
+                shared.terminate(WatchEnd::SessionClosed);
+            }
         }
     }
 }
 
-pub(super) fn state_target(attached: Arc<Mutex<Attached>>) -> Target {
-    Target::State {
-        attached,
-        cursor: 0,
-        retired: false,
+pub fn observed_operations(
+    observed: &mut u64,
+    value: &Option<JsonObject>,
+    version: Option<u64>,
+    ops: &[Op],
+) -> Vec<Op> {
+    match (value, version) {
+        (None, _) => retirement_operations(),
+        (Some(_), Some(version)) if version == *observed => ops.to_vec(),
+        (Some(object), Some(version)) => {
+            *observed = version;
+            vec![Op::Replace(JsonValue::Object(object.clone()))]
+        }
+        (Some(_), None) => ops.to_vec(),
     }
 }

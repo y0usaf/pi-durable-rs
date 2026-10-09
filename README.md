@@ -55,4 +55,9 @@ Every place behaviour differs from the TypeScript, and why.
 - Transaction methods return values directly, so TypeScript's rule that a commit callback must not settle with unawaited `Tx` operations (`Session commit callback settled before its pending Tx operations`) has no case to fire and is not ported.
 - `Tx::create_task` takes the initial checkpoint already computed (`TaskCreate::checkpoint`). TypeScript calls `definition.initial(input)` inside the write, so an exception from `initial` surfaces there instead of before the call.
 - A failed draft acquisition is replayed to later `doc` and `retire_doc` calls on the same address with the same message, as in TypeScript, but as `Error::Invalid(message)`, since `Error` is not `Clone`. The original variant is lost; the text is identical.
+- Session watches and document state subscribers receive frames from a queue shared by the session. Frames are delivered after the committing call leaves the session line, by one drainer at a time, so commit listeners run before the frames of the same commit. TypeScript delivers these from microtasks, so the order matches and the timing differs. The per-subscriber queue belongs to the session path only; chord subscribers still deliver synchronously.
+- An unstarted watch keeps at most 100 pending frames. On overflow the queue is replaced by one `Replace` op carrying the newest value, as in TypeScript's `MAX_PENDING_WATCH_FRAMES`.
+- Session-created state sources and watches report chord errors to stderr through a sink. TypeScript reports them with `reportErrorAsync`.
+- A cancelled session operation fails with the fixed text `The operation was aborted` (watch) or `This operation was aborted` (commit). TypeScript uses the signal's reason when that reason is an `Error`.
+- `create_session(storage, now)` takes `Option<Clock>` in place of TypeScript's `{ now }` options object. An absent clock reads the system time in milliseconds.
 
