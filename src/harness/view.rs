@@ -104,7 +104,6 @@ impl ConversationViews {
         })
     }
 
-    /// Must be called on the Session line: the build and the registration are atomic with commits.
     pub fn attach(
         &self,
         session: &Session,

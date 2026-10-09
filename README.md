@@ -71,6 +71,7 @@ Every place behaviour differs from the TypeScript, and why.
 - `readContextFrom` returns owned copies and has no `freezeJson`; the range is immutable by ownership, not by a deep freeze.
 - `renderSections` reports a failing section through an `FnMut(&Error)` sink and returns `Err` only on cancellation. Section maps are ordered `Vec` pairs with the same set and order rules as `Map`; `PromptInput.shown` is a `BTreeMap`.
 - `harness::view` observers run synchronously on the commit path, with `before`, `after`, `ops` and the publication. Chord replicated state and `CommittedWatch` delivery are not ported: the Rust observation layer is typed to document objects, so watch delivery waits for a generic value type.
+- `harness::task_graph` scans live tasks per status and sorts them by id, instead of TS's `scanTasks` order. Its `phase` read panics on a checkpoint without `phase`; TS casts. Chord state and `CommittedWatch` delivery are not ported, as for views. Terminal tasks leave the graph by a `d` op, as in TS.
 - `create_session(storage, now)` takes `Option<Clock>` in place of TypeScript's `{ now }` options object. An absent clock reads the system time in milliseconds.
 
 - Tools are registered as plain `ToolRegistration` values in `src/harness/coding_tools.rs`, not through TypeScript's `defineTool`/`defineExtension`/`CodingTools`. Schemas are JSON values built by hand, not typebox. `createPowerShellTool` is not ported, since PowerShell is unsupported.

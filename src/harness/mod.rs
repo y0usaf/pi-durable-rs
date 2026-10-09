@@ -9,6 +9,7 @@ pub mod output;
 pub mod prompt;
 pub mod provider;
 pub mod registry;
+pub mod task_graph;
 pub mod types;
 pub mod usage;
 pub mod util;
