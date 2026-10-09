@@ -42,7 +42,7 @@ pub struct WriteDraft {
 }
 
 impl WriteDraft {
-    fn entry_draft(&self) -> EntryDraft {
+    pub fn entry_draft(&self) -> EntryDraft {
         EntryDraft {
             kind: self.kind.clone(),
             model: self.model.clone(),
