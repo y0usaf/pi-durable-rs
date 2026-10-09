@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::ai::types::{
-    AssistantBlock, AssistantMessage, CacheRetention, Message, SimpleStreamOptions, StopReason,
-    SystemContent, SystemMessage, SystemRole, TextContent, TextType, TranscriptContext, UserBlock,
-    UserContent, UserMessage, UserRole,
+    AssistantBlock, AssistantMessage, CacheRetention, Message, StopReason, SystemContent,
+    SystemMessage, SystemRole, TextContent, TextType, TranscriptContext, UserBlock, UserContent,
+    UserMessage, UserRole,
 };
 use crate::ai::utils::estimate::{calculate_context_tokens, estimate_message_tokens};
 use crate::ai::utils::js;
@@ -16,19 +16,19 @@ use crate::cancel::CancelToken;
 use crate::entries::{CompactionData, compaction_entry};
 use crate::errors::{Error, Result};
 use crate::harness::context::{ContextView, order_tool_results};
-use crate::harness::generation::{edit_live, queue_modes, reasoning};
+use crate::harness::generation::{edit_live, queue_modes, simple_options};
 use crate::harness::inbox::{WriteDraft, WriteHead};
 use crate::harness::live::{CompactionStatus, RetryStatus};
 use crate::harness::provider::ensure_provider_session_id;
 use crate::harness::runtime::{HarnessPhaseHandler, HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::submissions::{SubmissionDraft, admit_submission};
 use crate::harness::tool::erase;
-use crate::harness::types::{CompactionReason, ConversationStreamOptions, ModelRef};
+use crate::harness::types::{ConversationStreamOptions, ModelRef};
 use crate::harness::usage::{UsageBucket, record_usage};
 use crate::ids::{ConversationId, EntryId, SubmissionId, TaskId};
 use crate::session::types::{TaskCreate, TaskOptions, Tx};
 use crate::tasks::{NextTaskState, RunningTask, TaskOutcome, TaskOutcomeError, TaskOwnership};
-use crate::types::{EntryDraft, EntryHead, EntryRecord, JsonObject};
+use crate::types::{CompactionReason, EntryDraft, EntryHead, EntryRecord, JsonObject};
 
 pub const COMPACTION_KIND: &str = "pi.compaction";
 pub const COMPACTION_VERSION: u64 = 1;
@@ -187,10 +187,24 @@ pub fn create_compaction(
     reason: CompactionReason,
     owner: Option<TaskId>,
 ) -> Result<TaskId> {
-    let input = CompactionInput {
-        reason,
-        instructions: None,
-    };
+    create_compaction_with(
+        tx,
+        conversation_id,
+        CompactionInput {
+            reason,
+            instructions: None,
+        },
+        owner,
+    )
+}
+
+pub fn create_compaction_with(
+    tx: &mut dyn Tx,
+    conversation_id: ConversationId,
+    input: CompactionInput,
+    owner: Option<TaskId>,
+) -> Result<TaskId> {
+    let reason = input.reason;
     let background = owner.is_none() && reason != CompactionReason::Manual;
     let ownership = match owner {
         None => TaskOwnership::Conversation,
@@ -211,7 +225,7 @@ pub fn create_compaction(
     )?;
     let status = CompactionStatus {
         task_id,
-        reason: entry_reason(reason),
+        reason,
         blocking: owner.is_some(),
         attempt: 1,
         retry: None,
@@ -325,13 +339,15 @@ fn summarize(task: Task, runtime: Runtime<'_>, cancel: &CancelToken) -> Result<(
             now,
         )),
     ];
-    let options = SimpleStreamOptions {
-        signal: Some(runtime.signal().clone()),
-        session_id: Some(ensure_provider_session_id(runtime, cancel)?),
-        reasoning: reasoning(request.thinking_level),
-        cache_retention: Some(CacheRetention::None),
-        deferred: false,
-    };
+    let mut options = simple_options(
+        &request.stream_options,
+        request.thinking_level,
+        runtime.signal(),
+        ensure_provider_session_id(runtime, cancel)?,
+    );
+    options.deferred = false;
+    options.cache_retention = Some(CacheRetention::None);
+    options.max_tokens = Some(request.max_tokens);
     let message = runtime
         .models()
         .complete_simple(&model, TranscriptContext { messages }, options)
@@ -468,13 +484,12 @@ fn place_summary(
     let task_id = erase(current.id);
     let conversation_id = current.conversation_id;
     remove_status(tx, conversation_id, task_id)?;
-    let reason = current.input.reason;
     let model = vec![Message::User(user_text_message(
         format!("{SUMMARY_PREFIX}{summary}{SUMMARY_SUFFIX}"),
         now,
     ))];
     let data = serde_json::to_value(CompactionData {
-        reason: entry_reason(reason),
+        reason: current.input.reason,
     })?;
     let kind = compaction_entry().kind().to_owned();
     let result = match current.owner {
@@ -576,14 +591,6 @@ fn mismatch(phase: &str) -> Error {
     Error::Invalid(format!(
         "Compaction checkpoint does not match phase {phase}"
     ))
-}
-
-fn entry_reason(reason: CompactionReason) -> crate::types::CompactionReason {
-    match reason {
-        CompactionReason::Manual => crate::types::CompactionReason::Manual,
-        CompactionReason::Threshold => crate::types::CompactionReason::Threshold,
-        CompactionReason::Overflow => crate::types::CompactionReason::Overflow,
-    }
 }
 
 fn user_text_message(text: String, timestamp: u64) -> UserMessage {
