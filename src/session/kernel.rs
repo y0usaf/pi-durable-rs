@@ -203,6 +203,10 @@ impl Session {
         Ok(result)
     }
 
+    pub fn storage(&self) -> &dyn Storage {
+        self.storage.as_ref()
+    }
+
     pub fn read_on_line<R>(&self, job: impl FnOnce() -> Result<R>) -> Result<R> {
         self.assert_usable()?;
         self.enqueue(|line| {
