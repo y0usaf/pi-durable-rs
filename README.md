@@ -51,4 +51,5 @@ Every place behaviour differs from the TypeScript, and why.
 - Output is queued through a bounded channel of 16 chunks, so a slow spill or caller stalls the child's pipe, as TypeScript pauses its streams. Chunk sizes and pause points differ from Node's stream buffering.
 - Temp names have no UUID: std has no UUID generator, so `uuid()` in `src/env/node.rs` builds a v4-shaped string from `RandomState` hashes of time, a counter, and the pid. It is unique in practice and not cryptographic.
 - Process groups use `CommandExt::process_group(0)` and a two-line `extern "C"` to `kill(2)`, instead of a libc crate.
+- `openNodeJsonlStorage` reads `process.cwd()`. `jsonl::open_node` reads `std::env::current_dir()` at open and fails with `JSONL current directory failed` if that fails, instead of taking a cwd argument. This follows Go's `os.Getwd` at open time; PiG has no JSONL port, so this is the nearest choice rather than a copied one.
 
