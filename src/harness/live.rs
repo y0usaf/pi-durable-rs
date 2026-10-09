@@ -2,10 +2,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::ai::types::AssistantMessage;
 use crate::documents::{DocSemantics, DocToken};
-use crate::errors::Result;
+use crate::errors::{Error, Result};
+use crate::harness::compaction::COMPACTION_KIND;
+use crate::harness::generation::{GENERATION_KIND, convert_partial, end_run, read_live, write_live};
+use crate::harness::tool::TOOL_KIND;
 use crate::harness::util::doc_definition;
 use crate::ids::{EntryId, SubmissionId, TaskId};
-use crate::types::{CompactionReason, ToolDiagnostic};
+use crate::session::types::Tx;
+use crate::tasks::TaskOutcome;
+use crate::types::{AnyTaskRecord, CompactionReason, SubmissionSettlement, ToolDiagnostic};
 use crate::types::{ConversationSemantics, JsonValue, LatestFork};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -173,5 +178,53 @@ impl ToolSlot {
         self.dropped_lines = None;
         self.details = None;
         self.diagnostics = None;
+    }
+}
+
+pub fn settle_scheduler_outcome(
+    tx: &mut dyn Tx,
+    record: &AnyTaskRecord,
+    outcome: &TaskOutcome<JsonValue>,
+) -> Result<()> {
+    let conversation_id = record.conversation_id;
+    match record.kind.as_str() {
+        TOOL_KIND => {
+            let mut live = read_live(tx, conversation_id)?;
+            if let Some(slot) = live.tool_slot(record.id) {
+                slot.finish(None);
+            }
+            write_live(tx, conversation_id, &live)
+        }
+        COMPACTION_KIND => {
+            let mut live = read_live(tx, conversation_id)?;
+            live.remove_compaction_status(record.id);
+            write_live(tx, conversation_id, &live)
+        }
+        GENERATION_KIND => {
+            let mut live = read_live(tx, conversation_id)?;
+            if live.run.as_ref().map(|run| run.task_id) != Some(record.id) {
+                return Ok(());
+            }
+            convert_partial(tx, &live, conversation_id)?;
+            let settlement = match outcome {
+                TaskOutcome::Faulted { error } => SubmissionSettlement::Unanswered {
+                    reason: "faulted".to_owned(),
+                    detail: Some(JsonValue::String(error.message.clone())),
+                },
+                TaskOutcome::Orphaned { reason } => SubmissionSettlement::Unanswered {
+                    reason: reason.clone(),
+                    detail: None,
+                },
+                _ => {
+                    return Err(Error::Invalid(format!(
+                        "Task {} settled without a scheduler outcome",
+                        record.id
+                    )));
+                }
+            };
+            end_run(tx, &mut live, record.id, settlement)?;
+            write_live(tx, conversation_id, &live)
+        }
+        _ => Ok(()),
     }
 }
