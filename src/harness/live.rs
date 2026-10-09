@@ -75,6 +75,7 @@ pub struct GenerationStatus {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DeferredStatus {
     pub poll_at: u64,
 }
