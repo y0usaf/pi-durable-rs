@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::any::Any;
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
@@ -9,6 +10,7 @@ use crate::cancel::CancelToken;
 use crate::env::ExecutionEnv;
 use crate::errors::{Error, Result};
 use crate::harness::agent::{Agent, AgentChange};
+use crate::harness::scheduler::ErasedTask;
 use crate::harness::output::{OutputChunk, Retain, ShellOutputSkip};
 use crate::harness::registry::{Registry, RegistrySnapshot};
 use crate::ids::{ConversationId, TaskId};
@@ -156,7 +158,33 @@ pub struct Extension {
     pub tools: Vec<ToolRegistration>,
     pub sections: Vec<PromptSection>,
     pub wraps: Vec<Wrap>,
+    pub hooks: Vec<HookRegistration>,
+    pub tasks: Vec<Arc<dyn ErasedTask>>,
 }
+
+#[derive(Clone)]
+pub struct HookRegistration {
+    pub task: String,
+    pub handlers: Arc<dyn Any + Send + Sync>,
+}
+
+impl HookRegistration {
+    pub fn new<H: Any + Send + Sync>(task: &str, handlers: H) -> Self {
+        Self {
+            task: task.to_owned(),
+            handlers: Arc::new(handlers),
+        }
+    }
+}
+
+pub struct EnvTarget<'a> {
+    pub conversation_id: ConversationId,
+    pub cwd: Option<String>,
+    pub read: &'a dyn DocumentReader,
+}
+
+pub type EnvBuilder =
+    Arc<dyn Fn(&EnvTarget<'_>, &CancelToken) -> Result<Option<Arc<dyn ExecutionEnv>>> + Send + Sync>;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ConversationRetryPolicy {
@@ -283,6 +311,7 @@ pub struct HarnessOptions {
     pub settings: Option<HarnessSettings>,
     pub conversation_created: Option<ConversationCreated>,
     pub now: Option<Arc<dyn Fn() -> u64 + Send + Sync>>,
+    pub env: Option<EnvBuilder>,
     pub on_report: Option<ErrorReport>,
 }
 

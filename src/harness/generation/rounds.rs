@@ -50,7 +50,7 @@ pub fn read_calls(
 
 pub fn answer(runtime: Runtime<'_>, message: AssistantMessage, cancel: &CancelToken) -> Result<()> {
     let mut continuation: Option<UserContent> = None;
-    runtime.hooks().each("onYield", &mut |hooks| {
+    runtime.hooks().each(&mut |hooks| {
         if continuation.is_some() {
             return Ok(());
         }
@@ -290,7 +290,7 @@ pub fn finish_tool_round(
                 .or_else(|| slot.task_id.and_then(|id| entries.get(&id).copied()))
         })
         .collect();
-    runtime.hooks().each("afterTools", &mut |hooks| {
+    runtime.hooks().each(&mut |hooks| {
         if let Some(hook) = hooks.after_tools.as_ref() {
             hook(assistant, &results)?;
         }

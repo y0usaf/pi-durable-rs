@@ -29,6 +29,8 @@ pub fn coding_tools() -> Extension {
         tools: vec![read_tool(), write_tool(), edit_tool(), bash_tool()],
         sections: Vec::new(),
         wraps: Vec::new(),
+        hooks: Vec::new(),
+        tasks: Vec::new(),
     }
 }
 

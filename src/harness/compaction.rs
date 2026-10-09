@@ -262,7 +262,7 @@ fn select(task: Task, runtime: Runtime<'_>, cancel: &CancelToken) -> Result<()> 
         instructions: task.input.instructions.clone(),
     };
     let mut decision = None;
-    runtime.hooks().each("beforeCompact", &mut |hooks| {
+    runtime.hooks().each(&mut |hooks| {
         if decision.is_none()
             && let Some(hook) = hooks.before_compact.as_ref()
         {

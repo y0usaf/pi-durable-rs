@@ -3,6 +3,7 @@ pub mod coding_tools;
 pub mod compaction;
 pub mod context;
 pub mod define;
+pub mod erased;
 pub mod events;
 pub mod generation;
 pub mod harness;

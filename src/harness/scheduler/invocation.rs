@@ -323,13 +323,10 @@ impl TaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for InvocationRunti
 }
 
 impl HookRunner<JsonValue> for InvocationRuntime {
-    fn each(&self, name: &str, invoke: &mut dyn FnMut(&JsonValue) -> Result<()>) -> Result<()> {
+    fn each(&self, invoke: &mut dyn FnMut(&JsonValue) -> Result<()>) -> Result<()> {
         let agent = TaskRuntime::agent(self, &self.invocation.cancel)?;
-        for hooks in (self.scheduler.0.hooks_of)(&agent, self.task.name()) {
-            let Some(handler) = hooks.get(name) else {
-                continue;
-            };
-            if let Err(error) = invoke(handler) {
+        for handler in (self.scheduler.0.hooks_of)(&agent, self.task.name()) {
+            if let Err(error) = invoke(&handler) {
                 if self.invocation.cancel.is_cancelled() {
                     return Err(error);
                 }
