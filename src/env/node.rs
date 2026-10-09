@@ -663,13 +663,13 @@ impl ExecutionEnv for NodeExecutionEnv {
     fn list_dir(&self, path: &str, cancel: &CancelToken) -> Result<Vec<FileInfo>, FileError> {
         let resolved = self.resolved(path);
         check(cancel, Some(&resolved))?;
-        let entries = fs::read_dir(&resolved)
+        let mut entries = fs::read_dir(&resolved)
+            .and_then(|entries| entries.collect::<Result<Vec<_>, _>>())
             .map_err(|e| io_error(format!("scandir '{resolved}'"), &resolved, &e))?;
+        entries.sort_by_key(|entry| entry.file_name());
         let mut infos = Vec::new();
         for entry in entries {
             check(cancel, Some(&resolved))?;
-            let entry =
-                entry.map_err(|e| io_error(format!("scandir '{resolved}'"), &resolved, &e))?;
             let entry_path = path::child(&resolved, &entry.file_name().to_string_lossy());
             let meta = fs::symlink_metadata(&entry_path)
                 .map_err(|e| io_error(format!("lstat '{entry_path}'"), &entry_path, &e))?;

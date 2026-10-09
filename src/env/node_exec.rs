@@ -19,6 +19,7 @@ const MAX_TIMEOUT_MS: f64 = 2_147_483_647.0;
 const EXIT_STDIO_GRACE: Duration = Duration::from_millis(100);
 const POLL: Duration = Duration::from_millis(10);
 const READ_CHUNK: usize = 64 * 1024;
+const OUTPUT_QUEUE: usize = 16;
 const SIGKILL: i32 = 9;
 
 unsafe extern "C" {
@@ -105,7 +106,11 @@ fn spawn_failure(program: &str, error: &io::Error) -> ExecutionError {
     ExecutionError::new(ExecutionErrorCode::SpawnError, message)
 }
 
-fn pump<R: Read + Send + 'static>(mut source: R, stream: OutputStream, tx: mpsc::Sender<Event>) {
+fn pump<R: Read + Send + 'static>(
+    mut source: R,
+    stream: OutputStream,
+    tx: mpsc::SyncSender<Event>,
+) {
     thread::spawn(move || {
         let mut buf = vec![0u8; READ_CHUNK];
         loop {
@@ -134,6 +139,7 @@ struct Output<'a> {
     file: Option<std::fs::File>,
     spill_path: Option<String>,
     spill_error: Option<ExecutionError>,
+    callback_error: Option<String>,
     failed: bool,
 }
 
@@ -146,11 +152,13 @@ impl Output<'_> {
     }
 
     fn emit(&mut self, text: &str, stream: OutputStream) {
-        if text.is_empty() {
+        if text.is_empty() || self.callback_error.is_some() {
             return;
         }
-        if let Some(callback) = self.on_output.as_mut() {
-            callback(text, stream);
+        if let Some(callback) = self.on_output.as_mut()
+            && let Err(message) = callback(text, stream)
+        {
+            self.callback_error = Some(message);
         }
     }
 
@@ -163,6 +171,9 @@ impl Output<'_> {
     ) -> bool {
         let text = self.decoder(stream).decode(bytes);
         self.emit(&text, stream);
+        if self.callback_error.is_some() {
+            return true;
+        }
         let Some(spill) = self.spill else {
             return false;
         };
@@ -299,7 +310,7 @@ pub(super) fn run(
     let pid = child.id();
     env.active().insert(pid);
 
-    let (tx, rx) = mpsc::channel();
+    let (tx, rx) = mpsc::sync_channel(OUTPUT_QUEUE);
     if let Some(stdout) = child.stdout.take() {
         pump(stdout, OutputStream::Stdout, tx.clone());
     }
@@ -321,6 +332,7 @@ pub(super) fn run(
         file: None,
         spill_path: None,
         spill_error: None,
+        callback_error: None,
         failed: false,
     };
     let mut timed_out = false;
@@ -372,6 +384,12 @@ pub(super) fn run(
     env.active().remove(&pid);
     output.finish();
     waited?;
+    if let Some(message) = output.callback_error.take() {
+        return Err(ExecutionError::new(
+            ExecutionErrorCode::CallbackError,
+            message,
+        ));
+    }
     let spill_path = output.spill_path.clone();
     let interrupted = if timed_out {
         Some(ExecutionError::new(

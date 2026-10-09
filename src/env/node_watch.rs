@@ -37,6 +37,10 @@ pub struct PollingWatcher {
 }
 
 impl FileWatcher for PollingWatcher {
+    fn mode(&self) -> &'static str {
+        "polling"
+    }
+
     fn close(mut self: Box<Self>) {
         self.stop.take();
         if let Some(handle) = self.handle.take() {

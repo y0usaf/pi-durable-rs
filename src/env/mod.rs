@@ -78,6 +78,7 @@ pub enum ExecutionErrorCode {
     Timeout,
     ShellUnavailable,
     SpawnError,
+    CallbackError,
     Unknown,
 }
 
@@ -88,6 +89,7 @@ impl ExecutionErrorCode {
             Self::Timeout => "timeout",
             Self::ShellUnavailable => "shell_unavailable",
             Self::SpawnError => "spawn_error",
+            Self::CallbackError => "callback_error",
             Self::Unknown => "unknown",
         }
     }
@@ -187,6 +189,7 @@ pub trait DirReader {
 }
 
 pub trait FileWatcher {
+    fn mode(&self) -> &'static str;
     fn close(self: Box<Self>);
 }
 
@@ -202,7 +205,7 @@ pub struct SpillOptions {
     pub after_lines: u64,
 }
 
-pub type OutputCallback<'a> = &'a mut dyn FnMut(&str, OutputStream);
+pub type OutputCallback<'a> = &'a mut dyn FnMut(&str, OutputStream) -> Result<(), String>;
 
 pub struct ExecOptions<'a> {
     pub cwd: Option<String>,
