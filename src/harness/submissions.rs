@@ -239,7 +239,6 @@ pub fn is_settled(record: &SubmissionRecord) -> bool {
     )
 }
 
-/// Admission, waits, and withdrawal of the durable submissions of one Harness.
 pub struct Submissions {
     session: Arc<Session>,
     storage: Arc<dyn Storage>,

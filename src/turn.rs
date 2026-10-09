@@ -1,7 +1,3 @@
-//! FIFO turn lock: one scheduler handler runs at a time. A handler gives the turn up only at a blocking
-//! wait (see `pause`) and queues again behind every thread already waiting, so handlers that never block run in
-//! the order they were reserved, like JS tasks that run to completion.
-
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
@@ -22,7 +18,6 @@ struct Queue {
     held: bool,
 }
 
-/// A place in the FIFO queue, reserved by the thread that will later run under it.
 pub struct Ticket {
     turn: Turn,
     id: u64,
@@ -117,15 +112,10 @@ impl Drop for Again {
     }
 }
 
-/// The turn the calling thread holds, if it runs under one.
 pub fn current() -> Option<Turn> {
     HELD.with(|held| held.borrow().clone())
 }
 
-/// Runs `body` with the turn given up, then queues again behind every waiting thread.
-///
-/// Call it only around a wait for another thread, and only while holding no lock that a turn holder may take:
-/// `body` must release such guards before it returns, because the re-acquire blocks.
 pub fn pause<R>(body: impl FnOnce() -> R) -> R {
     let Some(turn) = current() else {
         return body();
