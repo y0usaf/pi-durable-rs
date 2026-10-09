@@ -106,6 +106,7 @@ pub trait Tx {
         &mut self,
         ownership: ConversationOwnership,
     ) -> Result<ConversationRecord>;
+    fn create_root_conversation(&mut self) -> Result<ConversationRecord>;
     fn fork_conversation(
         &mut self,
         parent: ConversationId,

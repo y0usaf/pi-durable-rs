@@ -1,10 +1,11 @@
-use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, Mutex};
 
 use crate::ai::types::{Message, UserMessage, UserRole};
 use crate::cancel::CancelToken;
 use crate::harness::util::{Waiters, closed_error};
 use crate::session::kernel::Session;
+use crate::session::types::Unsubscribe;
 use crate::types::{CommitChange, Storage, TableChange};
 use crate::entries::user_entry;
 use crate::errors::{Error, Result};
@@ -247,6 +248,7 @@ pub struct Submissions {
     resume: ResumeFn,
     waiters: Waiters<SubmissionId, SubmissionRecord>,
     closed: Arc<AtomicBool>,
+    _subscriptions: Mutex<Vec<Unsubscribe>>,
 }
 
 impl Submissions {
@@ -260,7 +262,7 @@ impl Submissions {
         let waiters = Waiters::default();
         let closed = Arc::new(AtomicBool::new(false));
         let observed = waiters.clone();
-        session.subscribe_commits(Box::new(move |publication, _cancel| {
+        let commits = session.subscribe_commits(Box::new(move |publication, _cancel| {
             for change in &publication.changes {
                 if let CommitChange::Table(TableChange::Submission(record)) = change
                     && is_settled(record)
@@ -271,7 +273,7 @@ impl Submissions {
         }))?;
         let closing = waiters.clone();
         let flag = Arc::clone(&closed);
-        session.subscribe_close(Box::new(move || {
+        let close = session.subscribe_close(Box::new(move || {
             flag.store(true, Ordering::SeqCst);
             closing.reject_all(closed_error);
         }))?;
@@ -283,6 +285,7 @@ impl Submissions {
             resume,
             waiters,
             closed,
+            _subscriptions: Mutex::new(vec![commits, close]),
         }))
     }
 

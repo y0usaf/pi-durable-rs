@@ -62,7 +62,7 @@ pub fn open_session(
     }
 }
 
-fn system_now() -> u64 {
+pub fn system_now() -> u64 {
     let elapsed = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .expect("system clock is before 1970");
