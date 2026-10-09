@@ -103,13 +103,15 @@ pub struct ToolHooks {
     pub after_tool: Option<AfterTool>,
 }
 
+pub const TOOL_KIND: &str = "pi.tool";
+
 pub fn tool_task() -> HarnessTaskDefinition<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> {
     let call: HarnessPhaseHandler<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> =
         Box::new(call_phase);
     let execute: HarnessPhaseHandler<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> =
         Box::new(execute_phase);
     HarnessTaskDefinition {
-        name: "pi.tool".to_owned(),
+        name: TOOL_KIND.to_owned(),
         version: 1,
         initial: Box::new(|_| ToolTaskCheckpoint::Call),
         phases: BTreeMap::from([("call".to_owned(), call), ("execute".to_owned(), execute)]),
