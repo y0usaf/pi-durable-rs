@@ -4,6 +4,7 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
 use super::types::{AssistantMessage, AssistantMessageEvent, ErrorReason, StopReason};
 use crate::cancel::CancelToken;
+use crate::turn::pause;
 
 pub const ABORTED_TEXT: &str = "Request was aborted";
 
@@ -101,36 +102,50 @@ impl<T, R: Clone> EventStream<T, R> {
     }
 
     pub fn next_event(&self) -> Option<T> {
-        let mut state = self.lock();
         loop {
-            if let Some(event) = state.queue.pop_front() {
-                return Some(event);
+            {
+                let mut state = self.lock();
+                if let Some(event) = state.queue.pop_front() {
+                    return Some(event);
+                }
+                if state.done {
+                    return None;
+                }
             }
-            if state.done {
-                return None;
-            }
-            state = self
-                .shared
-                .1
-                .wait(state)
-                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            pause(|| {
+                let mut state = self.lock();
+                while state.queue.is_empty() && !state.done {
+                    state = self
+                        .shared
+                        .1
+                        .wait(state)
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+                }
+            });
         }
     }
 
     pub fn result(&self) -> Option<R> {
-        let mut state = self.lock();
         loop {
-            if let Some(result) = &state.result {
-                return Some(result.clone());
+            {
+                let state = self.lock();
+                if let Some(result) = &state.result {
+                    return Some(result.clone());
+                }
+                if state.done {
+                    return None;
+                }
             }
-            if state.done {
-                return None;
-            }
-            state = self
-                .shared
-                .1
-                .wait(state)
-                .unwrap_or_else(|poisoned| poisoned.into_inner());
+            pause(|| {
+                let mut state = self.lock();
+                while state.result.is_none() && !state.done {
+                    state = self
+                        .shared
+                        .1
+                        .wait(state)
+                        .unwrap_or_else(|poisoned| poisoned.into_inner());
+                }
+            });
         }
     }
 }

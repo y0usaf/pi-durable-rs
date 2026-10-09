@@ -11,6 +11,7 @@ use crate::errors::{Error, Result};
 use crate::harness::json::assign_value;
 use crate::ids::ConversationId;
 use crate::session::types::{DocRef, Tx};
+use crate::turn::pause;
 use crate::types::{Cursor, JsonObject, JsonValue, Op, Page};
 
 pub fn closed_error() -> Error {
@@ -101,13 +102,15 @@ impl<K: Ord + Clone + Debug + Send + 'static, T: Send + 'static> Waiters<K, T> {
         let waiters = self.clone();
         let abort_key = key.clone();
         cancel.on_cancel(move || waiters.abort(&abort_key, id));
-        let mut outcome = slot.outcome.lock().map_err(|_| closed_error())?;
-        loop {
-            if let Some(settled) = outcome.take() {
-                return settled;
+        pause(|| {
+            let mut outcome = slot.outcome.lock().map_err(|_| closed_error())?;
+            loop {
+                if let Some(settled) = outcome.take() {
+                    return settled;
+                }
+                outcome = slot.settled.wait(outcome).map_err(|_| closed_error())?;
             }
-            outcome = slot.settled.wait(outcome).map_err(|_| closed_error())?;
-        }
+        })
     }
 
     fn abort(&self, key: &K, id: u64) {
