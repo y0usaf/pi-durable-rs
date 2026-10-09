@@ -40,4 +40,7 @@ Every place behaviour differs from the TypeScript, and why.
 - `copyJson`, `isJsonValue` and the revision validator are not ported: `serde_json::Value` cannot hold cycles, non-finite numbers, symbols or sparse arrays, and it keeps `1` and `1.0` apart where JavaScript does not.
 - A `Prepared` change is consumed by `adopt` and the draft is a plain `&mut` value, so the "already used", "aborted" and settled-proxy errors cannot occur; stale and foreign adoptions still fail.
 - Subscriber errors go to an error sink given at construction instead of an asynchronous rethrow. Source-listener errors return from `change` and `replace`, several together as `Error::Listeners`. Delivery is synchronous, so there is no per-subscriber queue or 100-frame cap.
+- pi-ai `Message` is an opaque JSON value (`types::Message`) until the pi-ai types are ported, because the Rust port has no pi-ai dependency. TypeScript types it as `Message` from `@earendil-works/pi-ai`.
+- Document addresses take explicit owner and key arguments, not TypeScript's positional `args`, and owner IDs and versions are `u64`, so negative or non-integer values cannot be expressed. Scope and version checks run at runtime on `DocToken<T>`, where TypeScript checks them in overloads.
+- Rust strings are well-formed UTF-8, so lone surrogates cannot occur, and `truncate_head_of` panics on an empty prefix that TypeScript rejects with a `TypeError`.
 
