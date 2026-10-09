@@ -1,3 +1,4 @@
+pub mod ai;
 pub mod cancel;
 pub mod chord;
 pub mod documents;

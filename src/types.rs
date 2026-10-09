@@ -5,9 +5,9 @@ use crate::errors::Result;
 use crate::ids::{ConversationId, DocumentId, EntryId, Seq, SubmissionId, TaskId};
 use crate::tasks::TaskRecord;
 
-pub use crate::chord::json::{JsonObject, JsonValue};
-pub type Message = JsonValue;
+pub use crate::ai::types::Message;
 pub use crate::chord::delta::Op;
+pub use crate::chord::json::{JsonObject, JsonValue};
 pub type Cursor = JsonObject;
 pub type AnyTaskRecord = TaskRecord<JsonValue, JsonValue, JsonValue>;
 
@@ -152,14 +152,14 @@ pub enum ConversationOwnership {
     Task(TaskId),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "action", rename_all = "lowercase")]
 pub enum ContextAction {
     Omit,
     Replace { messages: Vec<Message> },
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ContextEdit {
     pub target: EntryId,
