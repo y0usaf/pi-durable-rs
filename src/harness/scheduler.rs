@@ -61,7 +61,7 @@ pub enum BlockedReason {
 enum Resolution {
     Ready {
         task: Arc<dyn ErasedTask>,
-        record: AnyTaskRecord,
+        record: Box<AnyTaskRecord>,
         migrated: bool,
     },
     Blocked(BlockedReason),
@@ -883,7 +883,7 @@ impl TaskScheduler {
                 migrates: false,
             } => Resolution::Ready {
                 task,
-                record: record.clone(),
+                record: Box::new(record.clone()),
                 migrated: false,
             },
             Fit::Task {
@@ -913,7 +913,7 @@ impl TaskScheduler {
                 match outcome {
                     Ok(next) => Resolution::Ready {
                         task,
-                        record: next,
+                        record: Box::new(next),
                         migrated: true,
                     },
                     Err(error) => {
