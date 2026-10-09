@@ -1,4 +1,5 @@
 pub mod agent;
+pub mod coding_tools;
 pub mod define;
 pub mod inbox;
 pub mod json;
