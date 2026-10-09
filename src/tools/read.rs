@@ -128,9 +128,16 @@ fn read_text(
         reader.read(position, length, cancel)
     })?;
     if let Some(mime) = mime {
-        return Err(ToolError::new(format!(
-            "{path} is an image ({mime}); reading images is not supported"
-        )));
+        return Ok(ToolOutput {
+            text: String::new(),
+            diagnostics: vec![Diagnostic {
+                severity: Severity::Error,
+                code: Some("unsupported_image"),
+                message: format!("{path} is an image ({mime}); reading images is not supported"),
+            }],
+            details: None,
+            is_error: true,
+        });
     }
 
     let start_line = match args.offset {
@@ -266,5 +273,6 @@ fn read_text(
         text: output,
         diagnostics,
         details,
+        is_error: false,
     })
 }

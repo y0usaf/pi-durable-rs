@@ -30,6 +30,7 @@ pub struct ToolOutput<D> {
     pub text: String,
     pub diagnostics: Vec<Diagnostic>,
     pub details: D,
+    pub is_error: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -216,6 +216,7 @@ pub fn execute(
             text,
             diagnostics,
             details: (),
+            is_error: false,
         }),
         Ok(result) => Err(failure(
             format!("Command exited with code {}", result.exit_code),

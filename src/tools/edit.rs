@@ -158,6 +158,7 @@ pub fn execute(
                 patch,
                 first_changed_line: diff.first_changed_line,
             },
+            is_error: false,
         })
     })
 }
