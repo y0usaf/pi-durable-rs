@@ -71,8 +71,8 @@ Every place behaviour differs from the TypeScript, and why.
 - Tools are registered as plain `ToolRegistration` values in `src/harness/coding_tools.rs`, not through TypeScript's `defineTool`/`defineExtension`/`CodingTools`. Schemas are JSON values built by hand, not typebox. `createPowerShellTool` is not ported, since PowerShell is unsupported.
 - npm `diff` is not a dependency: `src/tools/jsdiff.rs` reproduces only `diffLines` and the `createTwoFilesPatch` hunk output that edit-diff.ts uses (Myers diff over lines, four lines of context). It has no change objects for word or character diffs, and it does not reproduce jsdiff's `oneChangePerToken` or option handling. NFKC normalization for fuzzy edit matching takes the `unicode-normalization` crate, since its tables would otherwise be rediscovered.
 
-- `bash` sends its output through `api.output` once, when the command ends, instead of as the command runs. The retained tail is the same, but the Harness does not show progress while the command runs.
-- A tool error (`ToolError`) becomes an `isError` result with a `tool_error` diagnostic. TypeScript throws, which also ends the tool task `failed`; the Rust adapter returns a result, so the task does not fail.
+- `bash` streams each chunk through `api.output` as the command runs, as TypeScript does. Rust `ExecOptions` has no `window` (`ShellOutputWindow`), so chunk boundaries and the `skipped` argument (always `None`) differ on large output. The retained tail matches.
+- A tool error (`ToolError`) is returned as `Err` from `ToolExecute`, as TypeScript throws from `execute`. The runner that turns it into a `tool_error` diagnostic and a `failed` task is not ported yet. Only read's unsupported-image path returns `isError`, as in TypeScript.
 - Harness cancellation is `Error::Aborted` (`aborted`), the code TypeScript's `abortResult` gives. A waiter registers `CancelToken::on_cancel` and blocks on a `Condvar`; it never polls.
 - `define.rs` has `section`, `wrap_tool` and `wrap_section`. `define_extension` and `define_tool` are struct literals (`Extension`, `ToolRegistration`), not functions.
 - `Extension` has no `tasks` or `hooks` yet, so the registry's duplicate-task check and `BUILTIN_TASKS` are not ported; they wait for the generation, tool and compaction tasks.
@@ -80,4 +80,4 @@ Every place behaviour differs from the TypeScript, and why.
 - `json.rs` keeps only `assign_value`; `assign_json` and `Slot` had no caller.
 - The provider session ID's initial value calls `uuidv7(None).expect(...)`, so an OS random-source failure panics. The `Initial` closure cannot return an error.
 - `ai::types::Transport` is added with TypeScript's string values.
-- `inbox.rs`, `provider.rs` and `live.rs` have serde shapes written from the TypeScript, with no differential probe yet. `live.rs` stores `AssistantMessage` directly where TypeScript stores a JSON representation.
+- `inbox.rs` and `live.rs` match TypeScript on 700 reducer cases per seed (seeds 1, 2, 3, 5, 9, 11, 0 mismatches), using a fake `Tx` on both sides; the probe is not committed. `provider.rs` matches only the initial doc shape; `ensure_provider_session_id` is not probed. `live.rs` stores `AssistantMessage` directly where TypeScript stores a JSON representation.
