@@ -5,6 +5,7 @@ pub mod context;
 pub mod define;
 pub mod events;
 pub mod generation;
+pub mod harness;
 pub mod inbox;
 pub mod json;
 pub mod live;
