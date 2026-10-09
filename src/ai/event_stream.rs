@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
-use std::time::{Instant, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use super::types::{AssistantMessage, AssistantMessageEvent, ErrorReason, StopReason};
 use crate::cancel::CancelToken;
@@ -34,6 +34,12 @@ struct State<T, R> {
     queue: VecDeque<T>,
     done: bool,
     result: Option<R>,
+}
+
+pub enum Next<T> {
+    Event(T),
+    Timeout,
+    End,
 }
 
 pub struct EventStream<T, R> {
@@ -122,6 +128,29 @@ impl<T, R: Clone> EventStream<T, R> {
                         .unwrap_or_else(|poisoned| poisoned.into_inner());
                 }
             });
+        }
+    }
+
+    pub fn next_event_timeout(&self, timeout: Duration) -> Next<T> {
+        let deadline = Instant::now() + timeout;
+        let mut state = self.lock();
+        loop {
+            if let Some(event) = state.queue.pop_front() {
+                return Next::Event(event);
+            }
+            if state.done {
+                return Next::End;
+            }
+            let now = Instant::now();
+            if now >= deadline {
+                return Next::Timeout;
+            }
+            state = self
+                .shared
+                .1
+                .wait_timeout(state, deadline - now)
+                .unwrap_or_else(PoisonError::into_inner)
+                .0;
         }
     }
 
@@ -248,6 +277,10 @@ impl AssistantMessageEventStream {
 
     pub fn next_event(&self) -> Option<AssistantMessageEvent> {
         self.events.next_event()
+    }
+
+    pub fn next_event_timeout(&self, timeout: Duration) -> Next<AssistantMessageEvent> {
+        self.events.next_event_timeout(timeout)
     }
 
     pub fn result(&self) -> Option<AssistantMessage> {

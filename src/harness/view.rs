@@ -16,12 +16,13 @@ use crate::harness::provider::provider_doc;
 use crate::harness::usage::usage_doc;
 use crate::ids::ConversationId;
 use crate::session::kernel::{Session, report_error};
-use crate::session::observation::{AttachedState, Deliveries, feeder};
-use crate::types::Storage;
+use crate::session::observation::{AttachedState, Deliveries, Sink, Watch, WatchShared, feeder};
+use crate::session::types::{DocumentWatch, WatchEnd};
 use crate::types::{
     CommitChange, CommitPublication, ConversationRecord, DocumentCommitChange, EntryRecord,
     TableChange,
 };
+use crate::types::{JsonObject, Storage};
 
 const LOCK: &str = "conversation view lock poisoned";
 
@@ -191,6 +192,43 @@ impl ConversationViews {
             self.attach_with(session, id, cancel, |value, _| Ok(replicate(value)))?;
         Ok(AttachedState::new(attached, guard))
     }
+
+    pub fn watch(
+        &self,
+        session: &Session,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<DocumentWatch> {
+        let deliveries = session.deliveries();
+        let (_, guard, shared) = self.attach_with(session, id, cancel, |value, _| {
+            let shared = WatchShared::new(value.as_object().cloned(), deliveries);
+            Ok((watch_observer(&shared), shared))
+        })?;
+        attached_watch(shared, guard, cancel)
+    }
+}
+
+pub(crate) fn watch_observer(shared: &Arc<WatchShared<JsonObject>>) -> Observer {
+    let sink = Sink::Watch(Arc::clone(shared));
+    Arc::new(move |change| {
+        if !change.ops.is_empty() {
+            sink.advance(change.after.as_object().cloned(), change.ops.to_vec());
+        }
+    })
+}
+
+pub(crate) fn attached_watch<G: Send + 'static>(
+    shared: Arc<WatchShared<JsonObject>>,
+    guard: G,
+    cancel: &CancelToken,
+) -> Result<DocumentWatch> {
+    shared.set_detach(Box::new(move || drop(guard)));
+    if cancel.is_cancelled() {
+        shared.terminate(WatchEnd::Cancelled);
+        return Err(Error::Aborted);
+    }
+    shared.observe_cancellation(cancel);
+    Ok(Watch::boxed(shared))
 }
 
 pub(crate) fn replicate(value: &Value) -> (Observer, Arc<Mutex<Attached>>) {

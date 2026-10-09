@@ -1,10 +1,12 @@
-use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Arc, OnceLock, Weak};
 
 use crate::ai::models::Models;
 use crate::ai::types::{Message, UserContent, UserMessage, UserRole};
 use crate::cancel::CancelToken;
 use crate::entries::reset_entry;
-use crate::errors::Result;
+use crate::env::ExecutionEnv;
+use crate::errors::{Error, Result};
 use crate::harness::agent::{self, Agent, AgentChange, agent_doc, resolve_agent, resolve_settings};
 use crate::harness::compaction::{CompactionInput, create_compaction_with};
 use crate::harness::context::{ContextView, capture_context_bounds, read_context_from};
@@ -16,6 +18,7 @@ use crate::harness::registry::Registry;
 use crate::harness::scheduler::{Inspected, SchedulerOptions, Snapshot, TaskScheduler};
 use crate::harness::submissions::{AbortResult, SubmissionDraft, SubmissionHandle, Submissions};
 use crate::harness::task_graph::{GraphGuard, TaskGraphView};
+use crate::harness::types::{ConversationBinder, ConversationHandle, InvocationBinding};
 use crate::harness::types::{
     ConversationCreateOptions, ConversationCreated, ConversationInit, EnvBuilder, EnvTarget,
     ErrorReport, HarnessOptions, HarnessSettings, RootOptions,
@@ -27,7 +30,7 @@ use crate::ids::{ConversationId, EntryId, ROOT_CONVERSATION_ID, TaskId};
 use crate::session::kernel::{CreatedHook, Session, open_session, system_now};
 use crate::session::observation::AttachedState;
 use crate::session::transaction::TransactionScope;
-use crate::session::types::Tx;
+use crate::session::types::{DocumentWatch, Tx};
 use crate::types::CompactionReason;
 use crate::types::{
     AnyTaskRecord, ConversationOwnership, ConversationQuery, ConversationRecord, Cursor,
@@ -57,6 +60,8 @@ struct Inner {
     views: ConversationViews,
     task_graph: TaskGraphView,
     tasks: TaskScheduler,
+    env: Option<EnvBuilder>,
+    closed: AtomicBool,
 }
 
 pub struct Harness(Arc<Inner>);
@@ -112,7 +117,10 @@ impl Harness {
         let settings = options.settings;
         let queue_settings = settings.clone();
         let report: ErrorReport = options.on_report.unwrap_or_else(|| Arc::new(|_| {}));
+        let env = options.env;
+        let conversation_slot: Arc<OnceLock<Weak<Inner>>> = Arc::new(OnceLock::new());
         let tasks = scheduler(
+            conversation_binder(Arc::clone(&conversation_slot)),
             &session,
             &storage,
             &options.registry,
@@ -120,7 +128,7 @@ impl Harness {
             &settings,
             &report,
             &now,
-            options.env,
+            env.clone(),
         );
         let resume_tasks = tasks.clone();
         let submissions = Submissions::new(
@@ -130,10 +138,16 @@ impl Harness {
             Arc::new(move || queue_modes(&resolve_settings(queue_settings.as_ref()))),
             Arc::new(move || resume_tasks.resume()),
         )?;
-        let views = ConversationViews::new(&session)?;
         let task_graph = TaskGraphView::new(&session)?;
-        tasks.open()?;
-        Ok(Self(Arc::new(Inner {
+        let views = ConversationViews::new(&session)?;
+        if let Err(error) = tasks.open() {
+            tasks.join();
+            if let Err(close_error) = session.close(&CancelToken::new()) {
+                report(close_error);
+            }
+            return Err(error);
+        }
+        let inner = Arc::new(Inner {
             session,
             storage,
             registry: options.registry,
@@ -144,7 +158,11 @@ impl Harness {
             views,
             task_graph,
             tasks,
-        })))
+            env,
+            closed: AtomicBool::new(false),
+        });
+        let _ = conversation_slot.set(Arc::downgrade(&inner));
+        Ok(Self(inner))
     }
 
     pub fn session(&self) -> &Session {
@@ -160,6 +178,7 @@ impl Harness {
         id: ConversationId,
         cancel: &CancelToken,
     ) -> Result<Option<Conversation>> {
+        ensure_open(&self.0)?;
         let storage = &*self.0.storage;
         let record = self
             .0
@@ -237,8 +256,22 @@ impl Harness {
         self.0.task_graph.state(&self.0.session, cancel)
     }
 
-    pub fn resume(&self) {
+    pub fn watch_task_graph(&self, cancel: &CancelToken) -> Result<DocumentWatch> {
+        self.0.task_graph.watch(&self.0.session, cancel)
+    }
+
+    pub fn build_env(
+        &self,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<Option<Arc<dyn ExecutionEnv>>> {
+        build_env(&self.0.session, self.0.env.as_ref(), id, cancel)
+    }
+
+    pub fn resume(&self) -> Result<()> {
+        ensure_open(&self.0)?;
         self.0.tasks.resume();
+        Ok(())
     }
 
     pub fn wait_for_task(&self, id: TaskId, cancel: &CancelToken) -> Result<AnyTaskRecord> {
@@ -248,7 +281,9 @@ impl Harness {
 
     pub fn wait_for_idle(&self, cancel: &CancelToken) -> Result<()> {
         self.0.tasks.resume();
-        self.0.tasks.wait_for_idle(None, cancel)
+        self.0.tasks.wait_for_idle(None, cancel)?;
+        self.0.session.deliveries().drain();
+        Ok(())
     }
 
     pub fn abort_task(&self, id: TaskId, cancel: &CancelToken) -> Result<&'static str> {
@@ -281,6 +316,7 @@ impl Harness {
     }
 
     pub fn close(&self, cancel: &CancelToken) -> Result<()> {
+        self.0.closed.store(true, Ordering::SeqCst);
         self.0.tasks.join();
         self.0.session.close(cancel)
     }
@@ -302,7 +338,66 @@ fn snapshot_of(registry: &Registry) -> Snapshot {
 }
 
 #[allow(clippy::too_many_arguments)]
+fn conversation_binder(slot: Arc<OnceLock<Weak<Inner>>>) -> ConversationBinder {
+    Arc::new(move |id, binding, cancel| {
+        let Some(inner) = slot.get().and_then(Weak::upgrade) else {
+            return Ok(None);
+        };
+        let storage = &*inner.storage;
+        let record = inner
+            .session
+            .read_on_line(|| storage.conversation(id, cancel))?;
+        Ok(record.map(|record| {
+            Box::new(BoundConversation {
+                conversation: Conversation {
+                    id: record.id,
+                    inner,
+                },
+                binding,
+            }) as Box<dyn ConversationHandle>
+        }))
+    })
+}
+
+struct BoundConversation {
+    conversation: Conversation,
+    binding: InvocationBinding,
+}
+
+impl BoundConversation {
+    fn bound(&self, cancel: &CancelToken) -> Result<CancelToken> {
+        (self.binding.check)()?;
+        let token = self.binding.signal.child();
+        let link = token.clone();
+        cancel.on_cancel(move || link.cancel());
+        Ok(token)
+    }
+}
+
+impl ConversationHandle for BoundConversation {
+    fn id(&self) -> ConversationId {
+        self.conversation.id()
+    }
+
+    fn submit(&self, draft: SubmissionDraft, cancel: &CancelToken) -> Result<SubmissionHandle> {
+        let token = self.bound(cancel)?;
+        self.conversation.submit(draft, &token)
+    }
+
+    fn abort(&self, background: bool, cancel: &CancelToken) -> Result<()> {
+        let token = self.bound(cancel)?;
+        self.conversation.abort(background, &token)
+    }
+
+    fn wait_for_idle(&self, cancel: &CancelToken) -> Result<()> {
+        let token = self.bound(cancel)?;
+        self.conversation.wait_for_idle(&token)
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
 fn scheduler(
+    conversation: ConversationBinder,
     session: &Arc<Session>,
     storage: &Arc<dyn Storage>,
     registry: &Arc<Registry>,
@@ -316,6 +411,7 @@ fn scheduler(
     let resolve_settings_of = settings.clone();
     let resolve_report = Arc::clone(report);
     let env_session = Arc::clone(session);
+    let env_build = env.clone();
     let settings_of = settings.clone();
     let clock = Arc::clone(now);
     TaskScheduler::new(SchedulerOptions {
@@ -341,28 +437,43 @@ fn scheduler(
             ))
         }),
         models: Arc::clone(models),
-        env: Arc::new(move |id, cancel| {
-            let Some(build) = env.as_ref() else {
-                return Ok(None);
-            };
-            let token = agent_doc()?;
-            let cwd = env_session
-                .snapshot_as(&token, Some(id.0), None, cancel)?
-                .and_then(|state| state.cwd);
-            build(
-                &EnvTarget {
-                    conversation_id: id,
-                    cwd,
-                    read: &*env_session,
-                },
-                cancel,
-            )
-        }),
+        env: Arc::new(move |id, cancel| build_env(&env_session, env_build.as_ref(), id, cancel)),
+        conversation,
         hooks_of: Arc::new(|_, _| Vec::new()),
         settings: Arc::new(move || resolve_settings(settings_of.as_ref())),
         now: Arc::new(move || clock()),
         registry: Arc::clone(registry),
     })
+}
+
+fn build_env(
+    session: &Session,
+    build: Option<&EnvBuilder>,
+    id: ConversationId,
+    cancel: &CancelToken,
+) -> Result<Option<Arc<dyn ExecutionEnv>>> {
+    let Some(build) = build else {
+        return Ok(None);
+    };
+    let token = agent_doc()?;
+    let cwd = session
+        .snapshot_as(&token, Some(id.0), None, cancel)?
+        .and_then(|state| state.cwd);
+    build(
+        &EnvTarget {
+            conversation_id: id,
+            cwd,
+            read: session,
+        },
+        cancel,
+    )
+}
+
+fn ensure_open(inner: &Inner) -> Result<()> {
+    if inner.closed.load(Ordering::SeqCst) {
+        return Err(Error::Invalid("Harness is closed".into()));
+    }
+    Ok(())
 }
 
 fn create(
@@ -372,6 +483,7 @@ fn create(
     init: Option<ConversationInit>,
     cancel: &CancelToken,
 ) -> Result<Conversation> {
+    ensure_open(inner)?;
     let id = inner.session.commit(
         move |tx| {
             let record = match target {
@@ -438,6 +550,7 @@ impl Conversation {
     }
 
     pub fn abort(&self, background: bool, cancel: &CancelToken) -> Result<()> {
+        self.inner.tasks.resume();
         self.inner
             .tasks
             .abort_conversation(self.id, background, cancel)
@@ -445,7 +558,9 @@ impl Conversation {
 
     pub fn wait_for_idle(&self, cancel: &CancelToken) -> Result<()> {
         self.inner.tasks.resume();
-        self.inner.tasks.wait_for_idle(Some(self.id), cancel)
+        self.inner.tasks.wait_for_idle(Some(self.id), cancel)?;
+        self.inner.session.deliveries().drain();
+        Ok(())
     }
 
     pub fn configure(&self, change: &AgentChange, cancel: &CancelToken) -> Result<()> {
@@ -545,5 +660,9 @@ impl Conversation {
 
     pub fn view_state(&self, cancel: &CancelToken) -> Result<AttachedState<ViewGuard>> {
         self.inner.views.state(&self.inner.session, self.id, cancel)
+    }
+
+    pub fn watch(&self, cancel: &CancelToken) -> Result<DocumentWatch> {
+        self.inner.views.watch(&self.inner.session, self.id, cancel)
     }
 }

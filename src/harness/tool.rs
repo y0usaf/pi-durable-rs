@@ -989,6 +989,14 @@ impl ToolExecutionApi for Api<'_> {
         self.env.as_deref()
     }
 
+    fn conversation(
+        &self,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<Option<Box<dyn crate::harness::types::ConversationHandle>>> {
+        self.rt.conversation(id, cancel)
+    }
+
     fn output(&self, chunk: OutputChunk<'_>, skipped: Option<ShellOutputSkip>) -> Result<()> {
         self.live()?;
         let changed = lock(&self.shared.reported).output.push(chunk, skipped)?;
