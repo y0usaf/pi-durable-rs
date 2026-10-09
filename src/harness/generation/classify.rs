@@ -1,3 +1,4 @@
+use crate::ai::event_stream::Next;
 use crate::ai::types::{
     AssistantBlock, AssistantMessage, AssistantMessageEvent, Message, Model, SimpleStreamOptions,
     StopReason, ToolCall,
@@ -15,6 +16,8 @@ use crate::harness::types::{CompactionReason, ModelRef};
 use crate::ids::{EntryId, TaskId};
 use crate::tasks::{JoinPolicy, NextTaskState, TaskOutcome, TaskOutcomeError};
 use crate::types::SubmissionSettlement;
+
+use std::time::{Duration, Instant};
 
 pub const DEFAULT_POLL_AFTER_MS: u64 = 5000;
 
@@ -51,8 +54,7 @@ pub fn stream_response(
     attempt: u64,
     cancel: &CancelToken,
 ) -> Result<AssistantMessage> {
-    let interval = u128::from(runtime.settings().progress.partial_interval_ms);
-    let mut last_flush: Option<std::time::Instant> = None;
+    let interval = Duration::from_millis(runtime.settings().progress.partial_interval_ms);
     let stream = runtime.models().stream_simple(
         model,
         crate::ai::types::TranscriptContext {
@@ -60,39 +62,65 @@ pub fn stream_response(
         },
         options,
     );
-    while let Some(event) = stream.next_event() {
-        let Some(partial) = partial_of(&event) else {
-            continue;
+    let mut pending: Option<AssistantMessage> = None;
+    let mut due: Option<Instant> = None;
+    loop {
+        let next = match due {
+            Some(at) => stream.next_event_timeout(at.saturating_duration_since(Instant::now())),
+            None => match stream.next_event() {
+                Some(event) => Next::Event(event),
+                None => Next::End,
+            },
         };
-        if partial.content.is_empty() {
-            continue;
+        match next {
+            Next::Event(event) => {
+                let Some(partial) = partial_of(&event) else {
+                    continue;
+                };
+                if partial.content.is_empty() {
+                    continue;
+                }
+                pending = Some(partial.clone());
+                due.get_or_insert_with(|| Instant::now() + interval);
+            }
+            Next::Timeout => {
+                due = None;
+                if let Some(partial) = pending.take() {
+                    commit_partial(&runtime, attempt, partial, cancel)?;
+                }
+            }
+            Next::End => break,
         }
-        if last_flush.is_some_and(|at| at.elapsed().as_millis() < interval) {
-            continue;
-        }
-        last_flush = Some(std::time::Instant::now());
-        let snapshot = partial.clone();
-        let conversation_id = runtime.conversation_id();
-        runtime.commit(
-            Box::new(move |tx, _task| {
-                edit_live(tx, conversation_id, |live| {
-                    live.generation
-                        .get_or_insert(GenerationStatus {
-                            attempt,
-                            message: None,
-                            retry: None,
-                            deferred: None,
-                        })
-                        .message = Some(snapshot);
-                })?;
-                Ok(None)
-            }),
-            cancel,
-        )?;
     }
     stream
         .result()
         .ok_or_else(|| Error::Invalid("stream ended without a final message".to_owned()))
+}
+
+fn commit_partial(
+    runtime: &Runtime<'_>,
+    attempt: u64,
+    snapshot: AssistantMessage,
+    cancel: &CancelToken,
+) -> Result<()> {
+    let conversation_id = runtime.conversation_id();
+    runtime.commit(
+        Box::new(move |tx, _task| {
+            edit_live(tx, conversation_id, |live| {
+                live.generation
+                    .get_or_insert(GenerationStatus {
+                        attempt,
+                        message: None,
+                        retry: None,
+                        deferred: None,
+                    })
+                    .message = Some(snapshot);
+            })?;
+            Ok(None)
+        }),
+        cancel,
+    )?;
+    Ok(())
 }
 
 pub fn classify(
