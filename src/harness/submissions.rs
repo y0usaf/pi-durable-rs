@@ -1,4 +1,11 @@
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use crate::ai::types::{Message, UserMessage, UserRole};
+use crate::cancel::CancelToken;
+use crate::harness::util::{Waiters, closed_error};
+use crate::session::kernel::Session;
+use crate::types::{CommitChange, Storage, TableChange};
 use crate::entries::user_entry;
 use crate::errors::{Error, Result};
 use crate::harness::generation::start_run;
@@ -216,5 +223,161 @@ pub fn abort_submission(
         }
         SubmissionBody::Input(InputState::Placed { .. }) => Ok(AbortResult::AlreadyPlaced),
         _ => Ok(AbortResult::Settled),
+    }
+}
+
+pub type QueueModesFn = Arc<dyn Fn() -> QueueModes + Send + Sync>;
+pub type ResumeFn = Arc<dyn Fn() + Send + Sync>;
+pub type NowFn = Arc<dyn Fn() -> u64 + Send + Sync>;
+
+pub fn is_settled(record: &SubmissionRecord) -> bool {
+    matches!(
+        record.body,
+        SubmissionBody::Input(InputState::Done { .. } | InputState::Unanswered { .. })
+            | SubmissionBody::Write(WriteState::Done { .. } | WriteState::Unanswered { .. })
+    )
+}
+
+/// Admission, waits, and withdrawal of the durable submissions of one Harness.
+pub struct Submissions {
+    session: Arc<Session>,
+    storage: Arc<dyn Storage>,
+    now: NowFn,
+    queue_modes: QueueModesFn,
+    resume: ResumeFn,
+    waiters: Waiters<SubmissionId, SubmissionRecord>,
+    closed: Arc<AtomicBool>,
+}
+
+impl Submissions {
+    pub fn new(
+        session: Arc<Session>,
+        storage: Arc<dyn Storage>,
+        now: NowFn,
+        queue_modes: QueueModesFn,
+        resume: ResumeFn,
+    ) -> Result<Arc<Self>> {
+        let waiters = Waiters::default();
+        let closed = Arc::new(AtomicBool::new(false));
+        let observed = waiters.clone();
+        session.subscribe_commits(Box::new(move |publication, _cancel| {
+            for change in &publication.changes {
+                if let CommitChange::Table(TableChange::Submission(record)) = change
+                    && is_settled(record)
+                {
+                    observed.resolve(&record.id, record);
+                }
+            }
+        }))?;
+        let closing = waiters.clone();
+        let flag = Arc::clone(&closed);
+        session.subscribe_close(Box::new(move || {
+            flag.store(true, Ordering::SeqCst);
+            closing.reject_all(closed_error);
+        }))?;
+        Ok(Arc::new(Self {
+            session,
+            storage,
+            now,
+            queue_modes,
+            resume,
+            waiters,
+            closed,
+        }))
+    }
+
+    pub fn submit(
+        self: &Arc<Self>,
+        conversation_id: ConversationId,
+        draft: SubmissionDraft,
+        cancel: &CancelToken,
+    ) -> Result<SubmissionHandle> {
+        (self.resume)();
+        let now = (self.now)();
+        let queue_modes = (self.queue_modes)();
+        let id = self.session.commit(
+            move |tx| admit_submission(tx, conversation_id, draft, now, queue_modes),
+            cancel,
+        )?;
+        Ok(SubmissionHandle {
+            id,
+            submissions: Arc::clone(self),
+        })
+    }
+
+    pub fn get(
+        self: &Arc<Self>,
+        id: SubmissionId,
+        cancel: &CancelToken,
+    ) -> Result<Option<SubmissionHandle>> {
+        let record = self
+            .session
+            .read_on_line(|| self.storage.submission(id, cancel))?;
+        Ok(record.map(|record| SubmissionHandle {
+            id: record.id,
+            submissions: Arc::clone(self),
+        }))
+    }
+
+    pub fn status(&self, id: SubmissionId, cancel: &CancelToken) -> Result<SubmissionRecord> {
+        self.session
+            .read_on_line(|| self.storage.submission(id, cancel))?
+            .ok_or_else(|| Error::Invalid(format!("Submission {id} does not exist")))
+    }
+
+    pub fn wait(&self, id: SubmissionId, cancel: &CancelToken) -> Result<SubmissionRecord> {
+        (self.resume)();
+        let found = self.session.read_on_line(|| {
+            let record = self
+                .storage
+                .submission(id, cancel)?
+                .ok_or_else(|| Error::Invalid(format!("Submission {id} does not exist")))?;
+            if is_settled(&record) {
+                return Ok(Err(record));
+            }
+            if self.closed.load(Ordering::SeqCst) {
+                return Err(closed_error());
+            }
+            Ok(Ok(self.waiters.add(id)?))
+        })?;
+        match found {
+            Err(record) => Ok(record),
+            Ok(ticket) => self.waiters.wait(ticket, cancel),
+        }
+    }
+
+    pub fn abort(
+        &self,
+        id: SubmissionId,
+        cancel: &CancelToken,
+        conversation_id: Option<ConversationId>,
+    ) -> Result<AbortResult> {
+        self.session
+            .commit(|tx| abort_submission(tx, id, conversation_id), cancel)
+    }
+}
+
+pub struct SubmissionHandle {
+    pub id: SubmissionId,
+    submissions: Arc<Submissions>,
+}
+
+impl SubmissionHandle {
+    pub fn status(&self, cancel: &CancelToken) -> Result<SubmissionRecord> {
+        self.submissions.status(self.id, cancel)
+    }
+
+    pub fn wait(&self, cancel: &CancelToken) -> Result<SubmissionRecord> {
+        self.submissions.wait(self.id, cancel)
+    }
+
+    pub fn abort(&self, cancel: &CancelToken) -> Result<AbortResult> {
+        match self.submissions.abort(self.id, cancel, None)? {
+            AbortResult::NotFound => Err(Error::Invalid(format!(
+                "Submission {} does not exist",
+                self.id
+            ))),
+            result => Ok(result),
+        }
     }
 }
