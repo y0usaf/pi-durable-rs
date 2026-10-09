@@ -4,7 +4,7 @@ use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
 
 use crate::ai::types::{TextContent, TextType, Tool, UserBlock};
-use crate::env::ExecutionEnv;
+use crate::errors::{Error, Result};
 use crate::harness::output::{OutputChunk, Retain};
 use crate::harness::types::{
     Extension, OutputLimitsSpec, PrepareArguments, ToolExecute, ToolExecutionApi,
@@ -34,11 +34,11 @@ pub fn coding_tools() -> Extension {
 
 fn read_tool() -> ToolRegistration {
     let execute: ToolExecute = Arc::new(|args, api, cancel| {
-        let outcome = parsed::<ReadArgs>(args)
-            .and_then(|args| with_env(api, |env| read::execute(env, &args, cancel)));
-        Ok(finish(outcome, |truncation: Option<TruncationResult>| {
+        let args = parsed::<ReadArgs>(args)?;
+        let output = read::execute(env_of(api)?, &args, cancel);
+        finish(api, output, |truncation: Option<TruncationResult>| {
             truncation.map(|truncation| json!({"truncation": truncation_json(&truncation)}))
-        }))
+        })
     });
     registration(
         "read",
@@ -52,9 +52,9 @@ fn read_tool() -> ToolRegistration {
 
 fn write_tool() -> ToolRegistration {
     let execute: ToolExecute = Arc::new(|args, api, cancel| {
-        let outcome = parsed::<WriteArgs>(args)
-            .and_then(|args| with_env(api, |env| write::execute(env, &args, cancel)));
-        Ok(finish(outcome, |()| None))
+        let args = parsed::<WriteArgs>(args)?;
+        let output = write::execute(env_of(api)?, &args, cancel);
+        finish(api, output, |()| None)
     });
     registration(
         "write",
@@ -68,11 +68,11 @@ fn write_tool() -> ToolRegistration {
 
 fn edit_tool() -> ToolRegistration {
     let execute: ToolExecute = Arc::new(|args, api, cancel| {
-        let outcome = edit::parse_arguments(args)
-            .and_then(|args| with_env(api, |env| edit::execute(env, &args, cancel)));
-        Ok(finish(outcome, |details: EditDetails| {
+        let args = edit::parse_arguments(args).map_err(thrown)?;
+        let output = edit::execute(env_of(api)?, &args, cancel);
+        finish(api, output, |details: EditDetails| {
             Some(edit_details_json(&details))
-        }))
+        })
     });
     let prepare: PrepareArguments = Arc::new(edit::prepare_arguments);
     registration(
@@ -87,18 +87,25 @@ fn edit_tool() -> ToolRegistration {
 
 fn bash_tool() -> ToolRegistration {
     let execute: ToolExecute = Arc::new(|args, api, cancel| {
-        let outcome = parsed::<BashArgs>(args)
-            .and_then(|args| with_env(api, |env| bash::execute(env, &args, cancel)));
-        let text = match &outcome {
-            Ok(output) => output.text.clone(),
-            Err(error) => error.text.clone(),
+        let args = parsed::<BashArgs>(args)?;
+        let env = env_of(api)?;
+        let mut stream = |text: &str| {
+            api.output(OutputChunk::Text(text), None)
+                .map_err(|error| error.to_string())
         };
-        if !text.is_empty() {
-            api.output(OutputChunk::Text(&text), None)?;
+        let outcome = bash::execute(env, &args, cancel, &mut stream);
+        let (is_error, diagnostics) = match &outcome {
+            Ok(output) => (output.is_error, &output.diagnostics),
+            Err(error) => (true, &error.diagnostics),
+        };
+        for diagnostic in diagnostics {
+            api.diagnostic(tool_diagnostic(diagnostic));
         }
-        let mut result = finish(outcome, |()| None);
-        result.content = None;
-        Ok(result)
+        outcome.map_err(thrown)?;
+        Ok(ToolExecutionResult {
+            is_error: Some(is_error),
+            ..ToolExecutionResult::default()
+        })
     });
     let limits = OutputLimitsSpec {
         max_bytes: None,
@@ -138,51 +145,41 @@ fn registration(
     }
 }
 
-fn parsed<A: DeserializeOwned>(args: Value) -> std::result::Result<A, ToolError> {
+fn parsed<A: DeserializeOwned>(args: Value) -> Result<A> {
     serde_json::from_value(args)
-        .map_err(|error| ToolError::new(format!("Invalid arguments: {error}")))
+        .map_err(|error| thrown(ToolError::new(format!("Invalid arguments: {error}"))))
 }
 
-fn with_env<T>(
-    api: &dyn ToolExecutionApi,
-    run: impl FnOnce(&dyn ExecutionEnv) -> std::result::Result<T, ToolError>,
-) -> std::result::Result<T, ToolError> {
-    let env = api
-        .env()
-        .ok_or_else(|| ToolError::new("No execution environment is configured"))?;
-    run(env)
+fn env_of(api: &dyn ToolExecutionApi) -> Result<&dyn crate::env::ExecutionEnv> {
+    api.env()
+        .ok_or_else(|| thrown(ToolError::new("No execution environment is configured")))
 }
 
 fn finish<D>(
+    api: &dyn ToolExecutionApi,
     outcome: std::result::Result<ToolOutput<D>, ToolError>,
     details: impl FnOnce(D) -> Option<Value>,
-) -> ToolExecutionResult {
-    match outcome {
-        Ok(output) => ToolExecutionResult {
-            content: Some(text_content(&output.text)),
-            is_error: Some(output.is_error),
-            details: details(output.details),
-            diagnostics: Some(diagnostics(&output.diagnostics)),
-            ..ToolExecutionResult::default()
-        },
+) -> Result<ToolExecutionResult> {
+    let output = match outcome {
+        Ok(output) => output,
         Err(error) => {
-            let mapped = if error.diagnostics.is_empty() {
-                vec![ToolDiagnostic {
-                    severity: ToolDiagnosticSeverity::Error,
-                    message: error.message.clone(),
-                    code: Some("tool_error".to_owned()),
-                }]
-            } else {
-                diagnostics(&error.diagnostics)
-            };
-            ToolExecutionResult {
-                content: Some(text_content(&error.text)),
-                is_error: Some(true),
-                diagnostics: Some(mapped),
-                ..ToolExecutionResult::default()
+            for diagnostic in &error.diagnostics {
+                api.diagnostic(tool_diagnostic(diagnostic));
             }
+            return Err(thrown(error));
         }
-    }
+    };
+    Ok(ToolExecutionResult {
+        content: Some(text_content(&output.text)),
+        is_error: Some(output.is_error),
+        details: details(output.details),
+        diagnostics: Some(output.diagnostics.iter().map(tool_diagnostic).collect()),
+        ..ToolExecutionResult::default()
+    })
+}
+
+fn thrown(error: ToolError) -> Error {
+    Error::Invalid(error.message)
 }
 
 fn text_content(text: &str) -> Vec<UserBlock> {
@@ -196,19 +193,16 @@ fn text_content(text: &str) -> Vec<UserBlock> {
     })]
 }
 
-fn diagnostics(items: &[Diagnostic]) -> Vec<ToolDiagnostic> {
-    items
-        .iter()
-        .map(|item| ToolDiagnostic {
-            severity: match item.severity {
-                Severity::Info => ToolDiagnosticSeverity::Info,
-                Severity::Warn => ToolDiagnosticSeverity::Warn,
-                Severity::Error => ToolDiagnosticSeverity::Error,
-            },
-            message: item.message.clone(),
-            code: item.code.map(str::to_owned),
-        })
-        .collect()
+fn tool_diagnostic(item: &Diagnostic) -> ToolDiagnostic {
+    ToolDiagnostic {
+        severity: match item.severity {
+            Severity::Info => ToolDiagnosticSeverity::Info,
+            Severity::Warn => ToolDiagnosticSeverity::Warn,
+            Severity::Error => ToolDiagnosticSeverity::Error,
+        },
+        message: item.message.clone(),
+        code: item.code.map(str::to_owned),
+    }
 }
 
 fn truncation_json(truncation: &TruncationResult) -> Value {

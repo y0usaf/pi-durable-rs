@@ -216,6 +216,8 @@ pub fn apply_boundary(
         .filter(|(index, _)| removed.binary_search(index).is_err())
         .map(|(_, item)| item)
         .collect();
+    let token = inbox_doc()?;
+    crate::harness::util::write_draft(tx, &token, boundary.conversation_id, &boundary.inbox)?;
     Ok(BoundaryResult {
         users: placed,
         reset,
@@ -251,27 +253,28 @@ pub fn remove_inbox_item(
 ) -> Result<()> {
     let token = inbox_doc()?;
     edit_doc(tx, &token, conversation_id, |state| {
-        state.items.retain(|item| item_id(item) != id);
+        if let Some(index) = state.items.iter().position(|item| item_id(item) == id) {
+            state.items.remove(index);
+        }
     })
 }
 
 pub fn withdraw_queued_inputs(tx: &mut dyn Tx, conversation_id: ConversationId) -> Result<()> {
     let token = inbox_doc()?;
     let mut state = crate::harness::util::read_draft(tx, &token, conversation_id)?;
-    let mut kept = Vec::with_capacity(state.items.len());
-    for item in std::mem::take(&mut state.items) {
-        match item {
-            InboxItem::Write { .. } => kept.push(item),
-            queued => tx.settle_submission(
-                item_id(&queued),
-                SubmissionSettlement::Unanswered {
-                    reason: "aborted".to_owned(),
-                    detail: None,
-                },
-            )?,
+    for index in (0..state.items.len()).rev() {
+        if matches!(state.items[index], InboxItem::Write { .. }) {
+            continue;
         }
+        let queued = state.items.remove(index);
+        tx.settle_submission(
+            item_id(&queued),
+            SubmissionSettlement::Unanswered {
+                reason: "aborted".to_owned(),
+                detail: None,
+            },
+        )?;
     }
-    state.items = kept;
     crate::harness::util::write_draft(tx, &token, conversation_id, &state)
 }
 

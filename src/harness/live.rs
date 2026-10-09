@@ -134,7 +134,9 @@ impl LiveState {
         let Some(statuses) = self.compactions.as_mut() else {
             return;
         };
-        statuses.retain(|status| status.task_id != task_id);
+        if let Some(index) = statuses.iter().position(|status| status.task_id == task_id) {
+            statuses.remove(index);
+        }
         if statuses.is_empty() {
             self.compactions = None;
         }
