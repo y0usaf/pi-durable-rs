@@ -17,6 +17,7 @@ use crate::tasks::{HookRunner, RunningTask, RuntimeChange, TaskRuntime};
 use crate::types::{EntryRecord, JsonObject};
 
 use crate::errors::{Error, Result};
+use crate::harness::registry::Registry;
 use crate::harness::util::{Ticket, Waiters, scan_all};
 use crate::ids::{ConversationId, TaskId};
 use crate::session::kernel::Session;
@@ -231,6 +232,7 @@ pub struct SchedulerOptions {
     pub hooks_of: HooksOf,
     pub settings: SettingsSource,
     pub now: Clock,
+    pub registry: Arc<Registry>,
 }
 
 struct Shared {
@@ -248,6 +250,8 @@ struct Shared {
     now: Clock,
     task_waiters: Waiters<TaskId, AnyTaskRecord>,
     idle_waiters: Waiters<Option<ConversationId>, ()>,
+    registry: Arc<Registry>,
+    registry_listener: Mutex<Option<u64>>,
     state: Mutex<State>,
     wake_rx: Mutex<Option<Receiver<()>>>,
 }
@@ -474,6 +478,8 @@ impl TaskScheduler {
             now: options.now,
             task_waiters: Waiters::default(),
             idle_waiters: Waiters::default(),
+            registry: options.registry,
+            registry_listener: Mutex::new(None),
             state: Mutex::new(state),
             wake_rx: Mutex::new(Some(wake_rx)),
         }))
@@ -496,6 +502,13 @@ impl TaskScheduler {
             .0
             .session
             .subscribe_close(Box::new(move || closer.seal()))?;
+        let kicker = self.clone();
+        let listener = self.0.registry.subscribe(Arc::new(move || kicker.kick()));
+        *self
+            .0
+            .registry_listener
+            .lock()
+            .expect("registry listener lock") = Some(listener);
         let reconciler = self.clone();
         let wake = self
             .0
@@ -511,6 +524,7 @@ impl TaskScheduler {
         });
         self.0.session.commit_with(
             |tx| {
+                let mut records = Vec::new();
                 for status in LIVE_STATUSES {
                     let query = TaskQuery {
                         conversation_id: None,
@@ -520,35 +534,36 @@ impl TaskScheduler {
                         background: None,
                         order: None,
                     };
-                    let records =
-                        scan_all(|cursor| tx.scan_tasks(&query, SCAN_PAGE_SIZE, cursor.as_ref()))?;
-                    let mut st = self.lock();
-                    for record in records {
-                        if let TaskState::Running { checkpoint } = &record.state {
-                            let pending = TaskState::Pending {
-                                checkpoint: checkpoint.clone(),
-                            };
-                            let mut next = record.clone();
-                            next.state = pending;
-                            tx.set_task(next)?;
-                        }
-                        if let TaskState::Waiting {
-                            policy: crate::tasks::JoinPolicy::FailFast,
-                            ..
-                        } = record.state
-                        {
-                            st.fail_fast_checks.insert(record.id);
-                        }
-                        st.live.insert(record.id, record);
+                    records.extend(scan_all(|cursor| {
+                        tx.scan_tasks(&query, SCAN_PAGE_SIZE, cursor.as_ref())
+                    })?);
+                }
+                for record in records {
+                    self.lock().live.insert(record.id, record.clone());
+                    if let TaskState::Running { checkpoint } = &record.state {
+                        let mut next = record.clone();
+                        next.state = TaskState::Pending {
+                            checkpoint: checkpoint.clone(),
+                        };
+                        tx.set_task(next)?;
+                    }
+                    if let TaskState::Waiting {
+                        policy: crate::tasks::JoinPolicy::FailFast,
+                        ..
+                    } = record.state
+                    {
+                        self.lock().fail_fast_checks.insert(record.id);
                     }
                 }
-                self.lock().cascade_pending = true;
-                self.lock().schedule_reconcile();
                 Ok(())
             },
             &CancelToken::new(),
             TransactionScope::default(),
-        )
+        )?;
+        let mut st = self.lock();
+        st.cascade_pending = true;
+        st.schedule_reconcile();
+        Ok(())
     }
 
     pub fn resume(&self) {
@@ -557,6 +572,17 @@ impl TaskScheduler {
     }
 
     fn seal(&self) {
+        if let Some(listener) = self
+            .0
+            .registry_listener
+            .lock()
+            .expect("registry listener lock")
+            .take()
+        {
+            self.0.registry.unsubscribe(listener);
+        }
+        self.0.task_waiters.reject_all(closed_error);
+        self.0.idle_waiters.reject_all(closed_error);
         let mut st = self.lock();
         st.closing = true;
         for invocation in st.invocations.values() {
