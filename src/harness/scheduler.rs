@@ -33,6 +33,77 @@ pub type WithdrawInputs =
     Arc<dyn Fn(&mut Transaction<'_>, ConversationId) -> Result<()> + Send + Sync>;
 pub type Report = Arc<dyn Fn(Error) + Send + Sync>;
 
+pub trait ErasedTask: Send + Sync {
+    fn version(&self) -> u64;
+    fn can_migrate(&self) -> bool;
+    fn migrate(
+        &self,
+        input: &JsonValue,
+        checkpoint: &JsonValue,
+        from: u64,
+    ) -> Result<(JsonValue, JsonValue)>;
+}
+
+pub type Snapshot = Arc<dyn Fn(&str) -> Option<Arc<dyn ErasedTask>> + Send + Sync>;
+pub type TakeSnapshot = Arc<dyn Fn() -> Snapshot + Send + Sync>;
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum BlockedReason {
+    MissingTask,
+    TaskTooOld,
+    MigrationFailed,
+}
+
+enum Resolution {
+    Ready {
+        task: Arc<dyn ErasedTask>,
+        record: AnyTaskRecord,
+        migrated: bool,
+    },
+    Blocked(BlockedReason),
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Mode {
+    Run,
+    Abort,
+}
+
+#[derive(Clone)]
+pub struct Latch(Arc<(Mutex<bool>, std::sync::Condvar)>);
+
+impl Latch {
+    fn new() -> Self {
+        Self(Arc::new((Mutex::new(false), std::sync::Condvar::new())))
+    }
+
+    fn open(&self) {
+        *self.0.0.lock().expect("latch lock") = true;
+        self.0.1.notify_all();
+    }
+
+    pub fn wait(&self) {
+        let mut done = self.0.0.lock().expect("latch lock");
+        while !*done {
+            done = self.0.1.wait(done).expect("latch wait");
+        }
+    }
+}
+
+pub struct Invocation {
+    pub task_id: TaskId,
+    pub conversation_id: ConversationId,
+    pub mode: Mode,
+    pub cancel: CancelToken,
+    pub done: Latch,
+}
+
+struct Reservation {
+    invocation: Arc<Invocation>,
+    task: Arc<dyn ErasedTask>,
+    snapshot: Snapshot,
+}
+
 #[derive(Clone)]
 struct TaskNode {
     conversation_id: ConversationId,
@@ -64,6 +135,8 @@ struct State {
     conversation_owners: BTreeSet<TaskId>,
     settled: BTreeMap<TaskId, TaskNode>,
     fail_fast_checks: BTreeSet<TaskId>,
+    failed_migrations: BTreeMap<TaskId, (Arc<dyn ErasedTask>, String)>,
+    invocations: BTreeMap<TaskId, Arc<Invocation>>,
     reconcile_scheduled: bool,
     cascade_pending: bool,
     enabled: bool,
@@ -77,6 +150,7 @@ pub struct SchedulerOptions {
     pub report: Report,
     pub settle_outcome: SettleOutcome,
     pub withdraw_inputs: WithdrawInputs,
+    pub take_snapshot: TakeSnapshot,
 }
 
 struct Shared {
@@ -85,6 +159,7 @@ struct Shared {
     report: Report,
     settle_outcome: SettleOutcome,
     withdraw_inputs: WithdrawInputs,
+    take_snapshot: TakeSnapshot,
     state: Mutex<State>,
     wake_rx: Mutex<Option<Receiver<()>>>,
 }
@@ -286,6 +361,8 @@ impl TaskScheduler {
             conversation_owners: BTreeSet::new(),
             settled: BTreeMap::new(),
             fail_fast_checks: BTreeSet::new(),
+            failed_migrations: BTreeMap::new(),
+            invocations: BTreeMap::new(),
             reconcile_scheduled: false,
             cascade_pending: false,
             enabled: false,
@@ -298,6 +375,7 @@ impl TaskScheduler {
             report: options.report,
             settle_outcome: options.settle_outcome,
             withdraw_inputs: options.withdraw_inputs,
+            take_snapshot: options.take_snapshot,
             state: Mutex::new(state),
             wake_rx: Mutex::new(Some(wake_rx)),
         }))
@@ -707,4 +785,252 @@ fn with_state(record: &AnyTaskRecord, state: TaskState<JsonValue, JsonValue>) ->
     }
     next.state = state;
     next
+}
+
+enum Fit {
+    Task {
+        task: Arc<dyn ErasedTask>,
+        migrates: bool,
+    },
+    Blocked(BlockedReason),
+}
+
+fn checkpoint_of(state: &TaskState<JsonValue, JsonValue>) -> Option<&JsonValue> {
+    match state {
+        TaskState::Pending { checkpoint }
+        | TaskState::Running { checkpoint }
+        | TaskState::Waiting { checkpoint, .. } => Some(checkpoint),
+        TaskState::Completing { .. } | TaskState::Terminal { .. } => None,
+    }
+}
+
+fn fit(st: &State, record: &AnyTaskRecord, task: Option<Arc<dyn ErasedTask>>) -> Fit {
+    let Some(task) = task else {
+        return Fit::Blocked(BlockedReason::MissingTask);
+    };
+    let version = task.version();
+    if version == record.version {
+        return Fit::Task {
+            task,
+            migrates: false,
+        };
+    }
+    if version < record.version {
+        return Fit::Blocked(BlockedReason::TaskTooOld);
+    }
+    if let Some((failed, _)) = st.failed_migrations.get(&record.id)
+        && Arc::ptr_eq(failed, &task)
+    {
+        return Fit::Blocked(BlockedReason::MigrationFailed);
+    }
+    Fit::Task {
+        task,
+        migrates: true,
+    }
+}
+
+fn waiting_on(
+    st: &State,
+    record: &AnyTaskRecord,
+    owned: &BTreeMap<TaskId, Vec<TaskId>>,
+) -> Vec<TaskId> {
+    if record.abort_requested {
+        return owned.get(&record.id).cloned().unwrap_or_default();
+    }
+    match &record.state {
+        TaskState::Waiting { on, .. } => on
+            .iter()
+            .filter(|id| st.live.contains_key(id))
+            .copied()
+            .collect(),
+        _ => Vec::new(),
+    }
+}
+
+fn create_invocation(st: &mut State, record: &AnyTaskRecord, mode: Mode) -> Arc<Invocation> {
+    let invocation = Arc::new(Invocation {
+        task_id: record.id,
+        conversation_id: record.conversation_id,
+        mode,
+        cancel: CancelToken::new(),
+        done: Latch::new(),
+    });
+    st.invocations.insert(record.id, Arc::clone(&invocation));
+    invocation
+}
+
+impl TaskScheduler {
+    fn resolve(&self, st: &mut State, record: &AnyTaskRecord, snapshot: &Snapshot) -> Resolution {
+        match fit(st, record, snapshot(&record.kind)) {
+            Fit::Blocked(reason) => Resolution::Blocked(reason),
+            Fit::Task {
+                task,
+                migrates: false,
+            } => Resolution::Ready {
+                task,
+                record: record.clone(),
+                migrated: false,
+            },
+            Fit::Task {
+                task,
+                migrates: true,
+            } => {
+                let outcome = if task.can_migrate() {
+                    let checkpoint = checkpoint_of(&record.state)
+                        .cloned()
+                        .unwrap_or(JsonValue::Null);
+                    task.migrate(&record.input, &checkpoint, record.version)
+                        .map(|(input, checkpoint)| {
+                            let mut next = record.clone();
+                            next.version = task.version();
+                            next.input = input;
+                            next.state = with_checkpoint(&record.state, checkpoint);
+                            next
+                        })
+                } else {
+                    Err(Error::Invalid(format!(
+                        "Task {} version {} has no migration from {}",
+                        record.kind,
+                        task.version(),
+                        record.version
+                    )))
+                };
+                match outcome {
+                    Ok(next) => Resolution::Ready {
+                        task,
+                        record: next,
+                        migrated: true,
+                    },
+                    Err(error) => {
+                        let message = error.to_string();
+                        st.failed_migrations
+                            .insert(record.id, (Arc::clone(&task), message));
+                        (self.0.report)(error);
+                        Resolution::Blocked(BlockedReason::MigrationFailed)
+                    }
+                }
+            }
+        }
+    }
+}
+
+fn with_checkpoint(
+    state: &TaskState<JsonValue, JsonValue>,
+    checkpoint: JsonValue,
+) -> TaskState<JsonValue, JsonValue> {
+    match state {
+        TaskState::Pending { .. } => TaskState::Pending { checkpoint },
+        TaskState::Running { .. } => TaskState::Running { checkpoint },
+        TaskState::Waiting { on, policy, .. } => TaskState::Waiting {
+            checkpoint,
+            on: on.clone(),
+            policy: *policy,
+        },
+        other => other.clone(),
+    }
+}
+
+impl BlockedReason {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::MissingTask => "missing_task",
+            Self::TaskTooOld => "task_too_old",
+            Self::MigrationFailed => "migration_failed",
+        }
+    }
+}
+
+impl TaskScheduler {
+    fn terminate(
+        &self,
+        tx: &mut Transaction<'_>,
+        st: &mut State,
+        record: &AnyTaskRecord,
+        outcome: TaskOutcome<JsonValue>,
+    ) -> Result<()> {
+        self.load_scopes(st, false)?;
+        let overlay = overlay_of(tx);
+        if st.owned_live(Some(&overlay)).contains_key(&record.id) {
+            return tx.set_task(with_state(record, TaskState::Completing { outcome }));
+        }
+        tx.set_task(with_state(
+            record,
+            TaskState::Terminal {
+                outcome: outcome.clone(),
+            },
+        ))?;
+        (self.0.settle_outcome)(tx, record, &outcome)
+    }
+
+    fn reserve(&self) -> Result<Vec<Reservation>> {
+        let mut reservations: Vec<Reservation> = Vec::new();
+        let result = self.0.session.commit_with(
+            |tx| {
+                let mut st = self.lock();
+                if !st.enabled || st.closing {
+                    return Ok(());
+                }
+                self.load_scopes(&mut st, false)?;
+                let owned = st.owned_live(None);
+                let mut snapshot: Option<Snapshot> = None;
+                let live: Vec<AnyTaskRecord> = st.live.values().cloned().collect();
+                for record in live {
+                    if st.invocations.contains_key(&record.id)
+                        || !waiting_on(&st, &record, &owned).is_empty()
+                        || matches!(record.state, TaskState::Completing { .. })
+                    {
+                        continue;
+                    }
+                    let mode = if record.abort_requested {
+                        Mode::Abort
+                    } else {
+                        Mode::Run
+                    };
+                    let snap = snapshot
+                        .get_or_insert_with(|| (self.0.take_snapshot)())
+                        .clone();
+                    match self.resolve(&mut st, &record, &snap) {
+                        Resolution::Blocked(reason) => {
+                            if mode == Mode::Abort {
+                                let outcome = TaskOutcome::Orphaned {
+                                    reason: reason.as_str().to_owned(),
+                                };
+                                self.terminate(tx, &mut st, &record, outcome)?;
+                            }
+                        }
+                        Resolution::Ready {
+                            task,
+                            record: next,
+                            migrated,
+                        } => {
+                            if migrated || !matches!(record.state, TaskState::Running { .. }) {
+                                let checkpoint = checkpoint_of(&next.state)
+                                    .cloned()
+                                    .unwrap_or(JsonValue::Null);
+                                tx.set_task(with_state(&next, TaskState::Running { checkpoint }))?;
+                            }
+                            let invocation = create_invocation(&mut st, &record, mode);
+                            reservations.push(Reservation {
+                                invocation,
+                                task,
+                                snapshot: snap,
+                            });
+                        }
+                    }
+                }
+                Ok(())
+            },
+            &CancelToken::new(),
+            TransactionScope::default(),
+        );
+        if let Err(error) = result {
+            let mut st = self.lock();
+            for reservation in &reservations {
+                st.invocations.remove(&reservation.invocation.task_id);
+                reservation.invocation.done.open();
+            }
+            return Err(error);
+        }
+        Ok(reservations)
+    }
 }
