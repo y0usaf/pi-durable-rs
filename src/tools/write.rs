@@ -37,6 +37,7 @@ pub fn execute(
             text: format!("Successfully wrote to {}", args.path),
             diagnostics: Vec::new(),
             details: (),
+            is_error: false,
         })
     })
 }

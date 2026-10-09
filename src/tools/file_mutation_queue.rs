@@ -2,16 +2,27 @@ use super::ToolError;
 use crate::cancel::CancelToken;
 use crate::env::{ExecutionEnv, FileError, FileErrorCode};
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex, MutexGuard, OnceLock, PoisonError};
+use std::sync::{Arc, Condvar, Mutex, MutexGuard, OnceLock, PoisonError};
 
-type Slot = Arc<Mutex<()>>;
+#[derive(Default)]
+struct Turns {
+    next: u64,
+    serving: u64,
+}
 
-fn slots() -> MutexGuard<'static, HashMap<String, Slot>> {
-    static SLOTS: OnceLock<Mutex<HashMap<String, Slot>>> = OnceLock::new();
-    SLOTS
-        .get_or_init(|| Mutex::new(HashMap::new()))
-        .lock()
-        .unwrap_or_else(PoisonError::into_inner)
+#[derive(Default)]
+struct Queue {
+    turns: Mutex<Turns>,
+    turn: Condvar,
+}
+
+fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+    mutex.lock().unwrap_or_else(PoisonError::into_inner)
+}
+
+fn queues() -> MutexGuard<'static, HashMap<String, Arc<Queue>>> {
+    static QUEUES: OnceLock<Mutex<HashMap<String, Arc<Queue>>>> = OnceLock::new();
+    lock(QUEUES.get_or_init(|| Mutex::new(HashMap::new())))
 }
 
 fn canonical(
@@ -56,21 +67,40 @@ pub fn with_file_mutation_queue<T>(
     run: impl FnOnce() -> Result<T, ToolError>,
 ) -> Result<T, ToolError> {
     let key = mutation_key(env, path, cancel)?;
-    let slot = slots()
-        .entry(key.clone())
-        .or_insert_with(|| Arc::new(Mutex::new(())))
-        .clone();
-    let result = {
-        let _turn = slot.lock().unwrap_or_else(PoisonError::into_inner);
-        run()
+    let (queue, ticket) = {
+        let mut map = queues();
+        let queue = map.entry(key.clone()).or_default().clone();
+        let ticket = {
+            let mut turns = lock(&queue.turns);
+            let ticket = turns.next;
+            turns.next += 1;
+            ticket
+        };
+        (queue, ticket)
     };
-    let mut map = slots();
-    if map
-        .get(&key)
-        .is_some_and(|current| Arc::strong_count(current) == 2)
+    {
+        let mut turns = lock(&queue.turns);
+        while turns.serving != ticket {
+            turns = queue
+                .turn
+                .wait(turns)
+                .unwrap_or_else(PoisonError::into_inner);
+        }
+    }
+    let result = run();
+    {
+        let mut turns = lock(&queue.turns);
+        turns.serving += 1;
+        queue.turn.notify_all();
+    }
+    let mut map = queues();
+    let turns = lock(&queue.turns);
+    if turns.serving == turns.next
+        && map
+            .get(&key)
+            .is_some_and(|current| Arc::ptr_eq(current, &queue))
     {
         map.remove(&key);
     }
-    drop(slot);
     result
 }
