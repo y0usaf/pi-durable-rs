@@ -89,6 +89,11 @@ pub trait TransactionHost {
     ) -> Result<Option<LoadedDocument>>;
     fn install(&self, document: LoadedDocument);
     fn evict(&self, address_id: &str, record_id: DocumentId);
+    fn conversation_created(
+        &self,
+        tx: &mut Transaction<'_>,
+        record: &ConversationRecord,
+    ) -> Result<()>;
 }
 
 #[derive(Clone)]
@@ -1104,6 +1109,7 @@ impl Transaction<'_> {
             .push(StorageWrite::Table(Box::new(TableChange::Conversation(
                 record.clone(),
             ))));
+        host.conversation_created(self, &record)?;
         self.assert_open()?;
         Ok(record)
     }
