@@ -1,6 +1,6 @@
 use rusqlite::{Connection, params};
 
-use super::database::{get, invalid, run, transaction};
+use super::database::{get, invalid, run, sql, transaction};
 use crate::errors::Result;
 
 pub struct Migration<'a> {
@@ -105,7 +105,7 @@ pub fn apply_migrations(connection: &mut Connection, migrations: &[Migration]) -
         ));
     }
     transaction(connection, |transaction| {
-        transaction.execute_batch(SCHEMA_TABLE).map_err(invalid)?;
+        transaction.execute_batch(SCHEMA_TABLE).map_err(sql)?;
         run(
             transaction,
             "INSERT OR IGNORE INTO durable_schema (singleton, version) VALUES (1, 0)",
@@ -129,7 +129,7 @@ pub fn apply_migrations(connection: &mut Connection, migrations: &[Migration]) -
                 continue;
             }
             for statement in migration.statements {
-                transaction.execute_batch(statement).map_err(invalid)?;
+                transaction.execute_batch(statement).map_err(sql)?;
             }
             run(
                 transaction,
