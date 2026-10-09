@@ -13,7 +13,9 @@ use crate::harness::output::{OutputChunk, Retain, ShellOutputSkip};
 use crate::harness::registry::{Registry, RegistrySnapshot};
 use crate::ids::{ConversationId, TaskId};
 use crate::session::types::{DocumentObserver, DocumentReader, Tx};
-use crate::types::{AnyTaskRecord, ConversationOwnership, ConversationRecord, JsonValue, ToolDiagnostic};
+use crate::types::{
+    AnyTaskRecord, ConversationOwnership, ConversationRecord, JsonValue, ToolDiagnostic,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

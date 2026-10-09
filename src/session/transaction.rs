@@ -13,7 +13,9 @@ use crate::documents::{
 };
 use crate::entries::Entry;
 use crate::errors::{Error, Result};
-use crate::ids::{ConversationId, DocumentId, EntryId, ROOT_CONVERSATION_ID, Seq, SubmissionId, TaskId};
+use crate::ids::{
+    ConversationId, DocumentId, EntryId, ROOT_CONVERSATION_ID, Seq, SubmissionId, TaskId,
+};
 use crate::session::forks::prepare_fork_document_copies;
 use crate::session::types::{DocRef, DraftId, TaskCreate, TaskOptions, Tx};
 use crate::tasks::{TaskOwnership, TaskState, TaskStatus};
@@ -1203,7 +1205,11 @@ impl Tx for Transaction<'_> {
 
     fn create_root_conversation(&mut self) -> Result<ConversationRecord> {
         self.begin_write()?;
-        self.stage_conversation(Some(ROOT_CONVERSATION_ID), None, ConversationOwnership::Ownerless)
+        self.stage_conversation(
+            Some(ROOT_CONVERSATION_ID),
+            None,
+            ConversationOwnership::Ownerless,
+        )
     }
 
     fn fork_conversation(

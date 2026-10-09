@@ -110,3 +110,8 @@ Every place behaviour differs from the TypeScript, and why.
 - `TaskRuntime::commit` takes a closure that returns the next `NextTaskState`, not TypeScript's `commit(change)` promise that resolves to a state.
 - `ensure_provider_session_id` takes `&dyn TaskRuntime`, not `&mut`, so generation can call it while it holds the runtime.
 - `tool.rs` changes are two visibility lines: `erase` and `append_tool_result` are `pub` for generation.
+- `Harness` is ported in part: open, root, create and fork, configure, agent resolution, submit, reset, commit, context, entries, usage, and the conversation task-graph and view state. Scheduler-backed methods (`resume`, `inspect`, `waitForIdle`, `waitForTask`, `abortTask`, `Conversation.abort`, `compact`, `close` joining tasks) are not ported yet; they wait on the `m6-sched` scheduler.
+- `Harness::open` does not check built-in tasks, because the registry has none yet and the scheduler is not wired.
+- `Conversation::context(at)` reads through `capture_context_bounds` and keeps no per-conversation context cache (TypeScript `contextRetentionMs`).
+- Watches (`Conversation.watch`, `Harness.watchTaskGraph`) and `EnvTarget`/`env` are not ported.
+- `Tx::create_root_conversation` is new in the session layer and reserves `ROOT_CONVERSATION_ID`, as TypeScript's `createRootConversation` does.

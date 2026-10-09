@@ -23,8 +23,8 @@ use crate::session::observation::AttachedState;
 use crate::session::transaction::TransactionScope;
 use crate::session::types::Tx;
 use crate::types::{
-    AnyTaskRecord, ConversationOwnership, ConversationQuery, ConversationRecord, Cursor, EntryQuery,
-    EntryRecord, Page, Storage,
+    AnyTaskRecord, ConversationOwnership, ConversationQuery, ConversationRecord, Cursor,
+    EntryQuery, EntryRecord, Page, Storage,
 };
 
 const SCAN_PAGE_SIZE: usize = 256;
@@ -63,10 +63,22 @@ fn run_created_hook(
     record: &ConversationRecord,
     user: Option<&ConversationCreated>,
 ) -> Result<()> {
-    tx.doc(conversation_doc(crate::harness::live::live_doc()?.definition(), record.id), None)?;
-    tx.doc(conversation_doc(crate::harness::inbox::inbox_doc()?.definition(), record.id), None)?;
+    tx.doc(
+        conversation_doc(crate::harness::live::live_doc()?.definition(), record.id),
+        None,
+    )?;
+    tx.doc(
+        conversation_doc(crate::harness::inbox::inbox_doc()?.definition(), record.id),
+        None,
+    )?;
     tx.doc(conversation_doc(usage_doc()?.definition(), record.id), None)?;
-    tx.doc(conversation_doc(crate::harness::provider::provider_doc()?.definition(), record.id), None)?;
+    tx.doc(
+        conversation_doc(
+            crate::harness::provider::provider_doc()?.definition(),
+            record.id,
+        ),
+        None,
+    )?;
     agent::create_agent(tx, record)?;
     match user {
         Some(user) => user(tx, record),
@@ -82,9 +94,8 @@ impl Harness {
         };
         let clock = Arc::clone(&now);
         let user_created = options.conversation_created;
-        let created: CreatedHook = Arc::new(move |tx, record| {
-            run_created_hook(tx, record, user_created.as_ref())
-        });
+        let created: CreatedHook =
+            Arc::new(move |tx, record| run_created_hook(tx, record, user_created.as_ref()));
         let session = Arc::new(open_session(
             Arc::clone(&storage),
             Some(Box::new(move || clock())),
@@ -123,9 +134,16 @@ impl Harness {
         create(&self.0, Target::Root, options.agent, options.init, cancel)
     }
 
-    pub fn conversation(&self, id: ConversationId, cancel: &CancelToken) -> Result<Option<Conversation>> {
+    pub fn conversation(
+        &self,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<Option<Conversation>> {
         let storage = &*self.0.storage;
-        let record = self.0.session.read_on_line(|| storage.conversation(id, cancel))?;
+        let record = self
+            .0
+            .session
+            .read_on_line(|| storage.conversation(id, cancel))?;
         Ok(record.map(|record| Conversation {
             id: record.id,
             inner: Arc::clone(&self.0),
@@ -151,7 +169,11 @@ impl Harness {
         self.0.session.read_on_line(|| storage.task(id, cancel))
     }
 
-    pub fn submission(&self, id: crate::ids::SubmissionId, cancel: &CancelToken) -> Result<Option<SubmissionHandle>> {
+    pub fn submission(
+        &self,
+        id: crate::ids::SubmissionId,
+        cancel: &CancelToken,
+    ) -> Result<Option<SubmissionHandle>> {
         self.0.submissions.get(id, cancel)
     }
 
@@ -172,12 +194,18 @@ impl Harness {
             order: None,
         };
         let conversations = self.0.session.read_on_line(|| {
-            scan_all(|cursor| storage.scan_conversations(&query, SCAN_PAGE_SIZE, cursor.as_ref(), cancel))
+            scan_all(|cursor| {
+                storage.scan_conversations(&query, SCAN_PAGE_SIZE, cursor.as_ref(), cancel)
+            })
         })?;
         let token = usage_doc()?;
         let mut total = UsageState::default();
         for record in conversations {
-            if let Some(state) = self.0.session.snapshot_as(&token, Some(record.id.0), None, cancel)? {
+            if let Some(state) =
+                self.0
+                    .session
+                    .snapshot_as(&token, Some(record.id.0), None, cancel)?
+            {
                 add_usage_state(&mut total, &state);
             }
         }
@@ -324,9 +352,9 @@ impl Conversation {
             ..query
         };
         let storage = &*self.inner.storage;
-        self.inner.session.read_on_line(|| {
-            storage.scan_entries(&query, limit, cursor.as_ref(), cancel)
-        })
+        self.inner
+            .session
+            .read_on_line(|| storage.scan_entries(&query, limit, cursor.as_ref(), cancel))
     }
 
     pub fn fork(
