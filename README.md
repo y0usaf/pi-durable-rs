@@ -100,7 +100,13 @@ Every place behaviour differs from the TypeScript, and why.
 - `GenerationCheckpoint` holds an erased `TaskId` for compactions and tool tasks, not `TaskId<CompactionResult>`. `GenerationResult` serializes as `{"entryId": ...}`, the TypeScript shape.
 - A section error that `render_sections` reports reaches `runtime.report` as `Error::Invalid` with the error's text, because `Error` is not `Clone`.
 - `Deferred::Window` is a struct variant with an optional `window`, so `{}` and `{"window":"1h"}` both parse as TypeScript writes them.
-- Compaction: `estimate_context` and `select_cut` are ported. `create_compaction` returns `Error::Invalid` until the compaction task lands, so a run that crosses the blocking or overflow threshold fails with that text instead of compacting.
+- Compaction (`src/harness/compaction.rs`): `definition()` is the `pi.compaction` task; the scheduler must register it. `create_compaction` takes no `instructions`, so it always creates a task with none; a manual compaction with instructions needs a new entry point.
+- Compaction `max_tokens` is stored in the checkpoint but not sent: `SimpleStreamOptions` has no `max_tokens` field. Like `simple_options`, the summary request forwards only the signal, session ID, reasoning, and `cacheRetention: none` with `deferred` off; `streamOptions` is stored, not forwarded.
+- Compaction cancellation: the summary call is `Models::complete_simple`, which blocks on the stream. Abort relies on the provider honouring `SimpleStreamOptions.signal`; there is no `CancelToken::on_cancel` bridge, because `EventStream` has no cancel hook. Same gap as generation's `stream_response`.
+- Compaction `beforeCompact` receives a `CompactionSource` closure argument, not `HookApi` and `Context`, as with the other Rust hooks. The first `Decline` or `Summary` wins, as in TypeScript.
+- Compaction reasons: `harness::types::CompactionReason` and `types::CompactionReason` are two identical enums. The compaction task maps between them with `entry_reason` because `CompactionData` and `CompactionStatus` use the second.
+- Compaction summarize: if `firstKept` is missing from the context at `tail`, TypeScript's `findIndex` gives -1; this port returns `Error::Invalid`.
+- `serializeConversation` matches TypeScript byte for byte on 7 probe fixtures covering text, images, skipped system messages, nested and integer-keyed arguments, escapes, unicode, and empty content. The one difference is the surrogate-pair truncation above.
 - `TaskRuntime::commit` takes a closure that returns the next `NextTaskState`, not TypeScript's `commit(change)` promise that resolves to a state.
 - `ensure_provider_session_id` takes `&dyn TaskRuntime`, not `&mut`, so generation can call it while it holds the runtime.
 - `tool.rs` changes are two visibility lines: `erase` and `append_tool_result` are `pub` for generation.
