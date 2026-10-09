@@ -19,6 +19,7 @@ Oracle: [earendil-works/pi](https://github.com/earendil-works/pi) at `f1b2e77f5b
 | `storage` | `packages/durable/src/storage` |
 | `session` | `packages/durable/src/session` |
 | `env`, `tools` | `packages/durable/src/{env,tools}` |
+| `harness::context`, `harness::prompt` | `packages/durable/src/harness/{context,prompt}.ts` |
 
 ## Build
 
@@ -66,6 +67,9 @@ Every place behaviour differs from the TypeScript, and why.
 - pi-ai regex patterns (retry, overflow) are compiled with the `regex` crate, not JavaScript RegExp: `.` excludes the same line terminators, patterns match on ASCII-lowercased text, and case folding is ASCII only.
 - Session-created state sources and watches report chord errors to stderr through a sink. TypeScript reports them with `reportErrorAsync`.
 - A cancelled session operation fails with the fixed text `The operation was aborted` (watch) or `This operation was aborted` (commit). TypeScript uses the signal's reason when that reason is an `Error`.
+- Context reads take `&dyn Storage` and a cancellation token. There is no `readOnLine` hop: the caller captures bounds and reads entries on its own thread, and entries at or below the tail are immutable, so the reads stay consistent.
+- `readContextFrom` returns owned copies and has no `freezeJson`; the range is immutable by ownership, not by a deep freeze.
+- `renderSections` reports a failing section through an `FnMut(&Error)` sink and returns `Err` only on cancellation. Section maps are ordered `Vec` pairs with the same set and order rules as `Map`; `PromptInput.shown` is a `BTreeMap`.
 - `create_session(storage, now)` takes `Option<Clock>` in place of TypeScript's `{ now }` options object. An absent clock reads the system time in milliseconds.
 
 - Tools are registered as plain `ToolRegistration` values in `src/harness/coding_tools.rs`, not through TypeScript's `defineTool`/`defineExtension`/`CodingTools`. Schemas are JSON values built by hand, not typebox. `createPowerShellTool` is not ported, since PowerShell is unsupported.
