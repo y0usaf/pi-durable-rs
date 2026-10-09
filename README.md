@@ -35,4 +35,9 @@ Every place behaviour differs from the TypeScript, and why.
 - Replicated-state listeners run synchronously on the thread that publishes the source frame, as in PiG, where TypeScript delivers from the microtask queue.
 - JavaScript `undefined` has no JSON form. Absent values are `Option::None` and are skipped when serialized, following PiG, which drops `omitUndefinedProperties`.
 - `Context` and `AbortSignal` are replaced by a cancellation token.
+- The tracker copies the value when a change begins and emits ops by diffing base against draft. Op sequences therefore differ from TypeScript's piece-table emission; applying either sequence to the base gives the same value. Replacing with an equal value emits no ops, as in TypeScript.
+- Rust strings cannot hold lone surrogates, so `t` counts stay UTF-16 units as in TypeScript, but a cut through a surrogate pair yields U+FFFD.
+- `copyJson`, `isJsonValue` and the revision validator are not ported: `serde_json::Value` cannot hold cycles, non-finite numbers, symbols or sparse arrays, and it keeps `1` and `1.0` apart where JavaScript does not.
+- A `Prepared` change is consumed by `adopt` and the draft is a plain `&mut` value, so the "already used", "aborted" and settled-proxy errors cannot occur; stale and foreign adoptions still fail.
+- Subscriber errors go to an error sink given at construction instead of an asynchronous rethrow. Source-listener errors return from `change` and `replace`, several together as `Error::Listeners`. Delivery is synchronous, so there is no per-subscriber queue or 100-frame cap.
 

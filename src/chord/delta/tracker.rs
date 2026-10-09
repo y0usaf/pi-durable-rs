@@ -21,7 +21,6 @@ pub struct Change {
 pub struct Prepared {
     owner: u64,
     base_revision: u64,
-    base: JsonValue,
     value: JsonValue,
     ops: Vec<Op>,
 }
@@ -63,7 +62,6 @@ impl Tracker {
         Ok(Prepared {
             owner: self.owner,
             base_revision: self.revision,
-            base: self.value.clone(),
             value,
             ops,
         })
@@ -97,7 +95,6 @@ impl Change {
         Ok(Prepared {
             owner: self.owner,
             base_revision: self.base_revision,
-            base: self.base,
             value: self.draft,
             ops,
         })
@@ -109,16 +106,8 @@ impl Prepared {
         &self.value
     }
 
-    pub fn base(&self) -> &JsonValue {
-        &self.base
-    }
-
     pub fn ops(&self) -> &[Op] {
         &self.ops
-    }
-
-    pub fn base_revision(&self) -> u64 {
-        self.base_revision
     }
 }
 
