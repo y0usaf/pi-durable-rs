@@ -330,8 +330,9 @@ fn prepare(tool: &ToolRegistration, args: JsonObject) -> std::result::Result<Jso
         return Ok(args);
     };
     match prepare(JsonValue::Object(args)) {
-        Value::Object(args) => Ok(args),
-        repaired => Err(format!(
+        Err(error) => Err(error.to_string()),
+        Ok(Value::Object(args)) => Ok(args),
+        Ok(repaired) => Err(format!(
             "Validation failed for tool \"{}\":\n  - root: must be object\n\nReceived arguments:\n{}",
             tool.tool.name,
             crate::ai::utils::js::stringify_pretty(&repaired)

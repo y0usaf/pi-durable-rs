@@ -106,7 +106,7 @@ pub type ToolExecute = Arc<
         + Sync,
 >;
 
-pub type PrepareArguments = Arc<dyn Fn(JsonValue) -> JsonValue + Send + Sync>;
+pub type PrepareArguments = Arc<dyn Fn(JsonValue) -> Result<JsonValue> + Send + Sync>;
 
 #[derive(Clone)]
 pub struct ToolRegistration {
