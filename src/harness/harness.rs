@@ -10,7 +10,14 @@ use crate::harness::generation::queue_modes;
 use crate::harness::inbox::{SelfMarker, WriteDraft, WriteHead};
 use crate::harness::submissions::{AbortResult, SubmissionDraft, SubmissionHandle, Submissions};
 use crate::harness::task_graph::{GraphGuard, TaskGraphView};
-use crate::harness::types::{
+use crate::harness::scheduler::{Inspected, Snapshot, SchedulerOptions, TaskScheduler};
+use crate::ai::models::Models;
+use crate::harness::inbox::withdraw_queued_inputs;
+use crate::harness::live::settle_scheduler_outcome;
+use crate::harness::compaction::{CompactionInput, create_compaction_with};
+use crate::types::CompactionReason;
+use crate::harness::registry::Registry;
+use crate::harness::types::{EnvBuilder, EnvTarget, 
     ConversationCreateOptions, ConversationCreated, ConversationInit, ErrorReport, HarnessOptions,
     HarnessSettings, RootOptions,
 };
@@ -24,7 +31,7 @@ use crate::session::transaction::TransactionScope;
 use crate::session::types::Tx;
 use crate::types::{
     AnyTaskRecord, ConversationOwnership, ConversationQuery, ConversationRecord, Cursor,
-    EntryQuery, EntryRecord, Page, Storage,
+    EntryQuery, EntryRecord, Page, Storage, SubmissionQuery, SubmissionRecord, SubmissionStatus,
 };
 
 const SCAN_PAGE_SIZE: usize = 256;
@@ -49,6 +56,7 @@ struct Inner {
     submissions: Arc<Submissions>,
     views: ConversationViews,
     task_graph: TaskGraphView,
+    tasks: TaskScheduler,
 }
 
 pub struct Harness(Arc<Inner>);
@@ -103,16 +111,19 @@ impl Harness {
         ));
         let settings = options.settings;
         let queue_settings = settings.clone();
+        let report: ErrorReport = options.on_report.unwrap_or_else(|| Arc::new(|_| {}));
+        let tasks = scheduler(&session, &storage, &options.registry, &options.models, &settings, &report, &now, options.env);
+        let resume_tasks = tasks.clone();
         let submissions = Submissions::new(
             Arc::clone(&session),
             Arc::clone(&storage),
             Arc::clone(&now),
             Arc::new(move || queue_modes(&resolve_settings(queue_settings.as_ref()))),
-            Arc::new(|| {}),
+            Arc::new(move || resume_tasks.resume()),
         )?;
         let views = ConversationViews::new(&session)?;
         let task_graph = TaskGraphView::new(&session)?;
-        let report: ErrorReport = options.on_report.unwrap_or_else(|| Arc::new(|_| {}));
+        tasks.open()?;
         Ok(Self(Arc::new(Inner {
             session,
             storage,
@@ -123,6 +134,7 @@ impl Harness {
             submissions,
             views,
             task_graph,
+            tasks,
         })))
     }
 
@@ -216,9 +228,130 @@ impl Harness {
         self.0.task_graph.state(&self.0.session, cancel)
     }
 
+    pub fn resume(&self) {
+        self.0.tasks.resume();
+    }
+
+    pub fn wait_for_task(&self, id: TaskId, cancel: &CancelToken) -> Result<AnyTaskRecord> {
+        self.0.tasks.resume();
+        self.0.tasks.wait_for_task(id, cancel)
+    }
+
+    pub fn wait_for_idle(&self, cancel: &CancelToken) -> Result<()> {
+        self.0.tasks.resume();
+        self.0.tasks.wait_for_idle(None, cancel)
+    }
+
+    pub fn abort_task(&self, id: TaskId, cancel: &CancelToken) -> Result<&'static str> {
+        self.0.tasks.abort(id, cancel)
+    }
+
+    pub fn inspect(&self, cancel: &CancelToken) -> Result<HarnessInspection> {
+        let storage = &*self.0.storage;
+        self.0.session.read_on_line(|| {
+            let snapshot = snapshot_of(&self.0.registry);
+            let inspection = self.0.tasks.inspect(&snapshot)?;
+            let mut submissions = Vec::new();
+            for status in [SubmissionStatus::Queued, SubmissionStatus::Placed] {
+                let query = SubmissionQuery {
+                    conversation_id: None,
+                    status: Some(status),
+                    order: None,
+                };
+                submissions.extend(scan_all(|cursor| {
+                    storage.scan_submissions(&query, SCAN_PAGE_SIZE, cursor.as_ref(), cancel)
+                })?);
+            }
+            submissions.sort_by_key(|record| record.id);
+            Ok(HarnessInspection {
+                scheduling: inspection.scheduling,
+                tasks: inspection.tasks,
+                submissions,
+            })
+        })
+    }
+
     pub fn close(&self, cancel: &CancelToken) -> Result<()> {
+        self.0.tasks.join();
         self.0.session.close(cancel)
     }
+}
+
+pub struct HarnessInspection {
+    pub scheduling: &'static str,
+    pub tasks: Vec<(AnyTaskRecord, Inspected)>,
+    pub submissions: Vec<SubmissionRecord>,
+}
+
+fn snapshot_of(registry: &Registry) -> Snapshot {
+    let current = registry.snapshot();
+    let lookup = Arc::clone(&current);
+    Snapshot {
+        registry: current,
+        task: Arc::new(move |name| lookup.task(name).cloned()),
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
+fn scheduler(
+    session: &Arc<Session>,
+    storage: &Arc<dyn Storage>,
+    registry: &Arc<Registry>,
+    models: &Arc<dyn Models + Send + Sync>,
+    settings: &Option<HarnessSettings>,
+    report: &ErrorReport,
+    now: &Arc<dyn Fn() -> u64 + Send + Sync>,
+    env: Option<EnvBuilder>,
+) -> TaskScheduler {
+    let resolve_session = Arc::clone(session);
+    let resolve_settings_of = settings.clone();
+    let resolve_report = Arc::clone(report);
+    let env_session = Arc::clone(session);
+    let settings_of = settings.clone();
+    let clock = Arc::clone(now);
+    TaskScheduler::new(SchedulerOptions {
+        session: Arc::clone(session),
+        storage: Arc::clone(storage),
+        report: Arc::clone(report),
+        settle_outcome: Arc::new(|tx, record, outcome| settle_scheduler_outcome(tx, record, outcome)),
+        withdraw_inputs: Arc::new(|tx, id| withdraw_queued_inputs(tx, id)),
+        take_snapshot: {
+            let registry = Arc::clone(registry);
+            Arc::new(move || snapshot_of(&registry))
+        },
+        agent: Arc::new(move |id, snapshot, cancel| {
+            let token = agent_doc()?;
+            let state = resolve_session.snapshot_as(&token, Some(id.0), None, cancel)?;
+            Ok(resolve_agent(
+                state.as_ref(),
+                &snapshot.registry,
+                &resolve_settings(resolve_settings_of.as_ref()),
+                &*resolve_report,
+            ))
+        }),
+        models: Arc::clone(models),
+        env: Arc::new(move |id, cancel| {
+            let Some(build) = env.as_ref() else {
+                return Ok(None);
+            };
+            let token = agent_doc()?;
+            let cwd = env_session
+                .snapshot_as(&token, Some(id.0), None, cancel)?
+                .and_then(|state| state.cwd);
+            build(
+                &EnvTarget {
+                    conversation_id: id,
+                    cwd,
+                    read: &*env_session,
+                },
+                cancel,
+            )
+        }),
+        hooks_of: Arc::new(|_, _| Vec::new()),
+        settings: Arc::new(move || resolve_settings(settings_of.as_ref())),
+        now: Arc::new(move || clock()),
+        registry: Arc::clone(registry),
+    })
 }
 
 fn create(
@@ -279,6 +412,28 @@ impl Conversation {
             &settings,
             &*self.inner.report,
         ))
+    }
+
+    pub fn compact(&self, instructions: Option<&str>, cancel: &CancelToken) -> Result<TaskId> {
+        self.inner.tasks.resume();
+        let id = self.id;
+        let input = CompactionInput {
+            reason: CompactionReason::Manual,
+            instructions: instructions.map(str::to_owned),
+        };
+        self.inner.session.commit(
+            |tx| create_compaction_with(tx, id, input, None),
+            cancel,
+        )
+    }
+
+    pub fn abort(&self, background: bool, cancel: &CancelToken) -> Result<()> {
+        self.inner.tasks.abort_conversation(self.id, background, cancel)
+    }
+
+    pub fn wait_for_idle(&self, cancel: &CancelToken) -> Result<()> {
+        self.inner.tasks.resume();
+        self.inner.tasks.wait_for_idle(Some(self.id), cancel)
     }
 
     pub fn configure(&self, change: &AgentChange, cancel: &CancelToken) -> Result<()> {
