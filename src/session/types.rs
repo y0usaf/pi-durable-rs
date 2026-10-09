@@ -1,5 +1,4 @@
 use crate::cancel::CancelToken;
-use crate::chord::state::Attached;
 use crate::documents::DocDefinition;
 use crate::errors::{Error, Result};
 use crate::ids::{ConversationId, EntryId, SubmissionId, TaskId};
@@ -20,25 +19,23 @@ pub struct DocRef<'a> {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct DraftId(pub usize);
 
-pub type DocumentState = Attached;
-
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum WatchEnd {
     Stopped,
     Cancelled,
     SessionClosed,
     Retired,
-    ListenerError(Error),
+    ListenerError(std::sync::Arc<Error>),
 }
 
 pub type WatchListener =
     Box<dyn FnMut(Option<&JsonObject>, &[Op], &CancelToken) -> Result<()> + Send>;
 
 pub trait WatchHandle {
-    fn value(&self) -> Option<&JsonObject>;
-    fn start(&mut self, listener: WatchListener);
+    fn value(&self) -> Option<JsonObject>;
+    fn start(&mut self, listener: WatchListener) -> Result<()>;
     fn stop(&mut self) -> WatchEnd;
-    fn closed(&self) -> Option<&WatchEnd>;
+    fn closed(&self) -> Option<WatchEnd>;
 }
 
 pub type DocumentWatch = Box<dyn WatchHandle + Send>;
@@ -131,17 +128,4 @@ pub trait Tx {
     fn doc(&mut self, doc: DocRef, seed: Option<JsonValue>) -> Result<DraftId>;
     fn draft(&mut self, draft: DraftId) -> Result<&mut JsonValue>;
     fn retire_doc(&mut self, doc: DocRef) -> Result<()>;
-}
-
-pub trait Session: DocumentObserver + DocumentReader {
-    fn commit<R>(
-        &self,
-        change: impl FnOnce(&mut dyn Tx) -> Result<R>,
-        cancel: &CancelToken,
-    ) -> Result<R>;
-    fn close(&self, cancel: &CancelToken) -> Result<()>;
-    fn subscribe_commits(&self, listener: CommitListener) -> Result<Unsubscribe>;
-    fn subscribe_close(&self, listener: Box<dyn FnOnce() + Send>) -> Result<Unsubscribe>;
-    fn document_state(&self, doc: DocRef, cancel: &CancelToken) -> Result<Option<DocumentState>>;
-    fn unload_documents(&self) -> Result<()>;
 }

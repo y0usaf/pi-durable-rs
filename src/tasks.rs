@@ -259,3 +259,45 @@ pub struct Task<I, S, R, H> {
 pub fn define_task<I, S, R, H>(definition: TaskDefinition<I, S, R, H>) -> Task<I, S, R, H> {
     Task { definition }
 }
+
+type Defines<H> = Box<dyn Fn(&H, &str) -> bool + Send + Sync>;
+
+pub struct PhaseHooks<H> {
+    handlers: Vec<H>,
+    defines: Defines<H>,
+    signal: CancelToken,
+    report: Box<dyn Fn(Error) + Send + Sync>,
+}
+
+impl<H> PhaseHooks<H> {
+    pub fn new(
+        handlers: Vec<H>,
+        defines: impl Fn(&H, &str) -> bool + Send + Sync + 'static,
+        signal: CancelToken,
+        report: impl Fn(Error) + Send + Sync + 'static,
+    ) -> Self {
+        Self {
+            handlers,
+            defines: Box::new(defines),
+            signal,
+            report: Box::new(report),
+        }
+    }
+}
+
+impl<H> HookRunner<H> for PhaseHooks<H> {
+    fn each(&self, name: &str, invoke: &mut dyn FnMut(&H) -> Result<()>) -> Result<()> {
+        for handler in &self.handlers {
+            if !(self.defines)(handler, name) {
+                continue;
+            }
+            if let Err(error) = invoke(handler) {
+                if self.signal.is_cancelled() {
+                    return Err(error);
+                }
+                (self.report)(error);
+            }
+        }
+        Ok(())
+    }
+}
