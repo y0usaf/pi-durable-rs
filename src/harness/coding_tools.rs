@@ -99,7 +99,7 @@ fn bash_tool() -> ToolRegistration {
             Err(error) => (true, &error.diagnostics),
         };
         for diagnostic in diagnostics {
-            api.diagnostic(tool_diagnostic(diagnostic));
+            api.diagnostic(tool_diagnostic(diagnostic))?;
         }
         outcome.map_err(thrown)?;
         Ok(ToolExecutionResult {
@@ -164,7 +164,7 @@ fn finish<D>(
         Ok(output) => output,
         Err(error) => {
             for diagnostic in &error.diagnostics {
-                api.diagnostic(tool_diagnostic(diagnostic));
+                api.diagnostic(tool_diagnostic(diagnostic))?;
             }
             return Err(thrown(error));
         }

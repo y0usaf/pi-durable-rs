@@ -39,16 +39,21 @@ pub enum ToolExecutionMode {
     Sequential,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum Replay {
     Safe,
     Unsafe,
 }
 
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ToolControl {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub add_tools: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub terminate: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub handoff: Option<String>,
 }
 
@@ -78,7 +83,7 @@ pub trait ToolExecutionApi: DocumentObserver + DocumentReader {
     fn models(&self) -> &dyn Models;
     fn env(&self) -> Option<&dyn ExecutionEnv>;
     fn output(&self, chunk: OutputChunk<'_>, skipped: Option<ShellOutputSkip>) -> Result<()>;
-    fn diagnostic(&self, diagnostic: ToolDiagnostic);
+    fn diagnostic(&self, diagnostic: ToolDiagnostic) -> Result<()>;
     fn details(&self, value: JsonValue, cancel: &CancelToken) -> Result<()>;
     fn commit(
         &self,
