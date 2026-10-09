@@ -187,29 +187,45 @@ pub enum CompactionReason {
     Overflow,
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
 pub struct ConversationStreamOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub transport: Option<Transport>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub timeout_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_retries: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_retry_delay_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub headers: Option<BTreeMap<String, String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<crate::types::JsonObject>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub cache_retention: Option<CacheRetention>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub deferred: Option<Deferred>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DeferredWindow {
+    #[serde(rename = "15m")]
     FifteenMinutes,
+    #[serde(rename = "1h")]
     OneHour,
+    #[serde(rename = "24h")]
     TwentyFourHours,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(untagged)]
 pub enum Deferred {
     Enabled(bool),
-    Window(DeferredWindow),
+    Window {
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        window: Option<DeferredWindow>,
+    },
 }
 
 #[derive(Debug, Clone, Default)]

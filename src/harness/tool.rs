@@ -724,7 +724,7 @@ fn set_slot_status(
     )
 }
 
-fn erase<R>(id: TaskId<R>) -> TaskId {
+pub fn erase<R>(id: TaskId<R>) -> TaskId {
     TaskId::new(id.get())
 }
 
@@ -858,7 +858,7 @@ struct ToolResultData {
     diagnostics: Vec<ToolDiagnostic>,
 }
 
-fn append_tool_result(
+pub fn append_tool_result(
     tx: &mut dyn Tx,
     conversation: ConversationId,
     call: &ToolCall,
