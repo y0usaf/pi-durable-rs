@@ -1,9 +1,14 @@
 use super::op::{Op, Path, Seg, check};
+use super::overlap::overlap;
 use crate::chord::error::Error;
 use crate::chord::json::JsonValue;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 static NEXT_OWNER: AtomicU64 = AtomicU64::new(1);
+
+const OVERLAP_SCAN: usize = 65_536;
+const OVERLAP_PROBE: usize = 64;
+const OVERLAP_CANDIDATES: usize = 8;
 
 pub struct Tracker {
     owner: u64,
@@ -202,11 +207,23 @@ fn diff(path: &mut Path, base: &JsonValue, next: &JsonValue, ops: &mut Vec<Op>) 
         {
             ops.push(Op::Append(path.clone(), new[old.len()..].to_string()));
         }
-        (JsonValue::String(old), JsonValue::String(new))
-            if !path.is_empty() && old.ends_with(new.as_str()) =>
-        {
-            let removed = old.encode_utf16().count() - new.encode_utf16().count();
-            ops.push(Op::Truncate(path.clone(), removed));
+        (JsonValue::String(old), JsonValue::String(new)) if !path.is_empty() => {
+            let shared = overlap(old, new, OVERLAP_SCAN, OVERLAP_PROBE, OVERLAP_CANDIDATES);
+            if shared == 0 {
+                leaf(path, next, ops);
+            } else {
+                ops.push(Op::Truncate(
+                    path.clone(),
+                    old.encode_utf16().count() - shared,
+                ));
+                let units: Vec<u16> = new.encode_utf16().collect();
+                if units.len() > shared {
+                    ops.push(Op::Append(
+                        path.clone(),
+                        String::from_utf16_lossy(&units[shared..]),
+                    ));
+                }
+            }
         }
         _ => leaf(path, next, ops),
     }

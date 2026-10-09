@@ -2,6 +2,7 @@ pub mod agent;
 pub mod coding_tools;
 pub mod context;
 pub mod define;
+pub mod events;
 pub mod inbox;
 pub mod json;
 pub mod live;
