@@ -5,6 +5,7 @@ use serde_json::{Map, Value, json};
 
 use crate::cancel::CancelToken;
 use crate::chord::delta::{Op, Seg, apply};
+use crate::chord::state::Attached;
 use crate::documents::DocDefinition;
 use crate::errors::{Error, Result};
 use crate::harness::agent::agent_doc;
@@ -14,7 +15,9 @@ use crate::harness::live::live_doc;
 use crate::harness::provider::provider_doc;
 use crate::harness::usage::usage_doc;
 use crate::ids::ConversationId;
-use crate::session::kernel::Session;
+use crate::session::kernel::{Session, report_error};
+use crate::session::observation::{AttachedState, Deliveries, feeder};
+use crate::types::Storage;
 use crate::types::{
     CommitChange, CommitPublication, ConversationRecord, DocumentCommitChange, EntryRecord,
     TableChange,
@@ -29,7 +32,32 @@ pub struct Change<'a> {
     pub publication: &'a CommitPublication,
 }
 
-pub type Observer = Box<dyn Fn(&Change<'_>) + Send + Sync>;
+pub type Observer = Arc<dyn Fn(&Change<'_>) + Send + Sync>;
+
+pub fn notify(
+    deliveries: &Deliveries,
+    observers: &[(u64, Observer)],
+    before: &Value,
+    after: &Value,
+    ops: &[Op],
+    publication: &CommitPublication,
+) {
+    for (_, observer) in observers {
+        let observer = Arc::clone(observer);
+        let before = before.clone();
+        let after = after.clone();
+        let ops = ops.to_vec();
+        let publication = publication.clone();
+        deliveries.push(move || {
+            observer(&Change {
+                before: &before,
+                after: &after,
+                ops: &ops,
+                publication: &publication,
+            });
+        });
+    }
+}
 
 struct Mount {
     entries: Vec<EntryRecord>,
@@ -82,20 +110,22 @@ impl ConversationViews {
     pub fn new(session: &Session) -> Result<Self> {
         let state = Arc::new(Mutex::new(State::default()));
         let listener_state = Arc::clone(&state);
+        let deliveries = session.deliveries();
+        let listener_deliveries = Arc::clone(&deliveries);
         let _unsubscribe = session.subscribe_commits(Box::new(move |publication, _cancel| {
             let mut state = listener_state.lock().expect(LOCK);
             for (&conversation, mount) in state.mounts.iter_mut() {
                 let id = ConversationId(conversation);
                 let before = mount.value.clone();
                 let ops = advance(id, mount, publication);
-                for (_, observer) in &mount.observers {
-                    observer(&Change {
-                        before: &before,
-                        after: &mount.value,
-                        ops: &ops,
-                        publication,
-                    });
-                }
+                notify(
+                    &listener_deliveries,
+                    &mount.observers,
+                    &before,
+                    &mount.value,
+                    &ops,
+                    publication,
+                );
             }
         }))?;
         Ok(Self {
@@ -111,13 +141,33 @@ impl ConversationViews {
         observer: Observer,
         cancel: &CancelToken,
     ) -> Result<(Value, ViewGuard)> {
+        let (value, guard, ()) =
+            self.attach_with(session, id, cancel, |_, _| Ok((observer, ())))?;
+        Ok((value, guard))
+    }
+
+    pub fn attach_with<R>(
+        &self,
+        session: &Session,
+        id: ConversationId,
+        cancel: &CancelToken,
+        create: impl FnOnce(&Value, &dyn Storage) -> Result<(Observer, R)>,
+    ) -> Result<(Value, ViewGuard, R)> {
         session.read_on_line(|| {
             let known = self.state.lock().expect(LOCK).mounts.contains_key(&id.0);
-            if !known {
-                let mount = build(session, id, &self.definitions, cancel)?;
-                self.state.lock().expect(LOCK).mounts.insert(id.0, mount);
-            }
+            let built = match known {
+                true => None,
+                false => Some(build(session, id, &self.definitions, cancel)?),
+            };
+            let value = match &built {
+                Some(mount) => mount.value.clone(),
+                None => self.state.lock().expect(LOCK).mounts[&id.0].value.clone(),
+            };
+            let (observer, extra) = create(&value, session.storage())?;
             let mut state = self.state.lock().expect(LOCK);
+            if let Some(mount) = built {
+                state.mounts.insert(id.0, mount);
+            }
             state.next += 1;
             let token = state.next;
             let mount = state.mounts.get_mut(&id.0).expect("mount inserted above");
@@ -127,9 +177,33 @@ impl ConversationViews {
                 conversation: id.0,
                 observer: token,
             };
-            Ok((mount.value.clone(), guard))
+            Ok((value, guard, extra))
         })
     }
+
+    pub fn state(
+        &self,
+        session: &Session,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<AttachedState<ViewGuard>> {
+        let (_, guard, attached) =
+            self.attach_with(session, id, cancel, |value, _| Ok(replicate(value)))?;
+        Ok(AttachedState::new(attached, guard))
+    }
+}
+
+pub(crate) fn replicate(value: &Value) -> (Observer, Arc<Mutex<Attached>>) {
+    let attached = Arc::new(Mutex::new(Attached::new(0, value.clone(), report_error())));
+    let feed = feeder(Arc::clone(&attached));
+    (
+        Arc::new(move |change| {
+            if !change.ops.is_empty() {
+                feed(change.after, change.ops);
+            }
+        }),
+        attached,
+    )
 }
 
 fn build(

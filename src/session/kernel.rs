@@ -57,7 +57,7 @@ fn system_now() -> u64 {
     u64::try_from(elapsed.as_millis()).expect("system clock is out of range")
 }
 
-fn report_error() -> Box<dyn FnMut(ChordError) + Send> {
+pub(crate) fn report_error() -> Box<dyn FnMut(ChordError) + Send> {
     Box::new(|error| eprintln!("{error}"))
 }
 
@@ -203,6 +203,10 @@ impl Session {
         Ok(result)
     }
 
+    pub fn deliveries(&self) -> Arc<Deliveries> {
+        Arc::clone(&self.deliveries)
+    }
+
     pub fn storage(&self) -> &dyn Storage {
         self.storage.as_ref()
     }
@@ -334,7 +338,7 @@ impl Session {
         &self,
         definition: &DocDefinition,
         loaded: &LoadedDocument,
-    ) -> Result<Arc<WatchShared>> {
+    ) -> Result<Arc<WatchShared<JsonObject>>> {
         check_record_scope(definition, &loaded.record.create)?;
         check_record_version(definition, &loaded.record.create, loaded.stored_version)?;
         let shared = WatchShared::new(Some(tracked_object(loaded)?), Arc::clone(&self.deliveries));
