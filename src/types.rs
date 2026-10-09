@@ -5,10 +5,9 @@ use crate::errors::Result;
 use crate::ids::{ConversationId, DocumentId, EntryId, Seq, SubmissionId, TaskId};
 use crate::tasks::TaskRecord;
 
-pub type JsonValue = serde_json::Value;
-pub type JsonObject = serde_json::Map<String, JsonValue>;
+pub use crate::chord::json::{JsonObject, JsonValue};
 pub type Message = JsonValue;
-pub type Op = Vec<JsonValue>;
+pub use crate::chord::delta::Op;
 pub type Cursor = JsonObject;
 pub type AnyTaskRecord = TaskRecord<JsonValue, JsonValue, JsonValue>;
 
