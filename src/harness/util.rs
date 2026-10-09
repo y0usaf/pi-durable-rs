@@ -202,6 +202,26 @@ pub fn conversation_doc(definition: &DocDefinition, owner: ConversationId) -> Do
     }
 }
 
+pub fn read_draft<T: DeserializeOwned>(
+    tx: &mut dyn Tx,
+    token: &DocToken<T>,
+    owner: ConversationId,
+) -> Result<T> {
+    let draft = tx.doc(conversation_doc(token.definition(), owner), None)?;
+    Ok(serde_json::from_value(tx.draft(draft)?.clone())?)
+}
+
+pub fn write_draft<T: Serialize + DeserializeOwned>(
+    tx: &mut dyn Tx,
+    token: &DocToken<T>,
+    owner: ConversationId,
+    value: &T,
+) -> Result<()> {
+    let draft = tx.doc(conversation_doc(token.definition(), owner), None)?;
+    assign_value(tx.draft(draft)?, serde_json::to_value(value)?);
+    Ok(())
+}
+
 pub fn edit_doc<T: Serialize + DeserializeOwned, R>(
     tx: &mut dyn Tx,
     token: &DocToken<T>,

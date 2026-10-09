@@ -1,6 +1,10 @@
 pub mod agent;
+pub mod define;
+pub mod inbox;
 pub mod json;
+pub mod live;
 pub mod output;
+pub mod provider;
 pub mod registry;
 pub mod types;
 pub mod usage;
