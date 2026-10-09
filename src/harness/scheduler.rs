@@ -10,7 +10,7 @@ use crate::ids::{ConversationId, TaskId};
 use crate::session::kernel::Session;
 use crate::session::transaction::{Transaction, TransactionScope};
 
-use crate::tasks::{TaskOutcome, TaskState, TaskStatus};
+use crate::tasks::{TaskOutcome, TaskOutcomeError, TaskState, TaskStatus};
 use crate::types::{
     AnyTaskRecord, CommitChange, CommitPublication, ConversationRecord, JsonValue, Storage,
     SubmissionBody, SubmissionQuery, SubmissionStatus, TableChange, TaskQuery,
@@ -42,6 +42,8 @@ pub trait ErasedTask: Send + Sync {
         checkpoint: &JsonValue,
         from: u64,
     ) -> Result<(JsonValue, JsonValue)>;
+    fn run_phase(&self, phase: &str, record: &AnyTaskRecord, cancel: &CancelToken) -> Result<()>;
+    fn run_abort(&self, record: &AnyTaskRecord, cancel: &CancelToken) -> Result<()>;
 }
 
 pub type Snapshot = Arc<dyn Fn(&str) -> Option<Arc<dyn ErasedTask>> + Send + Sync>;
@@ -141,6 +143,8 @@ struct State {
     cascade_pending: bool,
     enabled: bool,
     closing: bool,
+    dirty: bool,
+    draining: bool,
     wake: Sender<()>,
 }
 
@@ -367,6 +371,8 @@ impl TaskScheduler {
             cascade_pending: false,
             enabled: false,
             closing: false,
+            dirty: false,
+            draining: false,
             wake,
         };
         Self(Arc::new(Shared {
@@ -455,10 +461,15 @@ impl TaskScheduler {
 
     pub fn resume(&self) {
         self.lock().enabled = true;
+        self.kick();
     }
 
     fn seal(&self) {
-        self.lock().closing = true;
+        let mut st = self.lock();
+        st.closing = true;
+        for invocation in st.invocations.values() {
+            invocation.cancel.cancel();
+        }
     }
 
     fn observe(&self, publication: &CommitPublication) {
@@ -560,6 +571,8 @@ impl TaskScheduler {
         if st.cascade_pending {
             st.schedule_reconcile();
         }
+        drop(st);
+        self.kick();
     }
 
     fn reconcile(&self) {
@@ -1032,5 +1045,267 @@ impl TaskScheduler {
             return Err(error);
         }
         Ok(reservations)
+    }
+}
+
+enum Decision {
+    Continue,
+    End,
+    Fault(String),
+}
+
+struct PhaseResult {
+    checkpoint: JsonValue,
+    failure: Option<String>,
+}
+
+struct RunState {
+    task: Arc<dyn ErasedTask>,
+    snapshot: Snapshot,
+    reported: Option<Option<Arc<dyn ErasedTask>>>,
+}
+
+fn phase_of(checkpoint: &JsonValue) -> String {
+    checkpoint
+        .get("phase")
+        .and_then(JsonValue::as_str)
+        .unwrap_or_default()
+        .to_owned()
+}
+
+impl TaskScheduler {
+    fn end(&self, invocation: &Invocation) {
+        invocation.cancel.cancel();
+        let mut st = self.lock();
+        st.invocations.remove(&invocation.task_id);
+        drop(st);
+        invocation.done.open();
+    }
+
+    fn decide(
+        &self,
+        tx: &mut Transaction<'_>,
+        current: &AnyTaskRecord,
+        previous: Option<&PhaseResult>,
+        state: &mut RunState,
+    ) -> Decision {
+        if current.abort_requested {
+            return Decision::End;
+        }
+        let Some(previous) = previous else {
+            return Decision::Continue;
+        };
+        if let Some(failure) = &previous.failure {
+            return Decision::Fault(failure.clone());
+        }
+        if checkpoint_of(&current.state) == Some(&previous.checkpoint) {
+            return Decision::Fault(format!(
+                "Task {} phase {} returned without durable progress",
+                current.kind,
+                phase_of(&previous.checkpoint)
+            ));
+        }
+        state.snapshot = (self.0.take_snapshot)();
+        let next = (state.snapshot)(&current.kind);
+        let differs = match &next {
+            Some(task) => !Arc::ptr_eq(task, &state.task),
+            None => true,
+        };
+        if differs {
+            if let Some(task) = &next
+                && can_reserve(task.as_ref(), current)
+            {
+                let checkpoint = checkpoint_of(&current.state)
+                    .cloned()
+                    .unwrap_or(JsonValue::Null);
+                if let Err(error) =
+                    tx.set_task(with_state(current, TaskState::Pending { checkpoint }))
+                {
+                    return Decision::Fault(error.to_string());
+                }
+                return Decision::End;
+            }
+            if state
+                .reported
+                .as_ref()
+                .is_none_or(|reported| !same_option(reported, &next))
+            {
+                state.reported = Some(next.clone());
+                (self.0.report)(Error::Invalid(format!(
+                    "Task {} keeps running under its old {} definition",
+                    current.id, current.kind
+                )));
+            }
+        }
+        Decision::Continue
+    }
+}
+
+fn same_option(left: &Option<Arc<dyn ErasedTask>>, right: &Option<Arc<dyn ErasedTask>>) -> bool {
+    match (left, right) {
+        (Some(left), Some(right)) => Arc::ptr_eq(left, right),
+        (None, None) => true,
+        _ => false,
+    }
+}
+
+fn can_reserve(task: &dyn ErasedTask, record: &AnyTaskRecord) -> bool {
+    task.version() == record.version || (task.version() > record.version && task.can_migrate())
+}
+
+impl TaskScheduler {
+    fn step(
+        &self,
+        invocation: &Invocation,
+        decide: impl FnOnce(&mut Transaction<'_>, &AnyTaskRecord) -> Decision,
+    ) -> Option<AnyTaskRecord> {
+        let result = self.0.session.commit_with(
+            |tx| {
+                let found = self.lock().live.get(&invocation.task_id).cloned();
+                let current =
+                    found.filter(|record| matches!(record.state, TaskState::Running { .. }));
+                let closing = self.lock().closing;
+                let decision = match &current {
+                    Some(record) if !closing => decide(tx, record),
+                    _ => Decision::End,
+                };
+                match decision {
+                    Decision::Continue => Ok(current),
+                    Decision::End => Ok(None),
+                    Decision::Fault(message) => {
+                        if let Some(record) = current {
+                            let outcome = TaskOutcome::Faulted {
+                                error: TaskOutcomeError {
+                                    message,
+                                    detail: None,
+                                },
+                            };
+                            self.terminate(tx, &mut self.lock(), &record, outcome)?;
+                        }
+                        Ok(None)
+                    }
+                }
+            },
+            &CancelToken::new(),
+            TransactionScope::default(),
+        );
+        match result {
+            Ok(current) => current,
+            Err(error) => {
+                if !self.lock().closing {
+                    (self.0.report)(error);
+                }
+                None
+            }
+        }
+    }
+}
+
+impl TaskScheduler {
+    fn run(&self, reservation: Reservation) {
+        let invocation = Arc::clone(&reservation.invocation);
+        let mut state = RunState {
+            task: reservation.task,
+            snapshot: reservation.snapshot,
+            reported: None,
+        };
+        let mut previous: Option<PhaseResult> = None;
+        loop {
+            let Some(current) = self.step(&invocation, |tx, current| {
+                self.decide(tx, current, previous.as_ref(), &mut state)
+            }) else {
+                return;
+            };
+            if self.lock().closing {
+                return;
+            }
+            let checkpoint = checkpoint_of(&current.state)
+                .cloned()
+                .unwrap_or(JsonValue::Null);
+            let phase = phase_of(&checkpoint);
+            let failure = state
+                .task
+                .run_phase(&phase, &current, &invocation.cancel)
+                .err()
+                .map(|error| error.to_string());
+            previous = Some(PhaseResult {
+                checkpoint,
+                failure,
+            });
+        }
+    }
+
+    fn run_abort(&self, reservation: Reservation) {
+        let invocation = Arc::clone(&reservation.invocation);
+        let current = self.lock().live.get(&invocation.task_id).cloned();
+        let Some(current) = current else {
+            return;
+        };
+        if self.lock().closing {
+            return;
+        }
+        let failure = reservation
+            .task
+            .run_abort(&current, &invocation.cancel)
+            .err()
+            .map(|error| error.to_string());
+        let message = failure.unwrap_or_else(|| {
+            format!(
+                "Abort handler of task {} returned without a terminal outcome",
+                invocation.task_id
+            )
+        });
+        self.step(&invocation, |_, _| Decision::Fault(message));
+    }
+
+    fn start(&self, reservation: Reservation) {
+        let scheduler = self.clone();
+        thread::spawn(move || {
+            let invocation = Arc::clone(&reservation.invocation);
+            match invocation.mode {
+                Mode::Run => scheduler.run(reservation),
+                Mode::Abort => scheduler.run_abort(reservation),
+            }
+            scheduler.end(&invocation);
+            scheduler.kick();
+        });
+    }
+
+    fn kick(&self) {
+        {
+            let mut st = self.lock();
+            st.dirty = true;
+            if st.draining || !st.enabled || st.closing {
+                return;
+            }
+            st.draining = true;
+        }
+        let scheduler = self.clone();
+        thread::spawn(move || scheduler.drain());
+    }
+
+    fn drain(&self) {
+        loop {
+            {
+                let mut st = self.lock();
+                if !(st.dirty && st.enabled && !st.closing) {
+                    st.draining = false;
+                    return;
+                }
+                st.dirty = false;
+            }
+            match self.reserve() {
+                Ok(reservations) => {
+                    for reservation in reservations {
+                        self.start(reservation);
+                    }
+                }
+                Err(error) => {
+                    if !self.lock().closing {
+                        (self.0.report)(error);
+                    }
+                }
+            }
+        }
     }
 }
