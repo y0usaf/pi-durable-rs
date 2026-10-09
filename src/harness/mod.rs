@@ -12,3 +12,4 @@ pub mod registry;
 pub mod types;
 pub mod usage;
 pub mod util;
+pub mod view;
