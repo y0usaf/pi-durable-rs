@@ -33,17 +33,16 @@ use crate::harness::usage::{UsageBucket, record_usage};
 use crate::harness::util::{edit_doc, read_draft, write_draft};
 use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::types::{DocRef, DocumentObserver, DocumentReader, Tx};
-use crate::tasks::{
-    NextTaskState, RunningTask, TaskOutcome, TaskOutcomeError,
-};
+use crate::tasks::{NextTaskState, RunningTask, TaskOutcome, TaskOutcomeError};
 use crate::truncate::{DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, utf8_byte_length};
 use crate::types::{
     AnyTaskRecord, EntryDraft, EntryRecord, JsonObject, JsonValue, ToolDiagnostic,
     ToolDiagnosticSeverity,
 };
 
-pub type ToolRuntime<'a> =
-    dyn HarnessTaskRuntime<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> + Sync + 'a;
+pub type ToolRuntime<'a> = dyn HarnessTaskRuntime<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks>
+    + Sync
+    + 'a;
 
 const OVERLAP_SCAN: usize = 65_536;
 const OVERLAP_PROBE: usize = 64;
@@ -105,7 +104,8 @@ pub struct ToolHooks {
 
 pub const TOOL_KIND: &str = "pi.tool";
 
-pub fn tool_task() -> HarnessTaskDefinition<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> {
+pub fn tool_task()
+-> HarnessTaskDefinition<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> {
     let call: HarnessPhaseHandler<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> =
         Box::new(call_phase);
     let execute: HarnessPhaseHandler<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> =

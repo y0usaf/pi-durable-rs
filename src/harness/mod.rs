@@ -6,6 +6,7 @@ pub mod define;
 pub mod erased;
 pub mod events;
 pub mod generation;
+#[allow(clippy::module_inception)]
 pub mod harness;
 pub mod inbox;
 pub mod json;

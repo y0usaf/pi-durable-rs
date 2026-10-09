@@ -1,25 +1,24 @@
 use std::sync::Arc;
 
+use crate::ai::models::Models;
 use crate::ai::types::{Message, UserContent, UserMessage, UserRole};
 use crate::cancel::CancelToken;
 use crate::entries::reset_entry;
 use crate::errors::Result;
 use crate::harness::agent::{self, Agent, AgentChange, agent_doc, resolve_agent, resolve_settings};
+use crate::harness::compaction::{CompactionInput, create_compaction_with};
 use crate::harness::context::{ContextView, capture_context_bounds, read_context_from};
 use crate::harness::generation::queue_modes;
+use crate::harness::inbox::withdraw_queued_inputs;
 use crate::harness::inbox::{SelfMarker, WriteDraft, WriteHead};
+use crate::harness::live::settle_scheduler_outcome;
+use crate::harness::registry::Registry;
+use crate::harness::scheduler::{Inspected, SchedulerOptions, Snapshot, TaskScheduler};
 use crate::harness::submissions::{AbortResult, SubmissionDraft, SubmissionHandle, Submissions};
 use crate::harness::task_graph::{GraphGuard, TaskGraphView};
-use crate::harness::scheduler::{Inspected, Snapshot, SchedulerOptions, TaskScheduler};
-use crate::ai::models::Models;
-use crate::harness::inbox::withdraw_queued_inputs;
-use crate::harness::live::settle_scheduler_outcome;
-use crate::harness::compaction::{CompactionInput, create_compaction_with};
-use crate::types::CompactionReason;
-use crate::harness::registry::Registry;
-use crate::harness::types::{EnvBuilder, EnvTarget, 
-    ConversationCreateOptions, ConversationCreated, ConversationInit, ErrorReport, HarnessOptions,
-    HarnessSettings, RootOptions,
+use crate::harness::types::{
+    ConversationCreateOptions, ConversationCreated, ConversationInit, EnvBuilder, EnvTarget,
+    ErrorReport, HarnessOptions, HarnessSettings, RootOptions,
 };
 use crate::harness::usage::{UsageState, add_usage_state, usage_doc};
 use crate::harness::util::{conversation_doc, scan_all};
@@ -29,6 +28,7 @@ use crate::session::kernel::{CreatedHook, Session, open_session, system_now};
 use crate::session::observation::AttachedState;
 use crate::session::transaction::TransactionScope;
 use crate::session::types::Tx;
+use crate::types::CompactionReason;
 use crate::types::{
     AnyTaskRecord, ConversationOwnership, ConversationQuery, ConversationRecord, Cursor,
     EntryQuery, EntryRecord, Page, Storage, SubmissionQuery, SubmissionRecord, SubmissionStatus,
@@ -112,7 +112,16 @@ impl Harness {
         let settings = options.settings;
         let queue_settings = settings.clone();
         let report: ErrorReport = options.on_report.unwrap_or_else(|| Arc::new(|_| {}));
-        let tasks = scheduler(&session, &storage, &options.registry, &options.models, &settings, &report, &now, options.env);
+        let tasks = scheduler(
+            &session,
+            &storage,
+            &options.registry,
+            &options.models,
+            &settings,
+            &report,
+            &now,
+            options.env,
+        );
         let resume_tasks = tasks.clone();
         let submissions = Submissions::new(
             Arc::clone(&session),
@@ -313,7 +322,9 @@ fn scheduler(
         session: Arc::clone(session),
         storage: Arc::clone(storage),
         report: Arc::clone(report),
-        settle_outcome: Arc::new(|tx, record, outcome| settle_scheduler_outcome(tx, record, outcome)),
+        settle_outcome: Arc::new(|tx, record, outcome| {
+            settle_scheduler_outcome(tx, record, outcome)
+        }),
         withdraw_inputs: Arc::new(|tx, id| withdraw_queued_inputs(tx, id)),
         take_snapshot: {
             let registry = Arc::clone(registry);
@@ -421,14 +432,15 @@ impl Conversation {
             reason: CompactionReason::Manual,
             instructions: instructions.map(str::to_owned),
         };
-        self.inner.session.commit(
-            |tx| create_compaction_with(tx, id, input, None),
-            cancel,
-        )
+        self.inner
+            .session
+            .commit(|tx| create_compaction_with(tx, id, input, None), cancel)
     }
 
     pub fn abort(&self, background: bool, cancel: &CancelToken) -> Result<()> {
-        self.inner.tasks.abort_conversation(self.id, background, cancel)
+        self.inner
+            .tasks
+            .abort_conversation(self.id, background, cancel)
     }
 
     pub fn wait_for_idle(&self, cancel: &CancelToken) -> Result<()> {
