@@ -17,7 +17,7 @@ use crate::tasks::{HookRunner, RunningTask, RuntimeChange, TaskRuntime};
 use crate::types::{EntryRecord, JsonObject};
 
 use crate::errors::{Error, Result};
-use crate::harness::util::scan_all;
+use crate::harness::util::{Ticket, Waiters, scan_all};
 use crate::ids::{ConversationId, TaskId};
 use crate::session::kernel::Session;
 use crate::session::transaction::{Transaction, TransactionScope};
@@ -81,8 +81,10 @@ pub trait ErasedTask: Send + Sync {
 #[derive(Clone)]
 pub struct Snapshot {
     pub registry: Arc<RegistrySnapshot>,
-    pub task: Arc<dyn Fn(&str) -> Option<Arc<dyn ErasedTask>> + Send + Sync>,
+    pub task: Lookup,
 }
+
+pub type Lookup = Arc<dyn Fn(&str) -> Option<Arc<dyn ErasedTask>> + Send + Sync>;
 
 impl Snapshot {
     fn lookup(&self, kind: &str) -> Option<Arc<dyn ErasedTask>> {
@@ -141,6 +143,22 @@ impl Latch {
             done = self.0.1.wait(done).expect("latch wait");
         }
     }
+
+    fn wait_or_cancel(&self, cancel: &CancelToken) -> Result<()> {
+        let pair = Arc::clone(&self.0);
+        cancel.on_cancel(move || {
+            let _guard = pair.0.lock().expect("latch lock");
+            pair.1.notify_all();
+        });
+        let mut done = self.0.0.lock().expect("latch lock");
+        while !*done {
+            if cancel.is_cancelled() {
+                return Err(Error::Aborted);
+            }
+            done = self.0.1.wait(done).expect("latch wait");
+        }
+        Ok(())
+    }
 }
 
 pub struct Invocation {
@@ -173,7 +191,7 @@ enum Up {
 
 enum Step {
     Task(TaskId, TaskNode),
-    Conversation,
+    Conversation(ConversationId),
     Unknown,
 }
 
@@ -228,6 +246,8 @@ struct Shared {
     hooks_of: HooksOf,
     settings: SettingsSource,
     now: Clock,
+    task_waiters: Waiters<TaskId, AnyTaskRecord>,
+    idle_waiters: Waiters<Option<ConversationId>, ()>,
     state: Mutex<State>,
     wake_rx: Mutex<Option<Receiver<()>>>,
 }
@@ -322,7 +342,7 @@ impl State {
                     }
                 },
                 Up::Conversation(id) => {
-                    steps.push(Step::Conversation);
+                    steps.push(Step::Conversation(id));
                     match self.edge(id, overlay) {
                         None => {
                             steps.push(Step::Unknown);
@@ -373,7 +393,7 @@ impl State {
             for step in self.above(parent_of(&node_of(&record)), overlay) {
                 match step {
                     Step::Unknown => break,
-                    Step::Conversation => {}
+                    Step::Conversation(_) => {}
                     Step::Task(task, node) => {
                         owned.entry(task).or_default().push(record.id);
                         if node.background {
@@ -390,7 +410,7 @@ impl State {
         for step in self.above(start, None) {
             match step {
                 Step::Unknown => return false,
-                Step::Conversation => {}
+                Step::Conversation(_) => {}
                 Step::Task(task, node) => {
                     if self.live.get(&task).is_some_and(cancellation_intent) {
                         return true;
@@ -452,6 +472,8 @@ impl TaskScheduler {
             hooks_of: options.hooks_of,
             settings: options.settings,
             now: options.now,
+            task_waiters: Waiters::default(),
+            idle_waiters: Waiters::default(),
             state: Mutex::new(state),
             wake_rx: Mutex::new(Some(wake_rx)),
         }))
@@ -561,14 +583,21 @@ impl TaskScheduler {
             if is_terminal(record) {
                 st.live.remove(&record.id);
                 st.fail_fast_checks.remove(&record.id);
+                st.failed_migrations.remove(&record.id);
                 if st.conversation_owners.contains(&record.id) {
                     st.settled.insert(record.id, node_of(record));
                 }
+                self.0.task_waiters.resolve(&record.id, record);
                 st.schedule_reconcile();
                 continue;
             }
             if record.abort_requested && !previous.as_ref().is_some_and(|p| p.abort_requested) {
                 st.cascade_pending = true;
+                if let Some(invocation) = st.invocations.get(&record.id)
+                    && invocation.mode == Mode::Run
+                {
+                    invocation.cancel.cancel();
+                }
             }
             let was_completing = previous
                 .as_ref()
@@ -641,6 +670,7 @@ impl TaskScheduler {
         if st.cascade_pending {
             st.schedule_reconcile();
         }
+        settle_idle(&st, &self.0.idle_waiters);
         drop(st);
         self.kick();
     }
@@ -1470,5 +1500,248 @@ impl TaskScheduler {
             }
         }
         Ok(())
+    }
+}
+
+#[derive(Clone, Copy)]
+enum Scope {
+    Conversation(ConversationId),
+    Roots,
+}
+
+fn in_scope(st: &State, start: Up, scope: Scope, cross_background: bool) -> Option<bool> {
+    for step in st.above(start, None) {
+        match step {
+            Step::Unknown => return None,
+            Step::Conversation(id) => {
+                if let Scope::Conversation(target) = scope
+                    && target == id
+                {
+                    return Some(true);
+                }
+            }
+            Step::Task(_, node) => {
+                if node.background && !cross_background {
+                    return Some(false);
+                }
+            }
+        }
+    }
+    Some(matches!(scope, Scope::Roots))
+}
+
+fn idle(st: &State, conversation: Option<ConversationId>) -> bool {
+    let scope = match conversation {
+        Some(id) => Scope::Conversation(id),
+        None => Scope::Roots,
+    };
+    st.live.values().all(|record| {
+        record.background || in_scope(st, parent_of(&node_of(record)), scope, false) == Some(false)
+    })
+}
+
+fn settle_idle(st: &State, idle_waiters: &Waiters<Option<ConversationId>, ()>) {
+    for key in idle_waiters.keys() {
+        if idle(st, key) {
+            idle_waiters.resolve(&key, &());
+        }
+    }
+}
+
+pub enum Inspected {
+    Running,
+    Completing,
+    Waiting { on: Vec<TaskId> },
+    Blocked(BlockedReason),
+    Ready { migrates: bool },
+}
+
+pub struct Inspection {
+    pub scheduling: &'static str,
+    pub tasks: Vec<(AnyTaskRecord, Inspected)>,
+}
+
+impl TaskScheduler {
+    pub fn join(&self) {
+        let latches: Vec<Latch> = self
+            .lock()
+            .invocations
+            .values()
+            .map(|invocation| invocation.done.clone())
+            .collect();
+        for latch in latches {
+            latch.wait();
+        }
+    }
+
+    pub fn abort(&self, id: TaskId, cancel: &CancelToken) -> Result<&'static str> {
+        let (result, run) = self.0.session.commit_with(
+            |tx| {
+                let current = tx
+                    .task(id)?
+                    .ok_or_else(|| Error::Invalid(format!("Task {id} does not exist")))?;
+                if matches!(current.state, TaskState::Terminal { .. }) {
+                    return Ok(("terminal", None));
+                }
+                let mut st = self.lock();
+                let invocation = st.invocations.get(&id).cloned();
+                if invocation.is_none() && !matches!(current.state, TaskState::Completing { .. }) {
+                    self.load_scopes(&mut st, false)?;
+                    if !st.owned_live(None).contains_key(&id)
+                        && let Resolution::Blocked(reason) =
+                            self.resolve(&mut st, &current, &(self.0.take_snapshot)())
+                    {
+                        self.terminate(
+                            tx,
+                            &mut st,
+                            &current,
+                            TaskOutcome::Orphaned {
+                                reason: reason.as_str().to_owned(),
+                            },
+                        )?;
+                        return Ok(("marked", None));
+                    }
+                }
+                if !current.abort_requested {
+                    let mut next = current.clone();
+                    next.abort_requested = true;
+                    tx.set_task(next)?;
+                }
+                let run = invocation.filter(|inv| inv.mode == Mode::Run);
+                Ok(("marked", run))
+            },
+            cancel,
+            TransactionScope::default(),
+        )?;
+        if let Some(run) = run {
+            run.done.wait_or_cancel(cancel)?;
+        }
+        Ok(result)
+    }
+
+    pub fn wait_for_task(&self, id: TaskId, cancel: &CancelToken) -> Result<AnyTaskRecord> {
+        let found: std::result::Result<Ticket<TaskId, AnyTaskRecord>, AnyTaskRecord> =
+            self.0.session.read_on_line(|| {
+                if self.lock().closing {
+                    return Err(closed_error());
+                }
+                if self.lock().live.contains_key(&id) {
+                    return Ok(Ok(self.0.task_waiters.add(id)?));
+                }
+                let record = self
+                    .0
+                    .storage
+                    .task(id, cancel)?
+                    .ok_or_else(|| Error::Invalid(format!("Task {id} does not exist")))?;
+                Ok(Err(record))
+            })?;
+        match found {
+            Err(record) => Ok(record),
+            Ok(ticket) => self.0.task_waiters.wait(ticket, cancel),
+        }
+    }
+
+    pub fn wait_for_idle(
+        &self,
+        conversation: Option<ConversationId>,
+        cancel: &CancelToken,
+    ) -> Result<()> {
+        let ticket = {
+            let mut st = self.lock();
+            if st.closing {
+                return Err(closed_error());
+            }
+            if idle(&st, conversation) {
+                return Ok(());
+            }
+            st.schedule_reconcile();
+            self.0.idle_waiters.add(conversation)?
+        };
+        self.0.idle_waiters.wait(ticket, cancel)
+    }
+
+    pub fn abort_conversation(
+        &self,
+        conversation: ConversationId,
+        background: bool,
+        cancel: &CancelToken,
+    ) -> Result<()> {
+        let scope = Scope::Conversation(conversation);
+        let reached = self.0.session.commit_with(
+            |tx| {
+                let mut st = self.lock();
+                let queued = self.load_scopes(&mut st, true)?;
+                let live: Vec<AnyTaskRecord> = st.live.values().cloned().collect();
+                let mut reached = Vec::new();
+                for record in live {
+                    if record.background && !background {
+                        continue;
+                    }
+                    if in_scope(&st, parent_of(&node_of(&record)), scope, background) != Some(true)
+                    {
+                        continue;
+                    }
+                    reached.push(record.id);
+                    if !record.abort_requested {
+                        let mut next = record.clone();
+                        next.abort_requested = true;
+                        tx.set_task(next)?;
+                    }
+                }
+                for id in queued {
+                    if in_scope(&st, Up::Conversation(id), scope, background) == Some(true) {
+                        (self.0.withdraw_inputs)(tx, id)?;
+                    }
+                }
+                Ok(reached)
+            },
+            cancel,
+            TransactionScope::default(),
+        )?;
+        if background {
+            for id in reached {
+                self.wait_for_task(id, cancel)?;
+            }
+        }
+        self.wait_for_idle(Some(conversation), cancel)
+    }
+
+    pub fn inspect(&self, snapshot: &Snapshot) -> Result<Inspection> {
+        let mut st = self.lock();
+        self.load_scopes(&mut st, false)?;
+        let owned = st.owned_live(None);
+        let mut tasks = Vec::new();
+        for record in st.live.values() {
+            let state = if st.invocations.contains_key(&record.id) {
+                Inspected::Running
+            } else if matches!(record.state, TaskState::Completing { .. }) {
+                Inspected::Completing
+            } else {
+                let on = waiting_on(&st, record, &owned);
+                if !on.is_empty() {
+                    Inspected::Waiting { on }
+                } else {
+                    match fit(&st, record, snapshot.lookup(&record.kind)) {
+                        Fit::Blocked(reason) => Inspected::Blocked(reason),
+                        Fit::Task { task, migrates } => {
+                            if migrates && !task.can_migrate() {
+                                Inspected::Blocked(BlockedReason::MigrationFailed)
+                            } else {
+                                Inspected::Ready { migrates }
+                            }
+                        }
+                    }
+                }
+            };
+            tasks.push((record.clone(), state));
+        }
+        let scheduling = if st.closing {
+            "closing"
+        } else if st.enabled {
+            "running"
+        } else {
+            "paused"
+        };
+        Ok(Inspection { scheduling, tasks })
     }
 }
