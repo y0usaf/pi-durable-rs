@@ -48,6 +48,12 @@ impl std::error::Error for Error {
     }
 }
 
+impl From<crate::chord::error::Error> for Error {
+    fn from(error: crate::chord::error::Error) -> Self {
+        Error::Invalid(error.to_string())
+    }
+}
+
 impl From<serde_json::Error> for Error {
     fn from(error: serde_json::Error) -> Self {
         Error::Json(error)

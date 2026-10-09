@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use std::sync::Arc;
 
 use serde_json::json;
 
@@ -27,14 +28,15 @@ pub type Initial = dyn Fn(Option<&JsonValue>) -> JsonObject + Send + Sync;
 pub type Migrate = dyn Fn(JsonObject, u64) -> JsonObject + Send + Sync;
 pub type CheckpointWhen = dyn Fn(&JsonObject, &[Op], CheckpointInfo) -> bool + Send + Sync;
 
+#[derive(Clone)]
 pub struct DocDefinition {
     pub kind: String,
     pub version: u64,
     pub semantics: DocSemantics,
     pub family: bool,
-    pub initial: Box<Initial>,
-    pub migrate: Option<Box<Migrate>>,
-    pub checkpoint_when: Option<Box<CheckpointWhen>>,
+    pub initial: Arc<Initial>,
+    pub migrate: Option<Arc<Migrate>>,
+    pub checkpoint_when: Option<Arc<CheckpointWhen>>,
 }
 
 pub struct DocToken<T> {
