@@ -1,0 +1,11 @@
+[package]
+name = "pi-durable"
+version = "0.1.0"
+edition = "2024"
+description = "Rust reproduction of @earendil-works/pi-durable 1.1.0"
+license = "MIT"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+rusqlite = { version = "0.40", features = ["bundled"] }
