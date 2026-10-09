@@ -1,6 +1,5 @@
 pub mod cancel;
 pub mod chord;
-pub mod codecs;
 pub mod documents;
 pub mod entries;
 pub mod env;
