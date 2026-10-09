@@ -23,6 +23,7 @@ use crate::harness::util::{Ticket, Waiters, scan_all};
 use crate::ids::{ConversationId, TaskId};
 use crate::session::kernel::Session;
 use crate::session::transaction::{Transaction, TransactionScope};
+use crate::turn::{Turn, pause};
 
 use crate::tasks::{
     JoinPolicy, NextTaskState, TaskOutcome, TaskOutcomeError, TaskState, TaskStatus,
@@ -141,10 +142,12 @@ impl Latch {
     }
 
     pub fn wait(&self) {
-        let mut done = self.0.0.lock().expect("latch lock");
-        while !*done {
-            done = self.0.1.wait(done).expect("latch wait");
-        }
+        pause(|| {
+            let mut done = self.0.0.lock().expect("latch lock");
+            while !*done {
+                done = self.0.1.wait(done).expect("latch wait");
+            }
+        });
     }
 
     fn wait_or_cancel(&self, cancel: &CancelToken) -> Result<()> {
@@ -153,14 +156,16 @@ impl Latch {
             let _guard = pair.0.lock().expect("latch lock");
             pair.1.notify_all();
         });
-        let mut done = self.0.0.lock().expect("latch lock");
-        while !*done {
-            if cancel.is_cancelled() {
-                return Err(Error::Aborted);
+        pause(|| {
+            let mut done = self.0.0.lock().expect("latch lock");
+            while !*done {
+                if cancel.is_cancelled() {
+                    return Err(Error::Aborted);
+                }
+                done = self.0.1.wait(done).expect("latch wait");
             }
-            done = self.0.1.wait(done).expect("latch wait");
-        }
-        Ok(())
+            Ok(())
+        })
     }
 }
 
@@ -261,6 +266,7 @@ struct Shared {
     idle_waiters: Waiters<Option<ConversationId>, ()>,
     registry: Arc<Registry>,
     registry_listener: Mutex<Option<u64>>,
+    turn: Turn,
     state: Mutex<State>,
     wake_rx: Mutex<Option<Receiver<()>>>,
 }
@@ -491,6 +497,7 @@ impl TaskScheduler {
             idle_waiters: Waiters::default(),
             registry: options.registry,
             registry_listener: Mutex::new(None),
+            turn: Turn::default(),
             state: Mutex::new(state),
             wake_rx: Mutex::new(Some(wake_rx)),
         }))
@@ -1416,14 +1423,17 @@ impl TaskScheduler {
 
     fn start(&self, reservation: Reservation) {
         let scheduler = self.clone();
+        let ticket = self.0.turn.reserve();
         thread::spawn(move || {
-            let invocation = Arc::clone(&reservation.invocation);
-            match invocation.mode {
-                Mode::Run => scheduler.run(reservation),
-                Mode::Abort => scheduler.run_abort(reservation),
-            }
-            scheduler.end(&invocation);
-            scheduler.kick();
+            ticket.run(|| {
+                let invocation = Arc::clone(&reservation.invocation);
+                match invocation.mode {
+                    Mode::Run => scheduler.run(reservation),
+                    Mode::Abort => scheduler.run_abort(reservation),
+                }
+                scheduler.end(&invocation);
+                scheduler.kick();
+            });
         });
     }
 
@@ -1437,7 +1447,8 @@ impl TaskScheduler {
             st.draining = true;
         }
         let scheduler = self.clone();
-        thread::spawn(move || scheduler.drain());
+        let ticket = self.0.turn.reserve();
+        thread::spawn(move || ticket.run(|| scheduler.drain()));
     }
 
     fn drain(&self) {
