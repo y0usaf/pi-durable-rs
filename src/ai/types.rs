@@ -527,4 +527,5 @@ pub struct SimpleStreamOptions {
     pub session_id: Option<String>,
     pub reasoning: Option<ThinkingLevel>,
     pub cache_retention: Option<CacheRetention>,
+    pub deferred: bool,
 }

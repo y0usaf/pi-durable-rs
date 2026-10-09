@@ -150,22 +150,20 @@ fn array_index(key: &str) -> Option<u32> {
     key.parse::<u32>().ok().filter(|index| *index < u32::MAX)
 }
 
-pub fn stringify_pretty(value: &Value) -> String {
+pub fn stringify(value: &Value) -> String {
     let mut out = String::new();
-    write_value(value, 0, &mut out);
+    write_value(value, None, 0, &mut out);
     out
 }
 
-fn write_value(value: &Value, depth: usize, out: &mut String) {
+pub fn stringify_pretty(value: &Value) -> String {
+    let mut out = String::new();
+    write_value(value, Some(2), 0, &mut out);
+    out
+}
+
+fn write_value(value: &Value, indent: Option<usize>, depth: usize, out: &mut String) {
     match value {
-        Value::Null => out.push_str("null"),
-        Value::Bool(flag) => out.push_str(if *flag { "true" } else { "false" }),
-        Value::Number(number) => out.push_str(
-            &number
-                .as_f64()
-                .map_or_else(|| "null".to_owned(), number_to_string),
-        ),
-        Value::String(text) => write_string(text, out),
         Value::Array(items) => {
             if items.is_empty() {
                 out.push_str("[]");
@@ -173,12 +171,13 @@ fn write_value(value: &Value, depth: usize, out: &mut String) {
             }
             out.push('[');
             for (index, item) in items.iter().enumerate() {
-                out.push_str(if index == 0 { "\n" } else { ",\n" });
-                push_indent(depth + 1, out);
-                write_value(item, depth + 1, out);
+                if index > 0 {
+                    out.push(',');
+                }
+                newline(indent, depth + 1, out);
+                write_value(item, indent, depth + 1, out);
             }
-            out.push('\n');
-            push_indent(depth, out);
+            newline(indent, depth, out);
             out.push(']');
         }
         Value::Object(map) => {
@@ -188,22 +187,41 @@ fn write_value(value: &Value, depth: usize, out: &mut String) {
             }
             out.push('{');
             for (index, key) in keys(map).into_iter().enumerate() {
-                out.push_str(if index == 0 { "\n" } else { ",\n" });
-                push_indent(depth + 1, out);
+                if index > 0 {
+                    out.push(',');
+                }
+                newline(indent, depth + 1, out);
                 write_string(key, out);
-                out.push_str(": ");
-                write_value(&map[key], depth + 1, out);
+                out.push_str(if indent.is_some() { ": " } else { ":" });
+                write_value(&map[key], indent, depth + 1, out);
             }
-            out.push('\n');
-            push_indent(depth, out);
+            newline(indent, depth, out);
             out.push('}');
+        }
+        scalar => write_scalar(scalar, out),
+    }
+}
+
+fn newline(indent: Option<usize>, depth: usize, out: &mut String) {
+    if let Some(width) = indent {
+        out.push('\n');
+        for _ in 0..depth * width {
+            out.push(' ');
         }
     }
 }
 
-fn push_indent(depth: usize, out: &mut String) {
-    for _ in 0..depth {
-        out.push_str("  ");
+fn write_scalar(value: &Value, out: &mut String) {
+    match value {
+        Value::Null => out.push_str("null"),
+        Value::Bool(flag) => out.push_str(if *flag { "true" } else { "false" }),
+        Value::Number(number) => out.push_str(
+            &number
+                .as_f64()
+                .map_or_else(|| "null".to_owned(), number_to_string),
+        ),
+        Value::String(text) => write_string(text, out),
+        Value::Array(_) | Value::Object(_) => write_value(value, None, 0, out),
     }
 }
 
