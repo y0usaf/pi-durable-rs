@@ -315,9 +315,11 @@ impl TaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for InvocationRunti
             if remaining == 0 {
                 return Ok(());
             }
-            joined.wait_timeout(std::time::Duration::from_millis(
-                remaining.min(MAX_TIMER_DELAY),
-            ));
+            pause(|| {
+                joined.wait_timeout(std::time::Duration::from_millis(
+                    remaining.min(MAX_TIMER_DELAY),
+                ))
+            });
         }
     }
 }

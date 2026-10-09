@@ -1,7 +1,9 @@
+use std::panic::{AssertUnwindSafe, catch_unwind, resume_unwind};
 use std::sync::{Condvar, Mutex, MutexGuard, PoisonError, mpsc};
 use std::time::{Duration, Instant};
 
 use crate::errors::{Error, Result};
+use crate::turn::{Turn, current, pause};
 
 pub const PROGRESS_BYTES_PER_SECOND: u64 = 100 * 1024;
 
@@ -21,6 +23,7 @@ pub struct Progress<'a> {
     write: &'a (dyn Fn() -> Result<usize> + Sync),
     on_error: &'a (dyn Fn(Error) + Sync),
     min_interval: Duration,
+    turn: Option<Turn>,
     state: Mutex<State>,
     wake: Condvar,
 }
@@ -44,6 +47,7 @@ impl<'a> Progress<'a> {
             write,
             on_error,
             min_interval,
+            turn: current(),
             state: Mutex::new(State::default()),
             wake: Condvar::new(),
         }
@@ -67,9 +71,15 @@ impl<'a> Progress<'a> {
 
     pub fn run<T>(&self, body: impl FnOnce() -> T) -> (T, Vec<Waiter>) {
         let out = std::thread::scope(|scope| {
-            scope.spawn(|| self.commit_loop());
-            let _stop = Stop(self);
-            body()
+            let writer = scope.spawn(|| self.commit_loop());
+            let out = {
+                let _stop = Stop(self);
+                catch_unwind(AssertUnwindSafe(body))
+            };
+            pause(|| {
+                let _ = writer.join();
+            });
+            out.unwrap_or_else(|panic| resume_unwind(panic))
         });
         let waiters = std::mem::take(&mut self.lock().waiters);
         (out, waiters)
@@ -103,7 +113,7 @@ impl<'a> Progress<'a> {
             state.in_flight = true;
             let waiters = std::mem::take(&mut state.waiters);
             drop(state);
-            let outcome = (self.write)();
+            let outcome = self.write();
             state = self.lock();
             state.in_flight = false;
             let failure = match outcome {
@@ -130,6 +140,13 @@ impl<'a> Progress<'a> {
                 (self.on_error)(error);
             }
             state = self.lock();
+        }
+    }
+
+    fn write(&self) -> Result<usize> {
+        match &self.turn {
+            Some(turn) => turn.reserve().run(|| (self.write)()),
+            None => (self.write)(),
         }
     }
 

@@ -35,6 +35,7 @@ use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::types::{DocRef, DocumentObserver, DocumentReader, Tx};
 use crate::tasks::{NextTaskState, RunningTask, TaskOutcome, TaskOutcomeError};
 use crate::truncate::{DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, utf8_byte_length};
+use crate::turn::pause;
 use crate::types::{
     AnyTaskRecord, EntryDraft, EntryRecord, JsonObject, JsonValue, ToolDiagnostic,
     ToolDiagnosticSeverity,
@@ -1010,7 +1011,7 @@ impl ToolExecutionApi for Api<'_> {
             return Err(Error::Aborted);
         }
         lock(&self.shared.reported).details = Some(value);
-        match self.progress.mark_and_wait().recv() {
+        match pause(|| self.progress.mark_and_wait().recv()) {
             Ok(Ok(())) => Ok(()),
             Ok(Err(message)) => Err(Error::StorageRejected {
                 message,

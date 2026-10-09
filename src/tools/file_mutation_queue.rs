@@ -1,6 +1,7 @@
 use super::ToolError;
 use crate::cancel::CancelToken;
 use crate::env::{ExecutionEnv, FileError, FileErrorCode};
+use crate::turn::pause;
 use std::collections::HashMap;
 use std::sync::{Arc, Condvar, Mutex, MutexGuard, OnceLock, PoisonError};
 
@@ -78,7 +79,7 @@ pub fn with_file_mutation_queue<T>(
         };
         (queue, ticket)
     };
-    {
+    pause(|| {
         let mut turns = lock(&queue.turns);
         while turns.serving != ticket {
             turns = queue
@@ -86,7 +87,7 @@ pub fn with_file_mutation_queue<T>(
                 .wait(turns)
                 .unwrap_or_else(PoisonError::into_inner);
         }
-    }
+    });
     let result = run();
     {
         let mut turns = lock(&queue.turns);

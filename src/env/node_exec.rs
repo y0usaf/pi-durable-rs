@@ -6,6 +6,7 @@ use super::{
     OutputCallback, OutputStream, SpillOptions,
 };
 use crate::cancel::CancelToken;
+use crate::turn::pause;
 use std::fs::OpenOptions;
 use std::io::{self, Read, Write};
 use std::os::unix::process::{CommandExt, ExitStatusExt};
@@ -363,7 +364,7 @@ pub(super) fn run(
         {
             break;
         }
-        match rx.recv_timeout(POLL) {
+        match pause(|| rx.recv_timeout(POLL)) {
             Ok(Event::Data(stream, bytes)) => {
                 if exit.is_some() {
                     exit = exit.map(|(status, _)| (status, Instant::now()));
@@ -377,7 +378,7 @@ pub(super) fn run(
             Err(RecvTimeoutError::Timeout) => {}
             Err(RecvTimeoutError::Disconnected) => {
                 open_streams = 0;
-                thread::sleep(POLL);
+                pause(|| thread::sleep(POLL));
             }
         }
     }
