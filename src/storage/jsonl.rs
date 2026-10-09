@@ -2,9 +2,8 @@ use std::collections::{BTreeMap, HashMap, HashSet};
 use std::io;
 use std::sync::{Mutex, MutexGuard};
 
-use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
-use serde_json::Map;
+use serde_json::{Map, Value};
 
 use crate::cancel::CancelToken;
 use crate::documents::MAX_SAFE_INTEGER;
@@ -23,7 +22,7 @@ use crate::types::{
     SubmissionQuery, SubmissionRecord, TableChange, TaskQuery,
 };
 
-const FORMAT_VERSION: u64 = 1;
+const FORMAT_VERSION: i64 = 1;
 const MAIN_FILE: &str = "main.jsonl";
 const RECLAIM_SUFFIX: &str = ".reclaim";
 const POISONED: &str = "JSONL storage is poisoned and must be reopened";
@@ -45,7 +44,7 @@ enum MainOperation {
     #[serde(rename = "submission")]
     Submission { value: SubmissionRecord },
     #[serde(rename = "task")]
-    Task { value: AnyTaskRecord },
+    Task { value: Box<AnyTaskRecord> },
     #[serde(rename = "task.sidecar")]
     TaskSidecar { id: TaskId, ordinal: u64 },
     #[serde(rename = "document.create")]
@@ -61,7 +60,7 @@ enum MainOperation {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct MainMarker {
-    format: u64,
+    format: i64,
     #[serde(rename = "type")]
     kind: String,
     seq: Seq,
@@ -72,7 +71,7 @@ struct MainMarker {
 #[serde(tag = "type")]
 enum SidecarPayload {
     #[serde(rename = "task")]
-    Task { value: AnyTaskRecord },
+    Task { value: Box<AnyTaskRecord> },
     #[serde(rename = "document")]
     Document {
         id: DocumentId,
@@ -82,7 +81,7 @@ enum SidecarPayload {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct SidecarRecord {
-    format: u64,
+    format: i64,
     #[serde(rename = "type")]
     kind: String,
     seq: Seq,
@@ -181,47 +180,179 @@ fn poison(state: &mut State, cause: Error) -> Error {
     poisoned_error(&message)
 }
 
-fn valid_seq(seq: Seq) -> bool {
-    (1..=MAX_SAFE_INTEGER).contains(&seq.0)
+fn parse_json(text: &str, description: &str) -> Result<Value> {
+    serde_json::from_str(text).map_err(|error| Error::StorageRejected {
+        message: format!("Malformed complete {description}"),
+        cause: Some(Box::new(error)),
+    })
 }
 
-fn decode<T: DeserializeOwned>(text: &str, description: &str, invalid: &str) -> Result<T> {
-    serde_json::from_str(text).map_err(|error| {
-        if error.is_syntax() {
-            corruption(format!("Malformed complete {description}"))
-        } else {
-            corruption(format!("{invalid} in {description}"))
-        }
-    })
+fn safe_int(value: &Value) -> Option<i64> {
+    let int = match value {
+        Value::Number(number) => number.as_i64().or_else(|| {
+            number
+                .as_f64()
+                .filter(|float| float.fract() == 0.0)
+                .map(|float| float as i64)
+        })?,
+        _ => return None,
+    };
+    (int.unsigned_abs() <= MAX_SAFE_INTEGER).then_some(int)
+}
+
+fn safe_field(value: &Value, key: &str) -> Option<i64> {
+    value.get(key).and_then(safe_int)
+}
+
+fn object_field<'a>(value: &'a Value, key: &str) -> Option<&'a Value> {
+    value.get(key).filter(|inner| inner.is_object())
+}
+
+fn ordinal_field(value: &Value) -> bool {
+    safe_field(value, "ordinal").is_some_and(|ordinal| ordinal >= 0)
+}
+
+fn terminal() -> Value {
+    Value::from("terminal")
+}
+
+fn validate_main_operation(value: &Value, description: &str) -> Result<()> {
+    let Some(kind) = value.get("type").and_then(Value::as_str) else {
+        return Err(corruption(format!("Invalid write in {description}")));
+    };
+    let (valid, label) = match kind {
+        "conversation" | "entry" | "submission" => (
+            object_field(value, "value").is_some_and(|inner| safe_field(inner, "id").is_some()),
+            format!("Invalid {kind} write"),
+        ),
+        "task" => (
+            object_field(value, "value").is_some_and(|inner| {
+                safe_field(inner, "id").is_some()
+                    && object_field(inner, "state")
+                        .is_some_and(|state| state.get("status") == Some(&terminal()))
+            }),
+            "Invalid terminal task write".to_owned(),
+        ),
+        "document.retire" => (
+            safe_field(value, "id").is_some(),
+            "Invalid document retirement".to_owned(),
+        ),
+        "task.sidecar" => (
+            safe_field(value, "id").is_some() && ordinal_field(value),
+            "Invalid task sidecar write".to_owned(),
+        ),
+        "document.create" => (
+            object_field(value, "record").is_some_and(|record| safe_field(record, "id").is_some())
+                && ordinal_field(value),
+            "Invalid document creation".to_owned(),
+        ),
+        "document.change" => (
+            safe_field(value, "id").is_some() && ordinal_field(value),
+            "Invalid document change".to_owned(),
+        ),
+        _ => return Err(corruption(format!("Unknown write type in {description}"))),
+    };
+    if valid {
+        Ok(())
+    } else {
+        Err(corruption(format!("{label} in {description}")))
+    }
+}
+
+fn validate_document_content(value: &Value, description: &str) -> Result<()> {
+    let valid = value.is_object()
+        && safe_field(value, "version").is_some_and(|version| version >= 1)
+        && match value.get("kind").and_then(Value::as_str) {
+            Some("base") => object_field(value, "value").is_some(),
+            Some("delta") => value.get("ops").is_some_and(Value::is_array),
+            _ => false,
+        };
+    if valid {
+        Ok(())
+    } else {
+        Err(corruption(format!(
+            "Invalid document content in {description}"
+        )))
+    }
 }
 
 fn parse_marker(text: &str, line: u64) -> Result<MainMarker> {
     let description = format!("{MAIN_FILE} line {line}");
-    let marker: MainMarker = decode(text, &description, "Invalid commit marker")?;
-    if marker.format != FORMAT_VERSION || marker.kind != "commit" || !valid_seq(marker.seq) {
+    let value = parse_json(text, &description)?;
+    let seq = safe_field(&value, "seq").filter(|seq| *seq >= 1);
+    let writes = value.get("writes").and_then(Value::as_array);
+    let valid = value.is_object()
+        && safe_field(&value, "format") == Some(FORMAT_VERSION)
+        && value.get("type") == Some(&Value::from("commit"))
+        && seq.is_some()
+        && writes.is_some();
+    let (Some(seq), Some(writes), true) = (seq, writes, valid) else {
         return Err(corruption(format!(
             "Invalid commit marker in {description}"
         )));
+    };
+    let mut operations = Vec::with_capacity(writes.len());
+    for write in writes {
+        validate_main_operation(write, &description)?;
+        let operation = serde_json::from_value(write.clone())
+            .map_err(|_| corruption(format!("Invalid write in {description}")))?;
+        operations.push(operation);
     }
-    Ok(marker)
+    Ok(MainMarker {
+        format: FORMAT_VERSION,
+        kind: "commit".to_owned(),
+        seq: Seq(seq as u64),
+        writes: operations,
+    })
 }
 
 fn parse_record(text: &str, file: &str, line: u64) -> Result<SidecarRecord> {
     let description = format!("{file} line {line}");
-    let record: SidecarRecord = decode(text, &description, "Invalid sidecar record")?;
-    if record.format != FORMAT_VERSION || record.kind != "record" || !valid_seq(record.seq) {
+    let value = parse_json(text, &description)?;
+    let payload = object_field(&value, "payload");
+    let valid = value.is_object()
+        && safe_field(&value, "format") == Some(FORMAT_VERSION)
+        && value.get("type") == Some(&Value::from("record"))
+        && safe_field(&value, "seq").is_some_and(|seq| seq >= 1)
+        && ordinal_field(&value)
+        && payload.is_some_and(|inner| inner.get("type").is_some_and(Value::is_string));
+    let Some(payload) = payload.filter(|_| valid) else {
         return Err(corruption(format!(
             "Invalid sidecar record in {description}"
         )));
-    }
-    if let SidecarPayload::Task { value } = &record.payload {
-        if matches!(value.status(), TaskStatus::Terminal) {
+    };
+    match payload.get("type").and_then(Value::as_str) {
+        Some("task") => {
+            let live = object_field(payload, "value").is_some_and(|task| {
+                safe_field(task, "id").is_some()
+                    && object_field(task, "state")
+                        .is_some_and(|state| state.get("status") != Some(&terminal()))
+            });
+            if !live {
+                return Err(corruption(format!(
+                    "Invalid live task record in {description}"
+                )));
+            }
+        }
+        Some("document") => {
+            if safe_field(payload, "id").is_none() {
+                return Err(corruption(format!(
+                    "Invalid document record in {description}"
+                )));
+            }
+            validate_document_content(
+                payload.get("content").unwrap_or(&Value::Null),
+                &description,
+            )?;
+        }
+        _ => {
             return Err(corruption(format!(
-                "Invalid live task record in {description}"
+                "Unknown sidecar record type in {description}"
             )));
         }
     }
-    Ok(record)
+    serde_json::from_value(value)
+        .map_err(|_| corruption(format!("Invalid sidecar record in {description}")))
 }
 
 fn jsonl_line<T: Serialize>(value: &T) -> Result<String> {
@@ -283,13 +414,13 @@ fn encode(seq: Seq, writes: &[StorageWrite]) -> Result<Encoded> {
                 TableChange::Task(value) => {
                     if matches!(value.status(), TaskStatus::Terminal) {
                         main.push(MainOperation::Task {
-                            value: value.as_ref().clone(),
+                            value: Box::new(value.as_ref().clone()),
                         });
                     } else {
                         let ordinal = sidecars.push(
                             task_file(value.id.get()),
                             SidecarPayload::Task {
-                                value: value.as_ref().clone(),
+                                value: Box::new(value.as_ref().clone()),
                             },
                         );
                         main.push(MainOperation::TaskSidecar {
@@ -774,7 +905,7 @@ impl<E: ExecutionEnv + Send + Sync> JsonlStorage<E> {
                         Box::new(TableChange::Submission(value.clone())),
                     )),
                     MainOperation::Task { value } => writes.push(StorageWrite::Table(Box::new(
-                        TableChange::Task(Box::new(value.clone())),
+                        TableChange::Task(value.clone()),
                     ))),
                     MainOperation::DocumentRetire { id } => {
                         writes.push(StorageWrite::DocumentRetire { id: *id });
@@ -802,7 +933,7 @@ impl<E: ExecutionEnv + Send + Sync> JsonlStorage<E> {
                             }
                             if !optional {
                                 writes.push(StorageWrite::Table(Box::new(TableChange::Task(
-                                    Box::new(value.clone()),
+                                    value.clone(),
                                 ))));
                             }
                         }
@@ -913,14 +1044,14 @@ impl<E: ExecutionEnv + Send + Sync> JsonlStorage<E> {
             } else {
                 None
             };
-            if let Some(retained) = retained {
-                if retained.len() < confirmed_lines.len() || retained.is_empty() {
-                    let content = retained
-                        .iter()
-                        .map(|record| jsonl_line(record))
-                        .collect::<Result<String>>()?;
-                    reclamations.insert(file.name.clone(), content);
-                }
+            if let Some(retained) = retained
+                && (retained.len() < confirmed_lines.len() || retained.is_empty())
+            {
+                let content = retained
+                    .iter()
+                    .map(jsonl_line)
+                    .collect::<Result<String>>()?;
+                reclamations.insert(file.name.clone(), content);
             }
         }
         self.reclaim(&reclamations, cancel);
