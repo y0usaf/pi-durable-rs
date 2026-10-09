@@ -1,8 +1,33 @@
 use std::collections::VecDeque;
-use std::sync::{Arc, Condvar, Mutex, MutexGuard};
+use std::sync::{Arc, Condvar, Mutex, MutexGuard, PoisonError};
 use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
-use super::types::{AssistantMessage, AssistantMessageEvent};
+use super::types::{AssistantMessage, AssistantMessageEvent, ErrorReason, StopReason};
+use crate::cancel::CancelToken;
+
+pub const ABORTED_TEXT: &str = "Request was aborted";
+
+fn now_ms() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |elapsed| elapsed.as_millis() as u64)
+}
+
+fn partial_of(event: &AssistantMessageEvent) -> Option<&AssistantMessage> {
+    match event {
+        AssistantMessageEvent::Start { partial }
+        | AssistantMessageEvent::TextStart { partial, .. }
+        | AssistantMessageEvent::TextDelta { partial, .. }
+        | AssistantMessageEvent::TextEnd { partial, .. }
+        | AssistantMessageEvent::ThinkingStart { partial, .. }
+        | AssistantMessageEvent::ThinkingDelta { partial, .. }
+        | AssistantMessageEvent::ThinkingEnd { partial, .. }
+        | AssistantMessageEvent::ToolcallStart { partial, .. }
+        | AssistantMessageEvent::ToolcallDelta { partial, .. }
+        | AssistantMessageEvent::ToolcallEnd { partial, .. } => Some(partial),
+        AssistantMessageEvent::Done { .. } | AssistantMessageEvent::Error { .. } => None,
+    }
+}
 
 struct State<T, R> {
     queue: VecDeque<T>,
@@ -115,6 +140,7 @@ pub struct AssistantMessageEventStream {
     events: EventStream<AssistantMessageEvent, AssistantMessage>,
     started_at_ms: u64,
     started: Instant,
+    latest: Arc<Mutex<Option<AssistantMessage>>>,
 }
 
 impl Default for AssistantMessageEventStream {
@@ -125,10 +151,6 @@ impl Default for AssistantMessageEventStream {
 
 impl AssistantMessageEventStream {
     pub fn new() -> Self {
-        let started_at_ms = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map(|elapsed| elapsed.as_millis() as u64)
-            .unwrap_or(0);
         Self {
             events: EventStream::new(
                 |event| {
@@ -143,8 +165,9 @@ impl AssistantMessageEventStream {
                     _ => unreachable!("only terminal events complete the stream"),
                 },
             ),
-            started_at_ms,
+            started_at_ms: now_ms(),
             started: Instant::now(),
+            latest: Arc::new(Mutex::new(None)),
         }
     }
 
@@ -165,7 +188,36 @@ impl AssistantMessageEventStream {
             AssistantMessageEvent::Error { error, .. } => self.time(error),
             _ => {}
         }
+        if let Some(partial) = partial_of(&event) {
+            *self.latest.lock().unwrap_or_else(PoisonError::into_inner) = Some(partial.clone());
+        }
         self.events.push(event);
+    }
+
+    pub fn abort(&self, partial: &AssistantMessage) {
+        let mut message = partial.clone();
+        message.stop_reason = StopReason::Aborted;
+        message.error_message = Some(ABORTED_TEXT.to_owned());
+        message.timestamp = now_ms();
+        self.push(AssistantMessageEvent::Error {
+            reason: ErrorReason::Aborted,
+            error: message.clone(),
+        });
+        self.end(Some(message));
+    }
+
+    pub fn bind_cancel(&self, signal: &CancelToken) {
+        let stream = self.clone();
+        signal.on_cancel(move || {
+            let partial = stream
+                .latest
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .clone();
+            if let Some(partial) = partial {
+                stream.abort(&partial);
+            }
+        });
     }
 
     pub fn end(&self, mut result: Option<AssistantMessage>) {
