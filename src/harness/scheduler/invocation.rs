@@ -1,6 +1,7 @@
 use super::*;
 use crate::harness::context::{ContextView, capture_context_bounds, read_context_from};
 use crate::harness::runtime::HarnessTaskRuntime;
+use crate::harness::types::{ConversationHandle, InvocationBinding};
 use crate::ids::EntryId;
 use crate::tasks::TaskOutcome;
 
@@ -30,17 +31,7 @@ impl InvocationRuntime {
     }
 
     fn ensure_live(&self) -> Result<()> {
-        if self
-            .invocation
-            .ended
-            .load(std::sync::atomic::Ordering::SeqCst)
-        {
-            return Err(Error::Invalid(format!(
-                "Task {} invocation has ended",
-                self.invocation.task_id
-            )));
-        }
-        Ok(())
+        ensure_invocation_live(&self.invocation)
     }
 
     fn gated<R>(
@@ -169,6 +160,30 @@ impl HarnessTaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for Invocati
             _ => Err(Error::Invalid(format!("Task {id} is not terminal"))),
         }
     }
+
+    fn conversation(
+        &self,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<Option<Box<dyn ConversationHandle>>> {
+        self.ensure_live()?;
+        let invocation = Arc::clone(&self.invocation);
+        let binding = InvocationBinding {
+            signal: self.invocation.cancel.clone(),
+            check: Arc::new(move || ensure_invocation_live(&invocation)),
+        };
+        (self.scheduler.0.conversation)(id, binding, cancel)
+    }
+}
+
+fn ensure_invocation_live(invocation: &Invocation) -> Result<()> {
+    if invocation.ended.load(std::sync::atomic::Ordering::SeqCst) {
+        return Err(Error::Invalid(format!(
+            "Task {} invocation has ended",
+            invocation.task_id
+        )));
+    }
+    Ok(())
 }
 
 impl TaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for InvocationRuntime {

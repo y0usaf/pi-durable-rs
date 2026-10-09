@@ -13,7 +13,7 @@ use crate::harness::context::ContextView;
 use crate::harness::registry::RegistrySnapshot;
 use crate::harness::runtime::{HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::scheduler::{ErasedTask, Runtime};
-use crate::harness::types::Settings;
+use crate::harness::types::{ConversationHandle, Settings};
 use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::types::{DocRef, DocumentObserver, DocumentReader, DocumentWatch};
 use crate::tasks::{
@@ -86,6 +86,10 @@ where
         for extension in &agent.extensions {
             for registration in extension.hooks.iter().filter(|hook| hook.task == self.task) {
                 let Some(handlers) = registration.handlers.downcast_ref::<H>() else {
+                    self.inner.report(Error::Invalid(format!(
+                        "Hook handlers registered for {} do not match the task's hook type",
+                        self.task
+                    )));
                     continue;
                 };
                 if let Err(error) = invoke(handlers) {
@@ -215,6 +219,14 @@ where
 
     fn wait_for_task(&self, id: TaskId, cancel: &CancelToken) -> Result<TaskOutcome<JsonValue>> {
         self.inner.wait_for_task(id, cancel)
+    }
+
+    fn conversation(
+        &self,
+        id: ConversationId,
+        cancel: &CancelToken,
+    ) -> Result<Option<Box<dyn ConversationHandle>>> {
+        self.inner.conversation(id, cancel)
     }
 }
 
