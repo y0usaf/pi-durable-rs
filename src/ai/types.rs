@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::fmt;
 
 use serde::de::{MapAccess, Visitor};
@@ -540,4 +541,11 @@ pub struct SimpleStreamOptions {
     pub reasoning: Option<ThinkingLevel>,
     pub cache_retention: Option<CacheRetention>,
     pub deferred: bool,
+    pub max_tokens: Option<u64>,
+    pub transport: Option<Transport>,
+    pub timeout_ms: Option<u64>,
+    pub max_retries: Option<u64>,
+    pub max_retry_delay_ms: Option<u64>,
+    pub headers: Option<BTreeMap<String, String>>,
+    pub metadata: Option<JsonObject>,
 }
