@@ -5,8 +5,6 @@ use std::thread;
 
 use crate::cancel::CancelToken;
 use crate::errors::{Error, Result};
-use crate::harness::registry::Registry;
-use crate::harness::types::Settings;
 use crate::harness::util::scan_all;
 use crate::ids::{ConversationId, TaskId};
 use crate::session::kernel::Session;
@@ -14,8 +12,8 @@ use crate::session::transaction::{Transaction, TransactionScope};
 
 use crate::tasks::{TaskOutcome, TaskState, TaskStatus};
 use crate::types::{
-    AnyTaskRecord, CommitChange, CommitPublication, ConversationRecord, JsonValue, Storage, SubmissionBody,
-    SubmissionQuery, SubmissionStatus, TableChange, TaskQuery,
+    AnyTaskRecord, CommitChange, CommitPublication, ConversationRecord, JsonValue, Storage,
+    SubmissionBody, SubmissionQuery, SubmissionStatus, TableChange, TaskQuery,
 };
 
 const SCAN_PAGE_SIZE: usize = 256;
@@ -34,8 +32,6 @@ pub type SettleOutcome = Arc<
 pub type WithdrawInputs =
     Arc<dyn Fn(&mut Transaction<'_>, ConversationId) -> Result<()> + Send + Sync>;
 pub type Report = Arc<dyn Fn(Error) + Send + Sync>;
-pub type SettingsSource = Arc<dyn Fn() -> Settings + Send + Sync>;
-pub type Clock = Arc<dyn Fn() -> u64 + Send + Sync>;
 
 #[derive(Clone)]
 struct TaskNode {
@@ -52,14 +48,8 @@ enum Up {
 
 enum Step {
     Task(TaskId, TaskNode),
-    Conversation(ConversationId),
+    Conversation,
     Unknown,
-}
-
-#[derive(Clone, Copy, PartialEq, Eq)]
-enum Scope {
-    Conversation(ConversationId),
-    Roots,
 }
 
 #[derive(Default)]
@@ -67,7 +57,6 @@ struct Overlay {
     tasks: BTreeMap<TaskId, AnyTaskRecord>,
     edges: BTreeMap<ConversationId, Option<TaskId>>,
 }
-
 
 struct State {
     live: BTreeMap<TaskId, AnyTaskRecord>,
@@ -85,9 +74,6 @@ struct State {
 pub struct SchedulerOptions {
     pub session: Arc<Session>,
     pub storage: Arc<dyn Storage>,
-    pub registry: Arc<Registry>,
-    pub settings: SettingsSource,
-    pub now: Clock,
     pub report: Report,
     pub settle_outcome: SettleOutcome,
     pub withdraw_inputs: WithdrawInputs,
@@ -96,9 +82,6 @@ pub struct SchedulerOptions {
 struct Shared {
     session: Arc<Session>,
     storage: Arc<dyn Storage>,
-    registry: Arc<Registry>,
-    settings: SettingsSource,
-    now: Clock,
     report: Report,
     settle_outcome: SettleOutcome,
     withdraw_inputs: WithdrawInputs,
@@ -196,7 +179,7 @@ impl State {
                     }
                 },
                 Up::Conversation(id) => {
-                    steps.push(Step::Conversation(id));
+                    steps.push(Step::Conversation);
                     match self.edge(id, overlay) {
                         None => {
                             steps.push(Step::Unknown);
@@ -247,7 +230,7 @@ impl State {
             for step in self.above(parent_of(&node_of(&record)), overlay) {
                 match step {
                     Step::Unknown => break,
-                    Step::Conversation(_) => {}
+                    Step::Conversation => {}
                     Step::Task(task, node) => {
                         owned.entry(task).or_default().push(record.id);
                         if node.background {
@@ -260,36 +243,13 @@ impl State {
         owned
     }
 
-    fn in_scope(&self, start: Up, scope: Scope, cross_background: bool) -> Option<bool> {
-        for step in self.above(start, None) {
-            match step {
-                Step::Unknown => return None,
-                Step::Conversation(id) => {
-                    if scope == Scope::Conversation(id) {
-                        return Some(true);
-                    }
-                }
-                Step::Task(_, node) => {
-                    if node.background && !cross_background {
-                        return Some(false);
-                    }
-                }
-            }
-        }
-        Some(scope == Scope::Roots)
-    }
-
     fn below_cancelled(&self, start: Up) -> bool {
         for step in self.above(start, None) {
             match step {
                 Step::Unknown => return false,
-                Step::Conversation(_) => {}
+                Step::Conversation => {}
                 Step::Task(task, node) => {
-                    if self
-                        .live
-                        .get(&task)
-                        .is_some_and(cancellation_intent)
-                    {
+                    if self.live.get(&task).is_some_and(cancellation_intent) {
                         return true;
                     }
                     if node.background {
@@ -335,9 +295,6 @@ impl TaskScheduler {
         Self(Arc::new(Shared {
             session: options.session,
             storage: options.storage,
-            registry: options.registry,
-            settings: options.settings,
-            now: options.now,
             report: options.report,
             settle_outcome: options.settle_outcome,
             withdraw_inputs: options.withdraw_inputs,
@@ -352,11 +309,17 @@ impl TaskScheduler {
 
     pub fn open(&self) -> Result<()> {
         let inner = self.clone();
-        self.0.session.subscribe_commits(Box::new(move |publication, _| {
-            inner.observe(publication);
-        }))?;
+        let _commits = self
+            .0
+            .session
+            .subscribe_commits(Box::new(move |publication, _| {
+                inner.observe(publication);
+            }))?;
         let closer = self.clone();
-        self.0.session.subscribe_close(Box::new(move || closer.seal()))?;
+        let _close = self
+            .0
+            .session
+            .subscribe_close(Box::new(move || closer.seal()))?;
         let reconciler = self.clone();
         let wake = self
             .0
@@ -381,9 +344,8 @@ impl TaskScheduler {
                         background: None,
                         order: None,
                     };
-                    let records = scan_all(|cursor| {
-                        tx.scan_tasks(&query, SCAN_PAGE_SIZE, cursor.as_ref())
-                    })?;
+                    let records =
+                        scan_all(|cursor| tx.scan_tasks(&query, SCAN_PAGE_SIZE, cursor.as_ref()))?;
                     let mut st = self.lock();
                     for record in records {
                         if let TaskState::Running { checkpoint } = &record.state {
@@ -394,7 +356,11 @@ impl TaskScheduler {
                             next.state = pending;
                             tx.set_task(next)?;
                         }
-                        if let TaskState::Waiting { policy: crate::tasks::JoinPolicy::FailFast, .. } = record.state {
+                        if let TaskState::Waiting {
+                            policy: crate::tasks::JoinPolicy::FailFast,
+                            ..
+                        } = record.state
+                        {
                             st.fail_fast_checks.insert(record.id);
                         }
                         st.live.insert(record.id, record);
@@ -421,7 +387,6 @@ impl TaskScheduler {
         let mut st = self.lock();
         let mut updated: Vec<AnyTaskRecord> = Vec::new();
         let mut failed: Vec<TaskId> = Vec::new();
-        let mut changed = false;
         for change in &publication.changes {
             let CommitChange::Table(table) = change else {
                 continue;
@@ -430,7 +395,6 @@ impl TaskScheduler {
                 continue;
             };
             let record: &AnyTaskRecord = record;
-            changed = true;
             let previous = st.live.get(&record.id).cloned();
             if failed_outcome(record) && previous.as_ref().is_none_or(|p| !failed_outcome(p)) {
                 failed.push(record.id);
@@ -517,9 +481,6 @@ impl TaskScheduler {
         }
         if st.cascade_pending {
             st.schedule_reconcile();
-        }
-        if !changed {
-            return;
         }
     }
 
@@ -688,8 +649,7 @@ impl TaskScheduler {
                     let node = match st.node(id, overlay) {
                         Some(node) => node,
                         None => {
-                            let Some(record) = self.0.storage.task(id, &CancelToken::new())?
-                            else {
+                            let Some(record) = self.0.storage.task(id, &CancelToken::new())? else {
                                 return Ok(());
                             };
                             let node = node_of(&record);
@@ -739,7 +699,10 @@ fn mark(
 
 fn with_state(record: &AnyTaskRecord, state: TaskState<JsonValue, JsonValue>) -> AnyTaskRecord {
     let mut next = record.clone();
-    if matches!(state, TaskState::Terminal { .. } | TaskState::Completing { .. }) {
+    if matches!(
+        state,
+        TaskState::Terminal { .. } | TaskState::Completing { .. }
+    ) {
         next.memos = None;
     }
     next.state = state;
