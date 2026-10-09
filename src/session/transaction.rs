@@ -118,6 +118,7 @@ pub struct DocumentEntry {
     pub address: DocumentAddress,
     pub definition: Option<DocDefinition>,
     pub drafted: bool,
+    pub failure: Option<String>,
     pub target: Option<DocumentTarget>,
     pub change: Option<Change>,
     pub prepared: Option<Prepared>,
@@ -853,14 +854,16 @@ impl Transaction<'_> {
         if let Some(index) = latest {
             let entry = &self.documents[index];
             if !entry.retire_on_commit {
+                if let Some(message) = &entry.failure {
+                    return Err(Error::Invalid(message.clone()));
+                }
                 if entry.drafted {
                     return Ok(DraftId(index));
                 }
                 if let Some(DocumentTarget::ForkCopy { record, source }) = entry.target.clone() {
                     let definition = doc.definition.clone();
-                    self.acquire_fork_copy(index, &definition, record, source)?;
-                    self.documents[index].drafted = true;
-                    return Ok(DraftId(index));
+                    let result = self.acquire_fork_copy(index, &definition, record, source);
+                    return self.finish_acquire(index, result);
                 }
             }
         }
@@ -871,14 +874,23 @@ impl Transaction<'_> {
             address: resolved.address,
             definition: Some(doc.definition.clone()),
             drafted: false,
+            failure: None,
             target: None,
             change: None,
             prepared: None,
             retire_on_commit: false,
         });
-        self.acquire(index, seed, skip_load)?;
-        self.documents[index].drafted = true;
-        Ok(DraftId(index))
+        let result = self.acquire(index, seed, skip_load);
+        self.finish_acquire(index, result)
+    }
+
+    fn finish_acquire(&mut self, index: usize, result: Result<()>) -> Result<DraftId> {
+        let entry = &mut self.documents[index];
+        entry.drafted = true;
+        if let Err(error) = &result {
+            entry.failure = Some(error.to_string());
+        }
+        result.map(|()| DraftId(index))
     }
 
     fn acquire(&mut self, index: usize, seed: Option<JsonValue>, skip_load: bool) -> Result<()> {
@@ -1011,8 +1023,9 @@ impl Transaction<'_> {
                 return Ok(());
             }
             if entry.drafted {
+                let failure = entry.failure.clone();
                 self.documents[index].retire_on_commit = true;
-                return Ok(());
+                return failure.map_or(Ok(()), |message| Err(Error::Invalid(message)));
             }
         }
         let index = self.push_document(DocumentEntry {
@@ -1020,6 +1033,7 @@ impl Transaction<'_> {
             address: resolved.address,
             definition: Some(doc.definition.clone()),
             drafted: false,
+            failure: None,
             target: None,
             change: None,
             prepared: None,
@@ -1092,6 +1106,7 @@ impl Transaction<'_> {
                 address,
                 definition: None,
                 drafted: false,
+                failure: None,
                 target: Some(DocumentTarget::ForkCopy {
                     record: copy.record,
                     source: copy.source,
