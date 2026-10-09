@@ -14,6 +14,7 @@ pub mod prompt;
 pub mod provider;
 pub mod registry;
 pub mod runtime;
+pub mod scheduler;
 pub mod submissions;
 pub mod task_graph;
 pub mod tool;
