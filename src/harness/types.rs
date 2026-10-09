@@ -181,13 +181,7 @@ pub struct ProgressPolicy {
     pub output_interval_ms: u64,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
-pub enum CompactionReason {
-    Manual,
-    Threshold,
-    Overflow,
-}
+pub use crate::types::CompactionReason;
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", default)]

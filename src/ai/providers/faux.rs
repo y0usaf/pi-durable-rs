@@ -27,7 +27,6 @@ const DEFAULT_MAX_TOKEN_SIZE: u64 = 5;
 const DEFAULT_CONTEXT_WINDOW: u64 = 128_000;
 const DEFAULT_MAX_TOKENS: u64 = 16_384;
 const NO_MORE_RESPONSES: &str = "No more faux responses queued";
-const ABORTED_TEXT: &str = "Request was aborted";
 
 #[derive(Debug, Clone, Default)]
 pub struct FauxModelDefinition {
@@ -198,6 +197,9 @@ impl Faux {
         options: SimpleStreamOptions,
     ) -> AssistantMessageEventStream {
         let out = AssistantMessageEventStream::new();
+        if let Some(signal) = &options.signal {
+            out.bind_cancel(signal);
+        }
         let response = {
             let mut inner = self.core.lock();
             inner.state.call_count += 1;
@@ -217,6 +219,7 @@ impl Faux {
         signal: &CancelToken,
     ) -> AssistantMessageEventStream {
         let out = AssistantMessageEventStream::new();
+        out.bind_cancel(signal);
         self.core.lock().state.deferred_fetch_count += 1;
         let core = Arc::clone(&self.core);
         let model = model.clone();
@@ -605,7 +608,7 @@ fn stream_with_deltas(
         ..message.clone()
     };
     if is_aborted(signal) {
-        abort(out, &partial);
+        out.abort(&partial);
         return Ok(());
     }
     out.push(AssistantMessageEvent::Start {
@@ -613,7 +616,7 @@ fn stream_with_deltas(
     });
     for (index, block) in message.content.iter().enumerate() {
         if is_aborted(signal) {
-            abort(out, &partial);
+            out.abort(&partial);
             return Ok(());
         }
         let content_index = index as u64;
@@ -634,7 +637,7 @@ fn stream_with_deltas(
                 for chunk in split_by_token_size(&block.thinking, core) {
                     pause(core, &chunk);
                     if is_aborted(signal) {
-                        abort(out, &partial);
+                        out.abort(&partial);
                         return Ok(());
                     }
                     if let Some(AssistantBlock::Thinking(current)) = partial.content.get_mut(index)
@@ -666,7 +669,7 @@ fn stream_with_deltas(
                 for chunk in split_by_token_size(&block.text, core) {
                     pause(core, &chunk);
                     if is_aborted(signal) {
-                        abort(out, &partial);
+                        out.abort(&partial);
                         return Ok(());
                     }
                     if let Some(AssistantBlock::Text(current)) = partial.content.get_mut(index) {
@@ -701,7 +704,7 @@ fn stream_with_deltas(
                 for chunk in split_by_token_size(&encoded, core) {
                     pause(core, &chunk);
                     if is_aborted(signal) {
-                        abort(out, &partial);
+                        out.abort(&partial);
                         return Ok(());
                     }
                     out.push(AssistantMessageEvent::ToolcallDelta {
@@ -753,18 +756,6 @@ fn done_reason(stop_reason: &StopReason) -> DoneReason {
 
 fn is_aborted(signal: Option<&CancelToken>) -> bool {
     signal.is_some_and(CancelToken::is_cancelled)
-}
-
-fn abort(out: &AssistantMessageEventStream, partial: &AssistantMessage) {
-    let mut message = partial.clone();
-    message.stop_reason = StopReason::Aborted;
-    message.error_message = Some(ABORTED_TEXT.to_owned());
-    message.timestamp = now_ms();
-    out.push(AssistantMessageEvent::Error {
-        reason: ErrorReason::Aborted,
-        error: message.clone(),
-    });
-    out.end(Some(message));
 }
 
 fn pause(core: &Core, chunk: &str) {

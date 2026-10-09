@@ -358,6 +358,13 @@ pub fn simple_options(
             Some(Deferred::Enabled(enabled)) => enabled,
             Some(Deferred::Window { .. }) => true,
         },
+        max_tokens: None,
+        transport: stream.transport,
+        timeout_ms: stream.timeout_ms,
+        max_retries: stream.max_retries,
+        max_retry_delay_ms: stream.max_retry_delay_ms,
+        headers: stream.headers.clone(),
+        metadata: stream.metadata.clone(),
     }
 }
 
