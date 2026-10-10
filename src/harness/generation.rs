@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
@@ -270,7 +271,7 @@ pub fn append_assistant(
         conversation_id,
         EntryDraft {
             kind: assistant_entry().kind().to_owned(),
-            model: Some(vec![Message::Assistant(Box::new(message.clone()))]),
+            model: Some(vec![Message::Assistant(Arc::new(message.clone()))]),
             data: None,
             head: None,
             edits: None,

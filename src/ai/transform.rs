@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
 
 use crate::ai::event_stream::now_ms;
 use crate::ai::json_parse::trim_js;
@@ -67,7 +68,7 @@ fn downgrade_unsupported_images(messages: &[Message], model: &Model) -> Vec<Mess
                     &result.content,
                     NON_VISION_TOOL_IMAGE_PLACEHOLDER,
                 );
-                Message::ToolResult(Box::new(result))
+                Message::ToolResult(Arc::new(result))
             }
             Message::System(_) | Message::Assistant(_) => message.clone(),
         })
@@ -142,7 +143,7 @@ fn transform_assistant_content(
 }
 
 fn synthetic_result(call: &ToolCall) -> Message {
-    Message::ToolResult(Box::new(ToolResultMessage {
+    Message::ToolResult(Arc::new(ToolResultMessage {
         role: ToolResultRole,
         tool_call_id: call.id.clone(),
         tool_name: call.name.clone(),
@@ -193,15 +194,16 @@ pub fn transform_messages(
             Message::System(_) | Message::User(_) => message,
             Message::ToolResult(result) => match id_map.get(&result.tool_call_id) {
                 Some(id) if !id.is_empty() && *id != result.tool_call_id => {
-                    let mut result = *result;
+                    let mut result = Arc::unwrap_or_clone(result);
                     result.tool_call_id = id.clone();
-                    Message::ToolResult(Box::new(result))
+                    Message::ToolResult(Arc::new(result))
                 }
                 _ => Message::ToolResult(result),
             },
             Message::Assistant(mut assistant) => {
-                assistant.content =
+                let content =
                     transform_assistant_content(&assistant, model, normalize, &mut id_map);
+                Arc::make_mut(&mut assistant).content = content;
                 Message::Assistant(assistant)
             }
         });

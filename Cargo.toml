@@ -10,7 +10,7 @@ categories = ["database", "api-bindings"]
 exclude = ["/flake.nix", "/flake.lock", "/result*", "/parity"]
 
 [dependencies]
-serde = { version = "1", features = ["derive"] }
+serde = { version = "1", features = ["derive", "rc"] }
 serde_json = { version = "1", features = ["preserve_order"] }
 regex = "1"
 unicode-normalization = "0.1"

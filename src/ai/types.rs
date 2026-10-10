@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 use std::fmt;
+use std::sync::Arc;
 
 use serde::de::{MapAccess, Visitor};
 use serde::ser::SerializeMap;
@@ -405,8 +406,8 @@ pub struct ToolResultMessage {
 pub enum Message {
     System(SystemMessage),
     User(UserMessage),
-    Assistant(Box<AssistantMessage>),
-    ToolResult(Box<ToolResultMessage>),
+    Assistant(Arc<AssistantMessage>),
+    ToolResult(Arc<ToolResultMessage>),
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
