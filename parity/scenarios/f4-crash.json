@@ -1,0 +1,128 @@
+[
+ {
+  "name": "f4-crash-midtool",
+  "family": 4,
+  "crash": true,
+  "tools": [
+   "sleep"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "sleep",
+      "arguments": {
+       "ms": 3000
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "resumeResponses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "waitTool"
+   },
+   {
+    "do": "crashPoint"
+   }
+  ]
+ },
+ {
+  "name": "f4-crash-second-input",
+  "family": 4,
+  "crash": true,
+  "tools": [
+   "sleep"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "first"
+     }
+    ],
+    "stopReason": "stop"
+   },
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "sleep",
+      "arguments": {
+       "ms": 3000
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "resumeResponses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "one"
+   },
+   {
+    "do": "idle"
+   },
+   {
+    "do": "submit",
+    "text": "two"
+   },
+   {
+    "do": "waitTool"
+   },
+   {
+    "do": "crashPoint"
+   }
+  ]
+ }
+]

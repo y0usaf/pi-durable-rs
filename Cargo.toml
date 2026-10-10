@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 keywords = ["llm", "agent", "durable", "sqlite", "anthropic"]
 categories = ["database", "api-bindings"]
-exclude = ["/flake.nix", "/flake.lock", "/result*"]
+exclude = ["/flake.nix", "/flake.lock", "/result*", "/parity"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

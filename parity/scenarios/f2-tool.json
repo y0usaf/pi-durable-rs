@@ -1,0 +1,219 @@
+[
+ {
+  "name": "f2-tool-single",
+  "family": 2,
+  "tools": [
+   "echo"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "echo",
+      "arguments": {
+       "text": "x"
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "done"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f2-tool-parallel",
+  "family": 2,
+  "tools": [
+   "echo"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "echo",
+      "arguments": {
+       "text": "a"
+      }
+     },
+     {
+      "type": "toolCall",
+      "id": "c2",
+      "name": "echo",
+      "arguments": {
+       "text": "b"
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "done"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f2-tool-unknown-name",
+  "family": 2,
+  "tools": [
+   "echo"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "nope",
+      "arguments": {}
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f2-tool-bad-args",
+  "family": 2,
+  "tools": [
+   "echo"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "echo",
+      "arguments": {}
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f2-tool-two-rounds",
+  "family": 2,
+  "tools": [
+   "echo"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "echo",
+      "arguments": {
+       "text": "x"
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c2",
+      "name": "echo",
+      "arguments": {
+       "text": "y"
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "done"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ }
+]
