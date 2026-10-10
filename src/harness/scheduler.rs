@@ -383,20 +383,20 @@ impl State {
             .any(|step| matches!(step, Step::Unknown))
     }
 
-    fn live_records(&self, overlay: Option<&Overlay>) -> Vec<AnyTaskRecord> {
+    fn live_records<'a>(&'a self, overlay: Option<&'a Overlay>) -> Vec<&'a AnyTaskRecord> {
         let mut records = Vec::new();
         for record in self.live.values() {
             let candidate = overlay
                 .and_then(|o| o.tasks.get(&record.id))
                 .unwrap_or(record);
             if !is_terminal(candidate) {
-                records.push(candidate.clone());
+                records.push(candidate);
             }
         }
         if let Some(overlay) = overlay {
             for record in overlay.tasks.values() {
                 if !self.live.contains_key(&record.id) && !is_terminal(record) {
-                    records.push(record.clone());
+                    records.push(record);
                 }
             }
         }
@@ -409,7 +409,7 @@ impl State {
             if record.background {
                 continue;
             }
-            for step in self.above(parent_of(&node_of(&record)), overlay) {
+            for step in self.above(parent_of(&node_of(record)), overlay) {
                 match step {
                     Step::Unknown => break,
                     Step::Conversation(_) => {}
@@ -819,6 +819,7 @@ impl TaskScheduler {
                     matches!(record.state, TaskState::Completing { .. })
                         && !owned.contains_key(&record.id)
                 })
+                .cloned()
                 .collect();
             if done.is_empty() {
                 return Ok(());
@@ -1135,14 +1136,18 @@ impl TaskScheduler {
                 self.load_scopes(&mut st, false)?;
                 let owned = st.owned_live(None);
                 let mut snapshot: Option<Snapshot> = None;
-                let live: Vec<AnyTaskRecord> = st.live.values().cloned().collect();
-                for record in live {
-                    if st.invocations.contains_key(&record.id)
-                        || !waiting_on(&st, &record, &owned).is_empty()
-                        || matches!(record.state, TaskState::Completing { .. })
+                let ids: Vec<TaskId> = st.live.keys().copied().collect();
+                for id in ids {
+                    let Some(live) = st.live.get(&id) else {
+                        continue;
+                    };
+                    if st.invocations.contains_key(&id)
+                        || !waiting_on(&st, live, &owned).is_empty()
+                        || matches!(live.state, TaskState::Completing { .. })
                     {
                         continue;
                     }
+                    let record = live.clone();
                     let mode = if record.abort_requested {
                         Mode::Abort
                     } else {
