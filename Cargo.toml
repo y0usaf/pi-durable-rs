@@ -11,3 +11,14 @@ serde_json = { version = "1", features = ["preserve_order"] }
 regex = "1"
 unicode-normalization = "0.1"
 rusqlite = { version = "0.40", features = ["bundled", "fallible_uint"] }
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"], optional = true }
+webpki-roots = { version = "1", optional = true }
+ring = { version = "0.17", optional = true }
+
+[features]
+default = []
+http = ["dep:rustls", "dep:webpki-roots", "dep:ring"]
+anthropic = ["http"]
+openai = ["http"]
+vercel-gateway = ["anthropic"]
+providers = ["anthropic", "openai", "vercel-gateway"]

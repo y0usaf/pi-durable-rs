@@ -264,6 +264,19 @@ impl AssistantMessageEventStream {
         });
     }
 
+    pub fn bind_cancel_with(&self, signal: &CancelToken, fallback: AssistantMessage) {
+        let stream = self.clone();
+        signal.on_cancel(move || {
+            let partial = stream
+                .latest
+                .lock()
+                .unwrap_or_else(PoisonError::into_inner)
+                .clone()
+                .unwrap_or(fallback);
+            stream.abort(&partial);
+        });
+    }
+
     pub fn end(&self, mut result: Option<AssistantMessage>) {
         if let Some(message) = result.as_mut() {
             self.time(message);

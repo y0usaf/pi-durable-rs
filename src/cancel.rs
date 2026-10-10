@@ -1,16 +1,29 @@
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Condvar, Mutex};
 
 type Callback = Box<dyn FnOnce() + Send>;
 
 struct Inner {
     cancelled: AtomicBool,
-    callbacks: Mutex<Vec<Callback>>,
+    next_id: AtomicU64,
+    callbacks: Mutex<Vec<(u64, Callback)>>,
     signal: Condvar,
 }
 
 #[derive(Clone)]
 pub struct CancelToken(Arc<Inner>);
+
+pub struct Subscription {
+    token: CancelToken,
+    id: u64,
+}
+
+impl Drop for Subscription {
+    fn drop(&mut self) {
+        let mut callbacks = self.token.0.callbacks.lock().unwrap();
+        callbacks.retain(|(id, _)| *id != self.id);
+    }
+}
 
 impl Default for CancelToken {
     fn default() -> Self {
@@ -22,6 +35,7 @@ impl CancelToken {
     pub fn new() -> Self {
         Self(Arc::new(Inner {
             cancelled: AtomicBool::new(false),
+            next_id: AtomicU64::new(0),
             callbacks: Mutex::new(Vec::new()),
             signal: Condvar::new(),
         }))
@@ -39,7 +53,7 @@ impl CancelToken {
         let pending = std::mem::take(&mut *callbacks);
         drop(callbacks);
         self.0.signal.notify_all();
-        for callback in pending {
+        for (_, callback) in pending {
             callback();
         }
     }
@@ -50,7 +64,23 @@ impl CancelToken {
             drop(callbacks);
             callback();
         } else {
-            callbacks.push(Box::new(callback));
+            let id = self.0.next_id.fetch_add(1, Ordering::Relaxed);
+            callbacks.push((id, Box::new(callback)));
+        }
+    }
+
+    pub fn subscribe(&self, callback: impl FnOnce() + Send + 'static) -> Subscription {
+        let mut callbacks = self.0.callbacks.lock().unwrap();
+        let id = self.0.next_id.fetch_add(1, Ordering::Relaxed);
+        if self.is_cancelled() {
+            drop(callbacks);
+            callback();
+        } else {
+            callbacks.push((id, Box::new(callback)));
+        }
+        Subscription {
+            token: self.clone(),
+            id,
         }
     }
 
