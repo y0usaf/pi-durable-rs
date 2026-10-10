@@ -26,7 +26,7 @@ pub struct ContextBounds {
 pub struct ContextView {
     pub head: Option<EntryRecord>,
     pub entries: Vec<Arc<EntryRecord>>,
-    pub contributions: Vec<Vec<Message>>,
+    pub contributions: Vec<Arc<[Message]>>,
     pub messages: Vec<Message>,
 }
 
@@ -202,11 +202,15 @@ fn derive_range(bounds: ContextBounds, entries: Vec<Arc<EntryRecord>>) -> Contex
         }
     }
     let active = select_active(bounds.head.as_ref(), &entries);
-    let contributions: Vec<Vec<Message>> = active
+    let contributions: Vec<Arc<[Message]>> = active
         .iter()
         .map(|entry| contribute(entry, edits.get(&entry.id)))
         .collect();
-    let flat: Vec<Message> = contributions.iter().flatten().cloned().collect();
+    let flat: Vec<Message> = contributions
+        .iter()
+        .flat_map(|c| c.iter())
+        .cloned()
+        .collect();
     let (settled, open) = settle(Vec::new(), flat);
     let messages = lead_with_system(concat(&settled, &order_tool_results(&open)));
     let view = Arc::new(ContextView {
@@ -237,10 +241,10 @@ fn extend_range(
     }) {
         return derive_range(bounds, entries);
     }
-    let contributions: Vec<Vec<Message>> =
+    let contributions: Vec<Arc<[Message]>> =
         added.iter().map(|entry| contribute(entry, None)).collect();
     let mut open = previous.open.clone();
-    open.extend(contributions.iter().flatten().cloned());
+    open.extend(contributions.iter().flat_map(|c| c.iter()).cloned());
     let (settled, open) = settle(previous.settled.clone(), open);
     let mut view_entries = previous.view.entries.clone();
     view_entries.extend(added);
@@ -298,9 +302,9 @@ fn excluded_stop(message: &Message) -> bool {
     )
 }
 
-fn contribute(entry: &EntryRecord, edit: Option<&ContextEdit>) -> Vec<Message> {
+fn contribute(entry: &EntryRecord, edit: Option<&ContextEdit>) -> Arc<[Message]> {
     let contributed = match edit.map(|edit| &edit.action) {
-        Some(ContextAction::Omit) => return Vec::new(),
+        Some(ContextAction::Omit) => return Arc::from([]),
         Some(ContextAction::Replace { messages }) => messages.clone(),
         None => entry.model.clone().unwrap_or_default(),
     };
