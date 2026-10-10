@@ -11,9 +11,9 @@ use crate::ai::event_stream::AssistantMessageEventStream;
 use crate::ai::models::{Models, ModelsError};
 use crate::ai::types::{
     AssistantBlock, AssistantMessage, AssistantMessageEvent, CacheRetention, Cost, DeferredHandle,
-    DoneReason, ErrorReason, Message, Model, SimpleStreamOptions, StopReason, TextContent,
-    TextType, ThinkingContent, ThinkingType, ToolCall, ToolCallType, TranscriptContext, Usage,
-    UserBlock, UserContent,
+    DoneReason, ErrorReason, Message, Model, SimpleStreamOptions, StopReason, SystemMessage,
+    TextContent, TextType, ThinkingContent, ThinkingType, ToolCall, ToolCallType,
+    TranscriptContext, Usage, UserBlock, UserContent,
 };
 use crate::ai::utils::js;
 use crate::ai::utils::text::{system_message_text, utf16_len};
@@ -503,14 +503,18 @@ fn tokens_of(units: u64) -> u64 {
 }
 
 fn prompt_units(context: &TranscriptContext) -> Vec<u16> {
-    context
-        .messages
-        .iter()
-        .map(|message| format!("{}:{}", role_name(message), message_text(message)))
-        .collect::<Vec<_>>()
-        .join("\n\n")
-        .encode_utf16()
-        .collect()
+    let mut text = String::new();
+    for (index, message) in context.messages.iter().enumerate() {
+        if index > 0 {
+            text.push_str("\n\n");
+        }
+        text.push_str(role_name(message));
+        text.push(':');
+        push_message_text(&mut text, message);
+    }
+    let mut units = Vec::with_capacity(text.len());
+    units.extend(text.encode_utf16());
+    units
 }
 
 fn common_prefix(previous: &[u16], current: &[u16]) -> u64 {
@@ -530,73 +534,92 @@ fn role_name(message: &Message) -> &'static str {
     }
 }
 
-fn message_text(message: &Message) -> String {
+fn push_message_text(out: &mut String, message: &Message) {
     match message {
-        Message::System(system) => {
-            let mut parts = vec![system_message_text(system)];
-            if let Some(removed) = &system.tools_removed {
-                parts.extend(
-                    removed
-                        .iter()
-                        .map(|tool| format!("tool-:{}", json_text(tool))),
-                );
+        Message::System(system) => out.push_str(&system_text(system)),
+        Message::User(user) => match &user.content {
+            UserContent::Text(text) => out.push_str(text),
+            UserContent::Blocks(blocks) => {
+                for (index, block) in blocks.iter().enumerate() {
+                    if index > 0 {
+                        out.push('\n');
+                    }
+                    push_block_text(out, block);
+                }
             }
-            if let Some(added) = &system.tools_added {
-                parts.extend(
-                    added
-                        .iter()
-                        .map(|tool| format!("tool+:{}", json_text(tool))),
-                );
+        },
+        Message::Assistant(assistant) => push_assistant_text(out, &assistant.content),
+        Message::ToolResult(result) => {
+            out.push_str(&result.tool_name);
+            for block in &result.content {
+                out.push('\n');
+                push_block_text(out, block);
             }
-            parts
-                .into_iter()
-                .filter(|part| !part.is_empty())
-                .collect::<Vec<_>>()
-                .join("\n")
         }
-        Message::User(user) => user_text(&user.content),
-        Message::Assistant(assistant) => assistant_text(&assistant.content),
-        Message::ToolResult(result) => std::iter::once(result.tool_name.clone())
-            .chain(result.content.iter().map(block_text))
-            .collect::<Vec<_>>()
-            .join("\n"),
     }
+}
+
+fn system_text(system: &SystemMessage) -> String {
+    let mut parts = vec![system_message_text(system)];
+    if let Some(removed) = &system.tools_removed {
+        parts.extend(
+            removed
+                .iter()
+                .map(|tool| format!("tool-:{}", json_text(tool))),
+        );
+    }
+    if let Some(added) = &system.tools_added {
+        parts.extend(
+            added
+                .iter()
+                .map(|tool| format!("tool+:{}", json_text(tool))),
+        );
+    }
+    parts
+        .into_iter()
+        .filter(|part| !part.is_empty())
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 fn json_text<T: Serialize>(value: &T) -> String {
     js::stringify(&serde_json::to_value(value).expect("typed records serialize to JSON"))
 }
 
-fn user_text(content: &UserContent) -> String {
-    match content {
-        UserContent::Text(text) => text.clone(),
-        UserContent::Blocks(blocks) => blocks.iter().map(block_text).collect::<Vec<_>>().join("\n"),
-    }
-}
-
-fn block_text(block: &UserBlock) -> String {
+fn push_block_text(out: &mut String, block: &UserBlock) {
     match block {
-        UserBlock::Text(text) => text.text.clone(),
+        UserBlock::Text(text) => out.push_str(&text.text),
         UserBlock::Image(image) => {
-            format!("[image:{}:{}]", image.mime_type, utf16_len(&image.data))
+            out.push_str(&format!(
+                "[image:{}:{}]",
+                image.mime_type,
+                utf16_len(&image.data)
+            ));
         }
     }
 }
 
 fn assistant_text(content: &[AssistantBlock]) -> String {
-    content
-        .iter()
-        .map(|block| match block {
-            AssistantBlock::Text(text) => text.text.clone(),
-            AssistantBlock::Thinking(thinking) => thinking.thinking.clone(),
-            AssistantBlock::ToolCall(call) => format!(
-                "{}:{}",
-                call.name,
-                js::stringify(&Value::Object(call.arguments.clone()))
-            ),
-        })
-        .collect::<Vec<_>>()
-        .join("\n")
+    let mut out = String::new();
+    push_assistant_text(&mut out, content);
+    out
+}
+
+fn push_assistant_text(out: &mut String, content: &[AssistantBlock]) {
+    for (index, block) in content.iter().enumerate() {
+        if index > 0 {
+            out.push('\n');
+        }
+        match block {
+            AssistantBlock::Text(text) => out.push_str(&text.text),
+            AssistantBlock::Thinking(thinking) => out.push_str(&thinking.thinking),
+            AssistantBlock::ToolCall(call) => {
+                out.push_str(&call.name);
+                out.push(':');
+                out.push_str(&js::stringify(&Value::Object(call.arguments.clone())));
+            }
+        }
+    }
 }
 
 fn stream_with_deltas(
