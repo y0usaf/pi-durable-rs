@@ -33,6 +33,7 @@ pub(crate) fn open(path: &Path, options: &OpenOptions) -> Result<Connection> {
         std::fs::create_dir_all(parent).map_err(invalid)?;
     }
     let connection = Connection::open(path).map_err(sql)?;
+    connection.set_prepared_statement_cache_capacity(256);
     connection
         .busy_timeout(Duration::from_millis(timeout))
         .map_err(sql)?;
