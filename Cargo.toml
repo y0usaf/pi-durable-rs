@@ -2,8 +2,12 @@
 name = "pi-durable"
 version = "0.1.0"
 edition = "2024"
-description = "Rust reproduction of @earendil-works/pi-durable 1.1.0"
+description = "Durable conversations, tasks and documents over a transactional store, with a synchronous agent harness and pi-ai style providers. A Rust reproduction of Pi's pi-durable."
 license = "MIT"
+readme = "README.md"
+keywords = ["llm", "agent", "durable", "sqlite", "anthropic"]
+categories = ["database", "api-bindings"]
+exclude = ["/flake.nix", "/flake.lock", "/result*"]
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
@@ -22,3 +26,7 @@ anthropic = ["http"]
 openai = ["http"]
 vercel-gateway = ["anthropic"]
 providers = ["anthropic", "openai", "vercel-gateway"]
+
+[[example]]
+name = "agent"
+required-features = ["providers"]
