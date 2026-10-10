@@ -10,6 +10,7 @@ use crate::harness::agent::Agent;
 use crate::harness::registry::RegistrySnapshot;
 use crate::harness::types::{ConversationBinder, Settings};
 use crate::session::types::{DocRef, DocumentObserver, DocumentReader, DocumentWatch};
+use crate::workers;
 
 use crate::harness::util::closed_error;
 use crate::tasks::{HookRunner, RunningTask, RuntimeChange, TaskRuntime};
@@ -1423,7 +1424,7 @@ impl TaskScheduler {
     fn start(&self, reservation: Reservation) {
         let scheduler = self.clone();
         let ticket = self.0.turn.reserve();
-        thread::spawn(move || {
+        workers::spawn(move || {
             ticket.run(|| {
                 let invocation = Arc::clone(&reservation.invocation);
                 match invocation.mode {
@@ -1447,7 +1448,7 @@ impl TaskScheduler {
         }
         let scheduler = self.clone();
         let ticket = self.0.turn.reserve();
-        thread::spawn(move || ticket.run(|| scheduler.drain()));
+        workers::spawn(move || ticket.run(|| scheduler.drain()));
     }
 
     fn drain(&self) {
