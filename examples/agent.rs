@@ -1,4 +1,5 @@
-//! A durable agent on a real provider: `agent PROVIDER/MODEL PROMPT [--cancel-after-ms N] [--db FILE] [--api API --base-url URL]`.
+//! A durable agent on a real provider: `agent PROVIDER/MODEL PROMPT [--cancel-after-ms N] [--db FILE] [--resume] [--api API --base-url URL]`.
+//! `--resume` with `--db` reopens a database a killed run left behind and finishes its turn instead of submitting the prompt.
 //!
 //! Keys come from the provider's environment variable (ANTHROPIC_API_KEY, AI_GATEWAY_API_KEY, OPENAI_API_KEY).
 //! The model id is everything after the first slash, e.g. `vercel-ai-gateway/anthropic/claude-sonnet-5.5`.
@@ -60,7 +61,7 @@ fn flag(args: &[String], name: &str) -> Option<String> {
 fn main() -> Result<()> {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let (Some(model), Some(prompt)) = (args.first(), args.get(1)) else {
-        return Err("usage: agent PROVIDER/MODEL PROMPT [--cancel-after-ms N] [--db FILE] [--api API --base-url URL]".into());
+        return Err("usage: agent PROVIDER/MODEL PROMPT [--cancel-after-ms N] [--db FILE] [--resume] [--api API --base-url URL]".into());
     };
     let (provider, model_id) = model
         .split_once('/')
@@ -115,14 +116,16 @@ fn main() -> Result<()> {
         &cancel,
     )?;
     let started = Instant::now();
-    root.submit(
-        SubmissionDraft::Input {
-            request_id: None,
-            content: serde_json::from_value(json!(prompt))?,
-            when_busy: WhenBusy::default(),
-        },
-        &cancel,
-    )?;
+    if !args.iter().any(|arg| arg == "--resume") {
+        root.submit(
+            SubmissionDraft::Input {
+                request_id: None,
+                content: serde_json::from_value(json!(prompt))?,
+                when_busy: WhenBusy::default(),
+            },
+            &cancel,
+        )?;
+    }
     if let Some(ms) = cancel_after {
         std::thread::sleep(Duration::from_millis(ms));
         let abort_started = Instant::now();
