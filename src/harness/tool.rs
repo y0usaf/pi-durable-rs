@@ -27,7 +27,7 @@ use crate::harness::progress::{Progress, Waiter};
 use crate::harness::registry::RegistrySnapshot;
 use crate::harness::runtime::{HarnessPhaseHandler, HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::types::{
-    Replay, ToolControl, ToolExecutionApi, ToolExecutionResult, ToolRegistration,
+    HookTask, Replay, ToolControl, ToolExecutionApi, ToolExecutionResult, ToolRegistration,
 };
 use crate::harness::usage::{UsageBucket, record_usage};
 use crate::harness::util::{edit_doc, read_draft, write_draft};
@@ -104,6 +104,7 @@ pub struct ToolHooks {
 }
 
 pub const TOOL_KIND: &str = "pi.tool";
+pub const TOOL_HOOK: HookTask<ToolHooks> = HookTask::new(TOOL_KIND);
 
 pub fn tool_task()
 -> HarnessTaskDefinition<ToolTaskInput, ToolTaskCheckpoint, ToolTaskResult, ToolHooks> {
@@ -117,7 +118,6 @@ pub fn tool_task()
         initial: Box::new(|_| ToolTaskCheckpoint::Call),
         phases: BTreeMap::from([("call".to_owned(), call), ("execute".to_owned(), execute)]),
         abort: Box::new(abort_phase),
-        hooks: None,
     }
 }
 
