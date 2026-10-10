@@ -1,12 +1,14 @@
-//! A durable agent on a real provider: `agent PROVIDER/MODEL PROMPT [--cancel-after-ms N] [--db FILE]`.
+//! A durable agent on a real provider: `agent PROVIDER/MODEL PROMPT [--cancel-after-ms N] [--db FILE] [--api API --base-url URL]`.
 //!
 //! Keys come from the provider's environment variable (ANTHROPIC_API_KEY, AI_GATEWAY_API_KEY, OPENAI_API_KEY).
 //! The model id is everything after the first slash, e.g. `vercel-ai-gateway/anthropic/claude-sonnet-5.5`.
+//! `--api openai-responses --base-url https://ai-gateway.vercel.sh/v1` defines the model on the fly, for APIs and servers outside the catalog.
 
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 use pi_durable::ai::registry::Providers;
+use pi_durable::ai::types::Model;
 use pi_durable::cancel::CancelToken;
 use pi_durable::harness::agent::{AgentChange, Change};
 use pi_durable::harness::harness::Harness;
@@ -58,7 +60,7 @@ fn flag(args: &[String], name: &str) -> Option<String> {
 fn main() -> Result<()> {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let (Some(model), Some(prompt)) = (args.first(), args.get(1)) else {
-        return Err("usage: agent PROVIDER/MODEL PROMPT [--cancel-after-ms N] [--db FILE]".into());
+        return Err("usage: agent PROVIDER/MODEL PROMPT [--cancel-after-ms N] [--db FILE] [--api API --base-url URL]".into());
     };
     let (provider, model_id) = model
         .split_once('/')
@@ -71,6 +73,12 @@ fn main() -> Result<()> {
         None => Arc::new(MemoryStorage::new()),
     };
 
+    let mut providers = Providers::builtin();
+    if let Some(api) = flag(&args, "--api") {
+        let mut custom = Model::new(provider, model_id, &api, 128_000, 16_384, false);
+        custom.base_url = flag(&args, "--base-url").ok_or("--api needs --base-url")?;
+        providers.add_models([custom]);
+    }
     let cancel = CancelToken::new();
     let registry = Arc::new(Registry::default());
     registry.install(Extension {
@@ -84,7 +92,7 @@ fn main() -> Result<()> {
     let harness = Harness::open(
         storage,
         HarnessOptions {
-            models: Arc::new(Providers::builtin()),
+            models: Arc::new(providers),
             registry,
             settings: None,
             conversation_created: None,
