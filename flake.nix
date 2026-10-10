@@ -55,6 +55,10 @@
             buildPhase = "cargo clippy --all-targets --frozen --features providers -- -D warnings";
             installPhase = "touch $out";
           });
+          oauth-flow = pkgs.runCommand "${manifest.name}-oauth-flow" { } ''
+            ${self.packages.${system}.default}/bin/oauth_flow
+            touch $out
+          '';
           fmt = pkgs.runCommand "${manifest.name}-fmt" {
             nativeBuildInputs = [
               pkgs.cargo

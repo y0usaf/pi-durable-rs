@@ -22,3 +22,7 @@ anthropic = ["http"]
 openai = ["http"]
 vercel-gateway = ["anthropic"]
 providers = ["anthropic", "openai", "vercel-gateway"]
+
+[[example]]
+name = "oauth_flow"
+required-features = ["anthropic"]
