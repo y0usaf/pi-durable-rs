@@ -311,12 +311,10 @@ fn read_call(
         .and_then(|entry| entry.model)
         .and_then(|model| model.into_iter().next())
         .and_then(|message| match message {
-            Message::Assistant(message) => {
-                message.content.into_iter().find_map(|block| match block {
-                    AssistantBlock::ToolCall(call) if call.id == input.call_id => Some(call),
-                    _ => None,
-                })
-            }
+            Message::Assistant(message) => message.content.iter().find_map(|block| match block {
+                AssistantBlock::ToolCall(call) if call.id == input.call_id => Some(call.clone()),
+                _ => None,
+            }),
             _ => None,
         });
     call.ok_or_else(|| {
@@ -893,7 +891,7 @@ pub fn append_tool_result(
         conversation,
         EntryDraft {
             kind: tool_result_entry().kind().to_owned(),
-            model: Some(vec![Message::ToolResult(Box::new(message))]),
+            model: Some(vec![Message::ToolResult(Arc::new(message))]),
             data: Some(data),
             head: None,
             edits: None,

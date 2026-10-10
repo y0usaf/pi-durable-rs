@@ -533,7 +533,7 @@ fn translate(
     }
     match (partial, partial_before) {
         (Some(message), None) => events.push(AgentEvent::MessageStart {
-            message: Message::Assistant(Box::new(message.clone())),
+            message: Message::Assistant(Arc::new(message.clone())),
         }),
         (Some(message), Some(previous)) if message != previous => {
             events.push(AgentEvent::MessageUpdate {

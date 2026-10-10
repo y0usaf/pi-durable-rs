@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use serde_json::json;
 
 use crate::ai::types::{
@@ -366,7 +367,7 @@ pub fn order_tool_results(messages: &[Message]) -> Vec<Message> {
 }
 
 fn missing_result(call: &ToolCall, timestamp: u64) -> Message {
-    Message::ToolResult(Box::new(ToolResultMessage {
+    Message::ToolResult(Arc::new(ToolResultMessage {
         role: ToolResultRole,
         tool_call_id: call.id.clone(),
         tool_name: call.name.clone(),
