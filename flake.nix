@@ -63,6 +63,10 @@
             ${self.packages.${system}.default}/bin/provider_e2e
             touch $out
           '';
+          openai-responses-e2e = pkgs.runCommand "${manifest.name}-openai-responses-e2e" { } ''
+            ${self.packages.${system}.default}/bin/openai_responses_e2e
+            touch $out
+          '';
           fmt = pkgs.runCommand "${manifest.name}-fmt" {
             nativeBuildInputs = [
               pkgs.cargo
