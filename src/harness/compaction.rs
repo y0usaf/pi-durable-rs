@@ -684,7 +684,7 @@ pub fn select_cut(view: &ContextView, keep_recent_tokens: u64) -> Option<usize> 
         .then_some(cut)
 }
 
-fn is_candidate(contributions: &[Vec<Message>], index: usize) -> bool {
+fn is_candidate(contributions: &[Arc<[Message]>], index: usize) -> bool {
     match contributions[index].first() {
         Some(Message::Assistant(_)) => return true,
         Some(Message::User(_)) => {}
@@ -730,7 +730,7 @@ fn is_candidate(contributions: &[Vec<Message>], index: usize) -> bool {
 pub fn summarized_messages(view: &ContextView, cut: usize) -> Vec<Message> {
     let flat: Vec<Message> = view.contributions[..cut]
         .iter()
-        .flatten()
+        .flat_map(|c| c.iter())
         .cloned()
         .collect();
     order_tool_results(&flat)
