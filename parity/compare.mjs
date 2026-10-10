@@ -1,12 +1,8 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-const [scenarioDir, ...pairArgs] = process.argv.slice(2);
+const pairArgs = process.argv.slice(2);
 const NORMALISED = new Set(["timestamp", "usage", "responseId", "api", "startedAt", "endedAt"]);
 const DROPPED = new Set(["durationMs"]);
-const completionOrder = new Set();
-for (const name of readdirSync(scenarioDir).filter((n) => n.endsWith(".json"))) {
-	for (const c of JSON.parse(readFileSync(join(scenarioDir, name), "utf8"))) if (c.completionOrder === true) completionOrder.add(c.name + ".json");
-}
 function canon(value) {
 	if (Array.isArray(value)) return value.map(canon);
 	if (value === null || typeof value !== "object") return value;
@@ -24,12 +20,8 @@ function canon(value) {
 			}),
 	);
 }
-function load(file, name) {
-	const data = canon(JSON.parse(readFileSync(file, "utf8")));
-	if (!completionOrder.has(name)) return JSON.stringify(data, null, 1);
-	const strip = (v) => (Array.isArray(v) ? v.map(strip) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).filter(([k]) => !["id", "byTaskId", "entryId"].includes(k)).map(([k, x]) => [k, strip(x)])) : v);
-	const s = strip(data);
-	return JSON.stringify({ ...s, entries: s.entries.map((e) => JSON.stringify(e)).sort(), tasks: s.tasks.map((t) => JSON.stringify(t)).sort() }, null, 1);
+function load(file) {
+	return JSON.stringify(canon(JSON.parse(readFileSync(file, "utf8"))), null, 1);
 }
 const families = new Map();
 let total = 0;
@@ -45,7 +37,7 @@ for (const pair of pairArgs) {
 		total += 1;
 		let same = false;
 		try {
-			same = load(join(a, name), name) === load(join(b, name), name);
+			same = load(join(a, name)) === load(join(b, name));
 		} catch (error) {
 			console.log("MISSING " + label + " " + name + ": " + error.code);
 		}

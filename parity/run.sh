@@ -38,4 +38,4 @@ for writer in ts rs; do
 		done <<<"$crash_cases"
 	done
 done
-node "$here/compare.mjs" "$here/scenarios" "$out/memory/ts=$out/memory/rs" "$out/sqlite/ts=$out/sqlite/rs" "$out/cross/ts-ts=$out/cross/ts-rs" "$out/cross/ts-ts=$out/cross/rs-ts" "$out/cross/ts-ts=$out/cross/rs-rs"
+node "$here/compare.mjs" "$out/memory/ts=$out/memory/rs" "$out/sqlite/ts=$out/sqlite/rs" "$out/cross/ts-ts=$out/cross/ts-rs" "$out/cross/ts-ts=$out/cross/rs-ts" "$out/cross/ts-ts=$out/cross/rs-rs"
