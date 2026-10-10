@@ -218,13 +218,10 @@ fn scan<T: DeserializeOwned>(
     direction: &str,
     fetch: usize,
 ) -> Result<Vec<T>> {
-    let Filter {
-        clauses,
-        mut params,
-    } = filter;
-    params.push(int(fetch)?);
+    let Filter { clauses, params } = filter;
+    let fetch = bound(fetch)?;
     let sql = format!(
-        "SELECT record FROM {table} WHERE {} ORDER BY id {direction} LIMIT ?",
+        "SELECT record FROM {table} WHERE {} ORDER BY id {direction} LIMIT {fetch}",
         clauses.join(" AND ")
     );
     records(connection, &sql, params_from_iter(params))
