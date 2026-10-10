@@ -631,7 +631,7 @@ fn push_assistant_text(out: &mut String, content: &[AssistantBlock]) {
             AssistantBlock::ToolCall(call) => {
                 out.push_str(&call.name);
                 out.push(':');
-                out.push_str(&js::stringify(&Value::Object(call.arguments.clone())));
+                out.push_str(&js::stringify_object(&call.arguments));
             }
         }
     }

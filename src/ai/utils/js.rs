@@ -156,6 +156,12 @@ pub fn stringify(value: &Value) -> String {
     out
 }
 
+pub fn stringify_object(map: &Map<String, Value>) -> String {
+    let mut out = String::new();
+    write_object(map, None, 0, &mut out);
+    out
+}
+
 pub fn stringify_pretty(value: &Value) -> String {
     let mut out = String::new();
     write_value(value, Some(2), 0, &mut out);
@@ -180,26 +186,28 @@ fn write_value(value: &Value, indent: Option<usize>, depth: usize, out: &mut Str
             newline(indent, depth, out);
             out.push(']');
         }
-        Value::Object(map) => {
-            if map.is_empty() {
-                out.push_str("{}");
-                return;
-            }
-            out.push('{');
-            for (index, key) in keys(map).into_iter().enumerate() {
-                if index > 0 {
-                    out.push(',');
-                }
-                newline(indent, depth + 1, out);
-                write_string(key, out);
-                out.push_str(if indent.is_some() { ": " } else { ":" });
-                write_value(&map[key], indent, depth + 1, out);
-            }
-            newline(indent, depth, out);
-            out.push('}');
-        }
+        Value::Object(map) => write_object(map, indent, depth, out),
         scalar => write_scalar(scalar, out),
     }
+}
+
+fn write_object(map: &Map<String, Value>, indent: Option<usize>, depth: usize, out: &mut String) {
+    if map.is_empty() {
+        out.push_str("{}");
+        return;
+    }
+    out.push('{');
+    for (index, key) in keys(map).into_iter().enumerate() {
+        if index > 0 {
+            out.push(',');
+        }
+        newline(indent, depth + 1, out);
+        write_string(key, out);
+        out.push_str(if indent.is_some() { ": " } else { ":" });
+        write_value(&map[key], indent, depth + 1, out);
+    }
+    newline(indent, depth, out);
+    out.push('}');
 }
 
 fn newline(indent: Option<usize>, depth: usize, out: &mut String) {
