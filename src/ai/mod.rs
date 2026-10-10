@@ -13,6 +13,7 @@ pub mod registry;
 pub mod simple_options;
 pub mod sse;
 pub mod stream;
+pub mod thinking;
 pub mod transform;
 pub mod types;
 pub mod utils;
