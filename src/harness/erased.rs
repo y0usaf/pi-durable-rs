@@ -76,6 +76,32 @@ impl<'a, I, S, R, H> Typed<'a, I, S, R, H> {
     }
 }
 
+pub fn each_hook<H: Send + Sync + 'static>(
+    agent: &Agent,
+    task: &str,
+    signal: &CancelToken,
+    report: &dyn Fn(Error),
+    invoke: &mut dyn FnMut(&H) -> Result<()>,
+) -> Result<()> {
+    for extension in &agent.extensions {
+        for registration in extension.hooks.iter().filter(|hook| hook.task == task) {
+            let Some(handlers) = registration.handlers.downcast_ref::<H>() else {
+                report(Error::Invalid(format!(
+                    "Hook handlers registered for {task} do not match the task's hook type"
+                )));
+                continue;
+            };
+            if let Err(error) = invoke(handlers) {
+                if signal.is_cancelled() {
+                    return Err(error);
+                }
+                report(error);
+            }
+        }
+    }
+    Ok(())
+}
+
 impl<I, S, R, H> HookRunner<H> for Typed<'_, I, S, R, H>
 where
     H: Send + Sync + 'static,
@@ -83,24 +109,13 @@ where
     fn each(&self, invoke: &mut dyn FnMut(&H) -> Result<()>) -> Result<()> {
         let signal = self.inner.signal();
         let agent: Agent = self.inner.agent(signal)?;
-        for extension in &agent.extensions {
-            for registration in extension.hooks.iter().filter(|hook| hook.task == self.task) {
-                let Some(handlers) = registration.handlers.downcast_ref::<H>() else {
-                    self.inner.report(Error::Invalid(format!(
-                        "Hook handlers registered for {} do not match the task's hook type",
-                        self.task
-                    )));
-                    continue;
-                };
-                if let Err(error) = invoke(handlers) {
-                    if signal.is_cancelled() {
-                        return Err(error);
-                    }
-                    self.inner.report(error);
-                }
-            }
-        }
-        Ok(())
+        each_hook(
+            &agent,
+            self.task,
+            signal,
+            &|error| self.inner.report(error),
+            invoke,
+        )
     }
 }
 

@@ -23,7 +23,7 @@ use crate::harness::provider::ensure_provider_session_id;
 use crate::harness::runtime::{HarnessPhaseHandler, HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::submissions::{SubmissionDraft, admit_submission};
 use crate::harness::tool::erase;
-use crate::harness::types::{ConversationStreamOptions, ModelRef};
+use crate::harness::types::{ConversationStreamOptions, HookTask, ModelRef};
 use crate::harness::usage::{UsageBucket, record_usage};
 use crate::ids::{ConversationId, EntryId, SubmissionId, TaskId};
 use crate::session::types::{TaskCreate, TaskOptions, Tx};
@@ -31,6 +31,7 @@ use crate::tasks::{NextTaskState, RunningTask, TaskOutcome, TaskOutcomeError, Ta
 use crate::types::{CompactionReason, EntryDraft, EntryHead, EntryRecord, JsonObject};
 
 pub const COMPACTION_KIND: &str = "pi.compaction";
+pub const COMPACTION_HOOK: HookTask<CompactionHooks> = HookTask::new(COMPACTION_KIND);
 pub const COMPACTION_VERSION: u64 = 1;
 
 const TOOL_RESULT_MAX_CHARS: usize = 2000;
@@ -177,7 +178,6 @@ pub fn definition() -> Compaction {
         initial: Box::new(|_| CompactionCheckpoint::Select),
         phases,
         abort: Box::new(abort),
-        hooks: None,
     }
 }
 

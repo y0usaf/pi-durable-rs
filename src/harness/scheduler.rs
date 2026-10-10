@@ -102,7 +102,6 @@ pub type AgentResolver =
 pub type EnvResolver = Arc<
     dyn Fn(ConversationId, &CancelToken) -> Result<Option<Arc<dyn ExecutionEnv>>> + Send + Sync,
 >;
-pub type HooksOf = Arc<dyn Fn(&Agent, &str) -> Vec<JsonValue> + Send + Sync>;
 pub type SettingsSource = Arc<dyn Fn() -> Settings + Send + Sync>;
 pub type Clock = Arc<dyn Fn() -> u64 + Send + Sync>;
 
@@ -244,7 +243,6 @@ pub struct SchedulerOptions {
     pub models: Arc<dyn Models + Send + Sync>,
     pub env: EnvResolver,
     pub conversation: ConversationBinder,
-    pub hooks_of: HooksOf,
     pub settings: SettingsSource,
     pub now: Clock,
     pub registry: Arc<Registry>,
@@ -261,7 +259,6 @@ struct Shared {
     models: Arc<dyn Models + Send + Sync>,
     env: EnvResolver,
     conversation: ConversationBinder,
-    hooks_of: HooksOf,
     settings: SettingsSource,
     now: Clock,
     task_waiters: Waiters<TaskId, AnyTaskRecord>,
@@ -493,7 +490,6 @@ impl TaskScheduler {
             models: options.models,
             env: options.env,
             conversation: options.conversation,
-            hooks_of: options.hooks_of,
             settings: options.settings,
             now: options.now,
             task_waiters: Waiters::default(),

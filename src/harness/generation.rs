@@ -19,8 +19,8 @@ use crate::harness::provider::ensure_provider_session_id;
 use crate::harness::runtime::{HarnessPhaseHandler, HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::tool::{ToolTaskInput, erase, harness_error, tool_task};
 use crate::harness::types::{
-    CompactionPolicy, CompactionReason, ConversationStreamOptions, Deferred, ModelRef, PromptInput,
-    Settings,
+    CompactionPolicy, CompactionReason, ConversationStreamOptions, Deferred, HookTask, ModelRef,
+    PromptInput, Settings,
 };
 use crate::harness::usage::{UsageBucket, record_usage};
 use crate::harness::util::{conversation_doc, edit_doc, read_draft, write_draft};
@@ -109,6 +109,7 @@ pub struct GenerationHooks {
 }
 
 pub const GENERATION_KIND: &str = "pi.generation";
+pub const GENERATION_HOOK: HookTask<GenerationHooks> = HookTask::new(GENERATION_KIND);
 pub const GENERATION_VERSION: u64 = 1;
 
 fn initial_checkpoint() -> GenerationCheckpoint {
@@ -182,7 +183,6 @@ pub fn definition() -> Generation {
         initial: Box::new(|_| initial_checkpoint()),
         phases,
         abort: Box::new(abort),
-        hooks: None,
     }
 }
 

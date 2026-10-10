@@ -34,5 +34,4 @@ pub struct HarnessTaskDefinition<I, S, R, H> {
     pub initial: Box<dyn Fn(&I) -> S + Send + Sync>,
     pub phases: BTreeMap<String, HarnessPhaseHandler<I, S, R, H>>,
     pub abort: HarnessPhaseHandler<I, S, R, H>,
-    pub hooks: Option<H>,
 }

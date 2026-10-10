@@ -1,5 +1,6 @@
 use super::*;
 use crate::harness::context::{ContextView, capture_context_bounds, read_context_from};
+use crate::harness::erased::each_hook;
 use crate::harness::runtime::HarnessTaskRuntime;
 use crate::harness::types::{ConversationHandle, InvocationBinding};
 use crate::ids::EntryId;
@@ -342,15 +343,13 @@ impl TaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for InvocationRunti
 impl HookRunner<JsonValue> for InvocationRuntime {
     fn each(&self, invoke: &mut dyn FnMut(&JsonValue) -> Result<()>) -> Result<()> {
         let agent = TaskRuntime::agent(self, &self.invocation.cancel)?;
-        for handler in (self.scheduler.0.hooks_of)(&agent, self.task.name()) {
-            if let Err(error) = invoke(&handler) {
-                if self.invocation.cancel.is_cancelled() {
-                    return Err(error);
-                }
-                (self.scheduler.0.report)(error);
-            }
-        }
-        Ok(())
+        each_hook(
+            &agent,
+            self.task.name(),
+            &self.invocation.cancel,
+            &|error| (self.scheduler.0.report)(error),
+            invoke,
+        )
     }
 }
 
