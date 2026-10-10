@@ -1,5 +1,4 @@
 //! A durable agent on a real provider: `agent PROVIDER/MODEL PROMPT [--cancel-after-ms N] [--db FILE] [--resume] [--api API --base-url URL]`.
-//! `--resume` with `--db` reopens a database a killed run left behind and finishes its turn instead of submitting the prompt.
 //!
 //! Keys come from the provider's environment variable (ANTHROPIC_API_KEY, AI_GATEWAY_API_KEY, OPENAI_API_KEY).
 //! The model id is everything after the first slash, e.g. `vercel-ai-gateway/anthropic/claude-sonnet-5.5`.
