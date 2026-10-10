@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use crate::cancel::CancelToken;
 use crate::errors::Result;
@@ -9,7 +10,7 @@ use crate::tasks::{RunningTask, TaskOutcome, TaskRuntime};
 use crate::types::JsonValue;
 
 pub trait HarnessTaskRuntime<I, S, R, H>: TaskRuntime<I, S, R, H> {
-    fn context(&self, at: Option<EntryId>, cancel: &CancelToken) -> Result<ContextView>;
+    fn context(&self, at: Option<EntryId>, cancel: &CancelToken) -> Result<Arc<ContextView>>;
     fn wait_for_task(&self, id: TaskId, cancel: &CancelToken) -> Result<TaskOutcome<JsonValue>>;
     fn conversation(
         &self,

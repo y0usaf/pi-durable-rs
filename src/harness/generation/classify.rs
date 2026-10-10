@@ -8,6 +8,7 @@ use crate::ai::utils::retry::{is_retryable_assistant_error, retry_delay_ms};
 use crate::cancel::CancelToken;
 use crate::errors::{Error, Result};
 use crate::harness::compaction::{create_compaction, select_cut};
+use crate::harness::context::ContextView;
 use crate::harness::generation::{
     GenerationCheckpoint, Runtime, append_assistant, edit_live, end_run, read_live, write_live,
 };
@@ -16,6 +17,7 @@ use crate::harness::types::{CompactionReason, ModelRef};
 use crate::ids::{EntryId, TaskId};
 use crate::tasks::{JoinPolicy, NextTaskState, TaskOutcome, TaskOutcomeError};
 use crate::types::SubmissionSettlement;
+use std::sync::Arc;
 
 use std::time::{Duration, Instant};
 
@@ -26,7 +28,7 @@ pub struct Request {
     pub compacted: Option<TaskId>,
     pub model: ModelRef,
     pub cutoff: EntryId,
-    pub messages: Option<Vec<Message>>,
+    pub view: Option<Arc<ContextView>>,
     pub poll_at: Option<u64>,
 }
 

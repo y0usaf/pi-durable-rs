@@ -5,6 +5,7 @@ use crate::harness::runtime::HarnessTaskRuntime;
 use crate::harness::types::{ConversationHandle, InvocationBinding};
 use crate::ids::EntryId;
 use crate::tasks::TaskOutcome;
+use std::sync::Arc;
 
 pub struct InvocationRuntime {
     scheduler: TaskScheduler,
@@ -97,7 +98,7 @@ fn memo_of(record: &AnyTaskRecord, name: &str) -> Option<JsonValue> {
 }
 
 impl HarnessTaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for InvocationRuntime {
-    fn context(&self, at: Option<EntryId>, cancel: &CancelToken) -> Result<ContextView> {
+    fn context(&self, at: Option<EntryId>, cancel: &CancelToken) -> Result<Arc<ContextView>> {
         self.ensure_live()?;
         let conversation = self.invocation.conversation_id;
         let storage = self.scheduler.0.storage.as_ref();

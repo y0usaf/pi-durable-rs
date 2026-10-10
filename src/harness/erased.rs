@@ -228,7 +228,7 @@ where
     R: Serialize + DeserializeOwned,
     H: Send + Sync + 'static,
 {
-    fn context(&self, at: Option<EntryId>, cancel: &CancelToken) -> Result<ContextView> {
+    fn context(&self, at: Option<EntryId>, cancel: &CancelToken) -> Result<Arc<ContextView>> {
         self.inner.context(at, cancel)
     }
 

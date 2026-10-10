@@ -1,4 +1,5 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::sync::Arc;
 
 use crate::ai::types::{
     AssistantBlock, AssistantMessage, Message, ToolCall, UserContent, UserMessage, UserRole,
@@ -121,11 +122,11 @@ pub fn start_tool_round(
     cancel: &CancelToken,
 ) -> Result<()> {
     let conversation_id = runtime.conversation_id();
-    let messages = match &request.messages {
-        Some(messages) => messages.clone(),
-        None => runtime.context(Some(request.cutoff), cancel)?.messages,
+    let view = match &request.view {
+        Some(view) => Arc::clone(view),
+        None => runtime.context(Some(request.cutoff), cancel)?,
     };
-    let offered: BTreeSet<String> = get_current_tools(&messages)
+    let offered: BTreeSet<String> = get_current_tools(&view.messages)
         .into_iter()
         .map(|tool| tool.name)
         .collect();
