@@ -1,0 +1,115 @@
+[
+ {
+  "name": "f3-cancel-midstream",
+  "family": 3,
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma tau upsilon phi chi psi omega one two three four five six seven eight nine ten"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "settings": {
+   "tokensPerSecond": 20
+  },
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "waitRun"
+   },
+   {
+    "do": "sleepMs",
+    "ms": 300
+   },
+   {
+    "do": "abortRun"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f3-cancel-midtool",
+  "family": 3,
+  "tools": [
+   "sleep"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "sleep",
+      "arguments": {
+       "ms": 2000
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "waitTool"
+   },
+   {
+    "do": "abortRun"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f3-cancel-idle-noop",
+  "family": 3,
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "hi"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   },
+   {
+    "do": "abortRun"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ }
+]

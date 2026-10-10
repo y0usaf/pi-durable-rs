@@ -1,0 +1,115 @@
+[
+ {
+  "name": "f6-retry-then-success",
+  "family": 6,
+  "settings": {
+   "retry": {
+    "enabled": true,
+    "maxRetries": 2,
+    "baseDelayMs": 0
+   }
+  },
+  "responses": [
+   {
+    "content": [],
+    "stopReason": "error",
+    "errorMessage": "503 overloaded"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "ok"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f6-retry-exhausted",
+  "family": 6,
+  "settings": {
+   "retry": {
+    "enabled": true,
+    "maxRetries": 1,
+    "baseDelayMs": 0
+   }
+  },
+  "responses": [
+   {
+    "content": [],
+    "stopReason": "error",
+    "errorMessage": "503 overloaded"
+   },
+   {
+    "content": [],
+    "stopReason": "error",
+    "errorMessage": "503 overloaded"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "never"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f6-retry-disabled",
+  "family": 6,
+  "settings": {
+   "retry": {
+    "enabled": false,
+    "maxRetries": 2,
+    "baseDelayMs": 0
+   }
+  },
+  "responses": [
+   {
+    "content": [],
+    "stopReason": "error",
+    "errorMessage": "503 overloaded"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "never"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ }
+]

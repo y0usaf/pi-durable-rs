@@ -1,0 +1,185 @@
+[
+ {
+  "name": "f7-steer-while-tool",
+  "family": 7,
+  "tools": [
+   "sleep"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "sleep",
+      "arguments": {
+       "ms": 500
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after steer"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "one"
+   },
+   {
+    "do": "waitTool"
+   },
+   {
+    "do": "submit",
+    "text": "two",
+    "whenBusy": "steer"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f7-followup-while-tool",
+  "family": 7,
+  "tools": [
+   "sleep"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "sleep",
+      "arguments": {
+       "ms": 500
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "first done"
+     }
+    ],
+    "stopReason": "stop"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "second done"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "one"
+   },
+   {
+    "do": "waitTool"
+   },
+   {
+    "do": "submit",
+    "text": "two",
+    "whenBusy": "followUp"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f7-reject-while-busy",
+  "family": 7,
+  "tools": [
+   "sleep"
+  ],
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "toolCall",
+      "id": "c1",
+      "name": "sleep",
+      "arguments": {
+       "ms": 500
+      }
+     }
+    ],
+    "stopReason": "toolUse"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "done"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "one"
+   },
+   {
+    "do": "waitTool"
+   },
+   {
+    "do": "submit",
+    "text": "two",
+    "whenBusy": "reject"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f7-dedup-request-id",
+  "family": 7,
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "once"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "a",
+    "requestId": "r1"
+   },
+   {
+    "do": "submit",
+    "text": "a",
+    "requestId": "r1"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ }
+]

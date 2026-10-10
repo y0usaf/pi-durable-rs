@@ -1,0 +1,114 @@
+[
+ {
+  "name": "f1-plain-single",
+  "family": 1,
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "hi there"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f1-plain-two-turns",
+  "family": 1,
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "first"
+     }
+    ],
+    "stopReason": "stop"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "second"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "one"
+   },
+   {
+    "do": "idle"
+   },
+   {
+    "do": "submit",
+    "text": "two"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f1-plain-empty-text",
+  "family": 1,
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": ""
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "quiet"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ },
+ {
+  "name": "f1-plain-unicode",
+  "family": 1,
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "naïve — 日本語 🙂"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "ünïcode"
+   },
+   {
+    "do": "idle"
+   }
+  ]
+ }
+]

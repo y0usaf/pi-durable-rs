@@ -1,0 +1,123 @@
+[
+ {
+  "name": "f5-compact-manual",
+  "family": 5,
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "first answer"
+     }
+    ],
+    "stopReason": "stop"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "SUMMARY of first"
+     }
+    ],
+    "stopReason": "stop"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after compact"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   },
+   {
+    "do": "compact"
+   },
+   {
+    "do": "idle"
+   },
+   {
+    "do": "submit",
+    "text": "more"
+   },
+   {
+    "do": "idle"
+   }
+  ],
+  "settings": {
+   "compaction": {
+    "keepRecentTokens": 1,
+    "reserveTokens": 1
+   }
+  }
+ },
+ {
+  "name": "f5-overflow-compacts",
+  "family": 5,
+  "responses": [
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "one"
+     }
+    ],
+    "stopReason": "stop"
+   },
+   {
+    "content": [],
+    "stopReason": "error",
+    "errorMessage": "prompt is too long: 213462 tokens > 200000 maximum"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "SUMMARY of one"
+     }
+    ],
+    "stopReason": "stop"
+   },
+   {
+    "content": [
+     {
+      "type": "text",
+      "text": "after overflow"
+     }
+    ],
+    "stopReason": "stop"
+   }
+  ],
+  "steps": [
+   {
+    "do": "submit",
+    "text": "hello"
+   },
+   {
+    "do": "idle"
+   },
+   {
+    "do": "submit",
+    "text": "big"
+   },
+   {
+    "do": "idle"
+   }
+  ],
+  "settings": {
+   "compaction": {
+    "keepRecentTokens": 1,
+    "reserveTokens": 1
+   }
+  }
+ }
+]
