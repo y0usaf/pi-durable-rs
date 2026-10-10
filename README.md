@@ -1,14 +1,70 @@
-# Pi-Rust-Durable
+# pi-durable
 
-A Rust reproduction of Pi's `@earendil-works/pi-durable` 1.1.0 (durable conversations, tasks and documents over a transactional store), with no runtime or build dependency on Pi or Node. It does not ship a CLI, an LLM client or an async runtime.
+Durable conversations, tasks and documents over a transactional store, with a synchronous agent harness on top, for Rust applications.
 
-Oracle: [earendil-works/pi](https://github.com/earendil-works/pi) at `f1b2e77f5b13b2a199b1052cb79c235451afe7d7` (`packages/durable` 1.1.0 and the `packages/chord` parts it consumes). Behaviour is translated from the TypeScript; [PiG](https://github.com/MichaelKinsy/PiG)'s Go port is used only as a map of where to draw the lines.
+It is a Rust reproduction of Pi's [`@earendil-works/pi-durable`](https://github.com/earendil-works/pi) 1.1.0 and the parts of `pi-ai` its harness needs, with no runtime or build dependency on Pi or Node.
+
+It won't: ship a CLI, a UI or an async runtime; follow redirects or proxies; speak every `pi-ai` provider (Anthropic Messages, OpenAI Chat Completions and Responses, and the Vercel AI Gateway through Anthropic Messages are the real ones; the rest are yours to add behind the `Api` trait); store your credentials (you hand it keys, or a resolver, and it never reads or writes a token file).
+
+Oracle: [earendil-works/pi](https://github.com/earendil-works/pi) at `f1b2e77f5b13b2a199b1052cb79c235451afe7d7` (`packages/durable` 1.1.0, `packages/chord` parts, `packages/ai`). Behaviour is translated from the TypeScript; [PiG](https://github.com/MichaelKinsy/PiG)'s Go port is used only as a map of where to draw the lines. `docs/COVERAGE.md` lists which PiG and pi-durable surfaces are covered, divergent or missing.
+
+## Features
+
+| Feature | Adds |
+| --- | --- |
+| *(none)* | storage (memory, JSONL, SQLite), session, documents, tasks, env, tools, the harness, the faux provider. No HTTP or TLS code is compiled. |
+| `http` | the HTTP/1.1 client (`ai::http`), SSE reader, OAuth helpers (`ai::oauth`) |
+| `anthropic` | Anthropic Messages API (API keys and Claude OAuth bearer tokens) and the Anthropic model catalog |
+| `vercel-gateway` | the Vercel AI Gateway catalog (served through the Anthropic Messages API) |
+| `openai` | OpenAI Chat Completions and Responses, and the OpenAI catalog |
+| `providers` | all of the above |
+
+```toml
+pi-durable = { version = "0.1", features = ["anthropic", "vercel-gateway"] }
+```
+
+## Usage
+
+A harness owns a storage, a model source and a registry of extensions. A conversation takes submissions, runs the agent loop on threads and writes every step as an entry in the store, so a killed process resumes where it stopped.
+
+```rust
+let harness = Harness::open(Arc::new(SqliteStorage::open("agent.db", &Default::default())?), HarnessOptions {
+    models: Arc::new(Providers::builtin()),
+    registry,
+    settings: None, conversation_created: None, now: None, env: None, on_report: None,
+})?;
+let root = harness.root(RootOptions { agent: Some(AgentChange {
+    model: Change::Set(ModelRef { provider: "anthropic".into(), model_id: "claude-sonnet-5-5".into() }),
+    ..Default::default()
+}), init: None }, &cancel)?;
+root.submit(SubmissionDraft::Input { request_id: None, content: "hello".into(), when_busy: WhenBusy::default() }, &cancel)?;
+harness.wait_for_idle(&cancel)?;
+root.abort(false, &cancel)?;
+```
+
+Runnable versions: `examples/faux_agent.rs` (scripted provider, one tool, no network), `examples/agent.rs` (real provider: `agent vercel-ai-gateway/anthropic/claude-sonnet-5.5 "add 2 and 40 with the tool" [--cancel-after-ms N] [--db FILE]`).
+
+### Providers and credentials
+
+`Providers::builtin()` registers the APIs and catalogs of the enabled features. `Providers::add_models` adds your own `Model` values (any base URL; this is how a local OpenAI-compatible server is used) and `Providers::add_api` adds your own `Api`.
+
+Keys come from, in order: `SimpleStreamOptions::api_key`, the resolver you set with `Providers::set_auth` (called per request with the model; return the API key or OAuth access token, extra headers, a base URL), then the provider's environment variable (`ANTHROPIC_OAUTH_TOKEN`, `ANTHROPIC_API_KEY`, `AI_GATEWAY_API_KEY`, `OPENAI_API_KEY`). A token starting with `sk-ant-oat` is sent as a Claude OAuth bearer token. Several accounts, refresh and storage are the resolver's business.
+
+`ai::oauth::anthropic` has the Claude login as plain functions: build the authorize link (loopback callback or copy-code redirect), wait for the callback or parse the pasted code, exchange it, refresh it. They return `Credentials { refresh, access, expires_ms }` and write nothing. Never call `refresh` on a token another program also holds: refresh rotates the refresh token.
+
+### Cancellation
+
+Every call takes a `CancelToken`. A provider request registers the token against its socket, so cancelling shuts the connection down and the stream ends with stop reason `aborted` ("Request was aborted") within milliseconds, mid-stream or mid-connect.
+
+## HTTP and TLS
+
+The providers use a 450-line HTTP/1.1 client (`src/ai/http.rs`) over `rustls` with the `ring` provider and `webpki-roots`; `SSL_CERT_FILE` replaces the roots when set. Why not `ureq` or `reqwest`: cancelling a streaming response has to close the socket, and neither exposes it on a stable API (ureq's connector hook is explicitly unversioned; reqwest drags in an async runtime). TLS is the knowledge worth a dependency; HTTP/1.1 with chunked bodies and SSE is not. One connection per request (`Connection: close`), identity encoding, no redirects, no proxy support, retries with the Anthropic/OpenAI SDK rules (408, 409, 429, 5xx and connection errors; `retry-after`, `maxRetries`, `maxRetryDelayMs`).
 
 ## Scope
 
 - `chord`: only `delta/` (ops, change tracker, immutable apply, strict JSON clone), replicated state and `copyJson`. Chord's `Context` is not ported; a cancellation token stands in where TypeScript passes a `Context` or `AbortSignal`.
-- `durable`: ids, errors, entries, documents, types, truncate, codecs, storage (memory, JSONL, SQLite), session, env and tools.
-- Not yet: harness (needs the `pi-ai` types).
+- `durable`: ids, errors, entries, documents, types, truncate, codecs, storage (memory, JSONL, SQLite), session, env, tools and the harness (agent loop, scheduler, compaction, hooks, task graph, views).
+- `ai`: types, event streams, faux provider, retry/overflow/validation helpers, message transformation, streaming JSON, the providers above, catalogs generated from PiG's `models_generated.go` by `scripts/gen-catalog.py`.
 
 ## Layout
 
@@ -16,17 +72,21 @@ Oracle: [earendil-works/pi](https://github.com/earendil-works/pi) at `f1b2e77f5b
 | --- | --- |
 | `chord` | `packages/chord/src/{delta,json.ts,services/state.ts}` |
 | `ids`, `errors`, `entries`, `documents`, `types`, `truncate`, `codecs`, `tasks` | `packages/durable/src/*.ts` |
-| `storage` | `packages/durable/src/storage` |
-| `session` | `packages/durable/src/session` |
-| `env`, `tools` | `packages/durable/src/{env,tools}` |
-| `harness::context`, `harness::prompt` | `packages/durable/src/harness/{context,prompt}.ts` |
+| `storage`, `session`, `env`, `tools`, `harness` | `packages/durable/src/{storage,session,env,tools,harness}` |
+| `ai` | `packages/ai/src/{types,api,utils,providers,auth/oauth}` |
 
-## Build
+## Build and checks
 
 ```
 nix build
 nix flake check
 ```
+
+`nix flake check` builds with and without features, runs clippy and rustfmt, and runs the end-to-end examples against loopback fake servers (`provider_e2e`, `oauth_flow`, and the OpenAI ones). Real-provider checks need a key and are run by hand.
+
+## Licence
+
+MIT, as Pi. `repository` in `Cargo.toml` is left for the publisher to set.
 
 ## Divergences
 
