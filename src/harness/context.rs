@@ -38,6 +38,7 @@ pub struct ContextRange {
     pub edited: std::collections::BTreeSet<EntryId>,
     pub settled: Vec<Message>,
     pub open: Vec<Message>,
+    pub led: usize,
 }
 
 pub fn empty_view() -> ContextView {
@@ -88,7 +89,7 @@ pub fn read_context_from(
     storage: &dyn Storage,
     conversation_id: ConversationId,
     bounds: Option<ContextBounds>,
-    previous: Option<&Arc<ContextRange>>,
+    previous: Option<Arc<ContextRange>>,
     cancel: &CancelToken,
 ) -> Result<(Arc<ContextView>, Option<Arc<ContextRange>>)> {
     let Some(bounds) = bounds else {
@@ -98,7 +99,7 @@ pub fn read_context_from(
     let range = match previous {
         Some(previous) if head_id(&previous.bounds.head) == head_id(&bounds.head) => {
             if bounds.tail == previous.bounds.tail {
-                Arc::clone(previous)
+                previous
             } else if bounds.tail < previous.bounds.tail {
                 let kept = previous
                     .entries
@@ -212,7 +213,7 @@ fn derive_range(bounds: ContextBounds, entries: Vec<Arc<EntryRecord>>) -> Contex
         .cloned()
         .collect();
     let (settled, open) = settle(Vec::new(), flat);
-    let messages = lead_with_system(concat(&settled, &order_tool_results(&open)));
+    let (messages, led) = lead_with_system(concat(&settled, &order_tool_results(&open)));
     let view = Arc::new(ContextView {
         head: bounds.head.as_ref().map(|head| head.entry.clone()),
         entries: active,
@@ -226,43 +227,87 @@ fn derive_range(bounds: ContextBounds, entries: Vec<Arc<EntryRecord>>) -> Contex
         edited: edits.keys().copied().collect(),
         settled,
         open,
+        led,
     }
 }
 
 fn extend_range(
-    previous: &ContextRange,
+    previous: Arc<ContextRange>,
     bounds: ContextBounds,
     added: Vec<Arc<EntryRecord>>,
 ) -> ContextRange {
-    let mut entries = previous.entries.clone();
-    entries.extend(added.iter().cloned());
-    if added.iter().any(|entry| {
+    let rebuild = added.iter().any(|entry| {
         entry.edits.is_some() || entry.head.is_some() || previous.edited.contains(&entry.id)
-    }) {
-        return derive_range(bounds, entries);
+    });
+    let mut owned = Arc::try_unwrap(previous).unwrap_or_else(|shared| (*shared).clone());
+    owned.entries.extend(added.iter().cloned());
+    if rebuild {
+        return derive_range(bounds, owned.entries);
     }
+    grow_range(owned, bounds, added)
+}
+
+fn grow_range(
+    previous: ContextRange,
+    bounds: ContextBounds,
+    added: Vec<Arc<EntryRecord>>,
+) -> ContextRange {
+    let ContextRange {
+        entries,
+        view,
+        edited,
+        mut settled,
+        mut open,
+        led,
+        ..
+    } = previous;
     let contributions: Vec<Arc<[Message]>> =
         added.iter().map(|entry| contribute(entry, None)).collect();
-    let mut open = previous.open.clone();
     open.extend(contributions.iter().flat_map(|c| c.iter()).cloned());
-    let (settled, open) = settle(previous.settled.clone(), open);
-    let mut view_entries = previous.view.entries.clone();
+    let kept = settled.len();
+    let (mut view_entries, mut view_contributions, mut messages) = match Arc::try_unwrap(view) {
+        Ok(view) => (view.entries, view.contributions, view.messages),
+        Err(shared) => (
+            shared.entries.clone(),
+            shared.contributions.clone(),
+            shared.messages.clone(),
+        ),
+    };
     view_entries.extend(added);
-    let mut view_contributions = previous.view.contributions.clone();
     view_contributions.extend(contributions);
+    let promoted = match open.iter().rposition(is_assistant) {
+        Some(last) if last > 0 => {
+            let promoted = order_tool_results(&open[..last]);
+            open.drain(..last);
+            promoted
+        }
+        _ => Vec::new(),
+    };
+    settled.extend(promoted.iter().cloned());
+    let ordered = order_tool_results(&open);
+    let (messages, led) = if led <= kept && messages.len() >= kept {
+        messages.truncate(kept);
+        messages.extend(promoted);
+        messages.extend(ordered);
+        let (messages, touched) = lead_with_system(messages);
+        (messages, led.max(touched))
+    } else {
+        lead_with_system(concat(&settled, &ordered))
+    };
     let view = Arc::new(ContextView {
         head: bounds.head.as_ref().map(|head| head.entry.clone()),
         entries: view_entries,
         contributions: view_contributions,
-        messages: lead_with_system(concat(&settled, &order_tool_results(&open))),
+        messages,
     });
     ContextRange {
         bounds,
         entries,
         view,
-        edited: previous.edited.clone(),
+        edited,
         settled,
         open,
+        led,
     }
 }
 
@@ -270,16 +315,16 @@ fn concat(first: &[Message], second: &[Message]) -> Vec<Message> {
     first.iter().chain(second).cloned().collect()
 }
 
-fn lead_with_system(mut messages: Vec<Message>) -> Vec<Message> {
+fn lead_with_system(mut messages: Vec<Message>) -> (Vec<Message>, usize) {
     let Some(index) = messages.iter().position(|message| !is_role_user(message)) else {
-        return messages;
+        return (messages, 0);
     };
     if index == 0 || !matches!(messages[index], Message::System(_)) {
-        return messages;
+        return (messages, 0);
     }
     let system = messages.remove(index);
     messages.insert(0, system);
-    messages
+    (messages, index + 1)
 }
 
 fn is_role_user(message: &Message) -> bool {

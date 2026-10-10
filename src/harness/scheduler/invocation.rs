@@ -102,24 +102,23 @@ impl HarnessTaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for Invocati
         self.ensure_live()?;
         let conversation = self.invocation.conversation_id;
         let storage = self.scheduler.0.storage.as_ref();
-        let previous = self
-            .scheduler
-            .lock()
-            .contexts
-            .get(&conversation)
-            .map(|kept| kept.range.clone());
         let bounds = self
             .scheduler
             .0
             .session
             .read_on_line(|| capture_context_bounds(storage, conversation, at, cancel))?;
-        let (view, range) =
-            read_context_from(storage, conversation, bounds, previous.as_ref(), cancel)?;
-        let mut st = self.scheduler.lock();
-        let kept_tail = st
+        let previous = self
+            .scheduler
+            .lock()
             .contexts
-            .get(&conversation)
-            .map(|kept| kept.range.bounds.tail);
+            .get_mut(&conversation)
+            .and_then(|kept| match &bounds {
+                Some(bounds) if bounds.tail > kept.tail => kept.range.take(),
+                _ => kept.range.clone(),
+            });
+        let (view, range) = read_context_from(storage, conversation, bounds, previous, cancel)?;
+        let mut st = self.scheduler.lock();
+        let kept_tail = st.contexts.get(&conversation).map(|kept| kept.tail);
         let kept_since = st
             .contexts
             .get(&conversation)
@@ -136,7 +135,8 @@ impl HarnessTaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for Invocati
                 st.contexts.insert(
                     conversation,
                     KeptContext {
-                        range,
+                        tail: range.bounds.tail,
+                        range: Some(range),
                         idle_since: None,
                     },
                 );
@@ -145,7 +145,8 @@ impl HarnessTaskRuntime<JsonValue, JsonValue, JsonValue, JsonValue> for Invocati
                 st.contexts.insert(
                     conversation,
                     KeptContext {
-                        range,
+                        tail: range.bounds.tail,
+                        range: Some(range),
                         idle_since: Some(kept_since.unwrap_or(now)),
                     },
                 );

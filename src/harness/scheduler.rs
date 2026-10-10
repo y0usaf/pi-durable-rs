@@ -21,7 +21,7 @@ use crate::harness::context::ContextRange;
 use crate::harness::registry::Registry;
 use crate::harness::runtime::HarnessTaskRuntime;
 use crate::harness::util::{Ticket, Waiters, scan_all};
-use crate::ids::{ConversationId, TaskId};
+use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::kernel::Session;
 use crate::session::transaction::{Transaction, TransactionScope};
 use crate::turn::{Turn, pause};
@@ -210,7 +210,8 @@ struct Overlay {
 }
 
 struct KeptContext {
-    range: Arc<ContextRange>,
+    range: Option<Arc<ContextRange>>,
+    tail: EntryId,
     idle_since: Option<u64>,
 }
 
