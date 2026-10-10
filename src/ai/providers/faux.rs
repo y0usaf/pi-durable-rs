@@ -361,7 +361,7 @@ enum Next {
         Arc<FauxResponse>,
         TranscriptContext,
         SimpleStreamOptions,
-        Model,
+        Box<Model>,
     ),
 }
 
@@ -395,7 +395,7 @@ fn produce_fetch(
                 Arc::clone(&entry.response),
                 entry.context.clone(),
                 entry.options.clone(),
-                entry.model.clone(),
+                Box::new(entry.model.clone()),
             )
         }
     };
