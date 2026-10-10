@@ -38,10 +38,10 @@ Status: **covered** = the Rust API exists and is used by the same shape; **diver
 | `ai.Model`, `ai.Message`, `ai.UserText`, `ai.AssistantMessage`, `ai.TextContent`, `ai.ToolCall` etc. | `ai/types.rs` | covered |
 | `ai.StreamOptions`, `ai.SimpleStreamOptions` | `ai/simple_options.rs`, `ai/types.rs` | covered |
 | `ai.NewFauxProvider`, `FauxConfig`, `FauxResponse`… | `ai/providers/faux.rs` | covered |
-| `ai.BuiltinProviderAuth`, `ai.APIKeyProviders`, `ai.GetOAuthProvider(s)`, `ai.RegisterOAuthProvider` | `ai/registry.rs` `Providers::builtin`, `ai/auth.rs` `env_api_key` only | **missing**: no provider list, no OAuth provider registry |
+| `ai.BuiltinProviderAuth`, `ai.APIKeyProviders`, `ai.GetOAuthProvider(s)`, `ai.RegisterOAuthProvider` | `ai/registry.rs` `Providers::builtin`, `set_auth` resolver, `ai/auth.rs` `env_api_key` | divergent: one resolver callback per request replaces the registries; multi-account selection is the resolver's job |
 | `ai.CredentialFromOAuth`, `ai.Credential*`, `ai.AuthStorage` | none | **missing** |
-| Login flow events (`ai.Auth*Prompt`, `AuthURLEvent`, `AuthDeviceCodeEvent`…) (`internal/daemon/login.go`) | none (`ai/oauth/mod.rs` is one line) | **missing** |
-| Anthropic messages API (`ai.APIAnthropicMessages`) | `ai/api/anthropic.rs` is a stub returning "is not implemented yet" | **missing, blocks boar-rs chat** (not in this task's edit scope) |
+| Login flow events (`ai.Auth*Prompt`, `AuthURLEvent`, `AuthDeviceCodeEvent`…) (`internal/daemon/login.go`) | `ai/oauth/anthropic.rs` (authorize link, callback listener, manual-code parsing, exchange, refresh) | divergent: plain functions, no event types; other providers' OAuth not ported |
+| Anthropic messages API (`ai.APIAnthropicMessages`) | `ai/api/anthropic/` (feature `anthropic`; also serves the Vercel AI Gateway) | covered |
 | `ai.ConfigureHTTPDispatcher` | `ai/http.rs` (hand-written HTTP/1.1 over rustls, feature `http`) | divergent: no global dispatcher setting |
 | `ai.GetCurrentTools`, `ai.GrammarFormat*`, `ai.ConstrainedSamplingConfig` | none | **missing** (only needed by codemode) |
 | `ai.MergeProviderHeaders`, `ai.ProviderEnv` | none | **missing** (minor) |
@@ -85,8 +85,8 @@ Status: **covered** = the Rust API exists and is used by the same shape; **diver
 
 ## Ranked gaps
 
-1. **Anthropic API stub** (`src/ai/api/anthropic.rs`). Blocks any real chat with boar-rs. Out of this task's edit scope (`src/ai/api/*`).
-2. **Auth registry and OAuth** (`ai/oauth/mod.rs` empty; no provider registry, credential store, login events). Blocks Boar's account switching and login.
+1. **Landed since the audit:** Anthropic Messages, OpenAI Chat Completions and Responses, the Vercel AI Gateway, Claude OAuth functions, the `set_auth` resolver. Boar-rs supplies its own credential store (three accounts), refresh and login events.
+2. **Account selection** is the resolver's job; nothing in the crate rotates or stores tokens.
 3. **HookApi** (memo, models, conversation id, conversation access inside hooks). `optchat/turn.go` and `compactor.go` need the conversation id; a small change would pass it as an argument. ~50 lines.
 4. **Coding services and resource loader** (settings file, skills, prompt templates, AGENTS.md). Needed for Boar's prompts (`prompts.go`). Likely >100 lines; list, not fix.
 5. **MCP client, codemode sandbox, toolsearch**. Large; separate projects in Boar. Can be left out of the first boar-rs cut.

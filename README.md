@@ -37,7 +37,7 @@ let root = harness.root(RootOptions { agent: Some(AgentChange {
     model: Change::Set(ModelRef { provider: "anthropic".into(), model_id: "claude-sonnet-5-5".into() }),
     ..Default::default()
 }), init: None }, &cancel)?;
-root.submit(SubmissionDraft::Input { request_id: None, content: "hello".into(), when_busy: WhenBusy::default() }, &cancel)?;
+root.submit(SubmissionDraft::Input { request_id: None, content: UserContent::Text("hello".into()), when_busy: WhenBusy::default() }, &cancel)?;
 harness.wait_for_idle(&cancel)?;
 root.abort(false, &cancel)?;
 ```
@@ -58,7 +58,13 @@ Every call takes a `CancelToken`. A provider request registers the token against
 
 ## HTTP and TLS
 
-The providers use a 450-line HTTP/1.1 client (`src/ai/http.rs`) over `rustls` with the `ring` provider and `webpki-roots`; `SSL_CERT_FILE` replaces the roots when set. Why not `ureq` or `reqwest`: cancelling a streaming response has to close the socket, and neither exposes it on a stable API (ureq's connector hook is explicitly unversioned; reqwest drags in an async runtime). TLS is the knowledge worth a dependency; HTTP/1.1 with chunked bodies and SSE is not. One connection per request (`Connection: close`), identity encoding, no redirects, no proxy support, retries with the Anthropic/OpenAI SDK rules (408, 409, 429, 5xx and connection errors; `retry-after`, `maxRetries`, `maxRetryDelayMs`).
+The providers use a 600-line HTTP/1.1 client (`src/ai/http.rs`) over `rustls` with the `ring` provider and `webpki-roots`; `SSL_CERT_FILE` replaces the roots when set. Why not `ureq` or `reqwest`: cancelling a streaming response has to close the socket, and neither exposes it on a stable API (ureq's connector hook is explicitly unversioned; reqwest drags in an async runtime). TLS is the knowledge worth a dependency; HTTP/1.1 with chunked bodies and SSE is not. One connection per request (`Connection: close`), identity encoding, no redirects, no proxy support, retries with the Anthropic/OpenAI SDK rules (408, 409, 429, 5xx and connection errors; `retry-after`, `maxRetries`, `maxRetryDelayMs`).
+
+## Provider gaps
+
+Not ported from `pi-ai`: `onPayload`/`onResponse` hooks, custom fetch, proxies, WebSocket and Codex/Azure/Bedrock/Google/Mistral transports, Copilot headers, constrained sampling and grammar tools, Anthropic workload-identity federation and `ANTHROPIC_AUTH_TOKEN` (supply it as a header from `Providers::set_auth`), OpenRouter `reasoning_details` replay, `PI_CACHE_RETENTION`. Chat Completions rejects unsupported `compat` keys with an error instead of ignoring them. Lone UTF-16 surrogates cannot occur in a Rust `String`, so `json_parse` and `error_body` differ from TypeScript on such input.
+
+Request bodies for Anthropic Messages were compared with the TypeScript `buildParams`/`convertMessages` on 770 generated cases with 0 field differences; OpenAI Chat Completions and Responses are checked only against loopback servers and live gateway runs.
 
 ## Scope
 
