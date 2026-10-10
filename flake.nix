@@ -59,6 +59,10 @@
             ${self.packages.${system}.default}/bin/oauth_flow
             touch $out
           '';
+          provider-e2e = pkgs.runCommand "${manifest.name}-provider-e2e" { } ''
+            ${self.packages.${system}.default}/bin/provider_e2e
+            touch $out
+          '';
           fmt = pkgs.runCommand "${manifest.name}-fmt" {
             nativeBuildInputs = [
               pkgs.cargo
