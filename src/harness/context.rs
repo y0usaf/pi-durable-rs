@@ -25,7 +25,7 @@ pub struct ContextBounds {
 #[derive(Debug, Clone, PartialEq)]
 pub struct ContextView {
     pub head: Option<EntryRecord>,
-    pub entries: Vec<EntryRecord>,
+    pub entries: Vec<Arc<EntryRecord>>,
     pub contributions: Vec<Vec<Message>>,
     pub messages: Vec<Message>,
 }
@@ -33,7 +33,7 @@ pub struct ContextView {
 #[derive(Debug, Clone)]
 pub struct ContextRange {
     pub bounds: ContextBounds,
-    pub entries: Vec<EntryRecord>,
+    pub entries: Vec<Arc<EntryRecord>>,
     pub view: Arc<ContextView>,
     pub edited: std::collections::BTreeSet<EntryId>,
     pub settled: Vec<Message>,
@@ -154,7 +154,10 @@ pub fn active_entries(
     };
     let (min, max) = range_bounds(&bounds);
     let entries = scan_range(storage, conversation_id, min, max, cancel)?;
-    Ok(select_active(bounds.head.as_ref(), &entries))
+    Ok(select_active(bounds.head.as_ref(), &entries)
+        .into_iter()
+        .map(Arc::unwrap_or_clone)
+        .collect())
 }
 
 fn range_bounds(bounds: &ContextBounds) -> (Option<EntryId>, Option<EntryId>) {
@@ -170,7 +173,7 @@ fn scan_range(
     min_entry_id: Option<EntryId>,
     max_entry_id: Option<EntryId>,
     cancel: &CancelToken,
-) -> Result<Vec<EntryRecord>> {
+) -> Result<Vec<Arc<EntryRecord>>> {
     let query = EntryQuery {
         conversation_id,
         min_entry_id,
@@ -188,10 +191,10 @@ fn scan_range(
         }
     }
     entries.reverse();
-    Ok(entries)
+    Ok(entries.into_iter().map(Arc::new).collect())
 }
 
-fn derive_range(bounds: ContextBounds, entries: Vec<EntryRecord>) -> ContextRange {
+fn derive_range(bounds: ContextBounds, entries: Vec<Arc<EntryRecord>>) -> ContextRange {
     let mut edits: std::collections::BTreeMap<EntryId, ContextEdit> = Default::default();
     for entry in &entries {
         for edit in entry.edits.iter().flatten() {
@@ -225,7 +228,7 @@ fn derive_range(bounds: ContextBounds, entries: Vec<EntryRecord>) -> ContextRang
 fn extend_range(
     previous: &ContextRange,
     bounds: ContextBounds,
-    added: Vec<EntryRecord>,
+    added: Vec<Arc<EntryRecord>>,
 ) -> ContextRange {
     let mut entries = previous.entries.clone();
     entries.extend(added.iter().cloned());
@@ -317,10 +320,10 @@ fn settle(settled: Vec<Message>, open: Vec<Message>) -> (Vec<Message>, Vec<Messa
     }
 }
 
-fn select_active(head: Option<&HeadMarker>, range: &[EntryRecord]) -> Vec<EntryRecord> {
+fn select_active(head: Option<&HeadMarker>, range: &[Arc<EntryRecord>]) -> Vec<Arc<EntryRecord>> {
     match head {
         None => range.to_vec(),
-        Some(head) => std::iter::once(head.entry.clone())
+        Some(head) => std::iter::once(Arc::new(head.entry.clone()))
             .chain(range.iter().filter(|entry| entry.head.is_none()).cloned())
             .collect(),
     }
