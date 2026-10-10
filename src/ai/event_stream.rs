@@ -8,7 +8,7 @@ use crate::turn::pause;
 
 pub const ABORTED_TEXT: &str = "Request was aborted";
 
-fn now_ms() -> u64 {
+pub fn now_ms() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .map_or(0, |elapsed| elapsed.as_millis() as u64)
