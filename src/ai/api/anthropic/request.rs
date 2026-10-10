@@ -19,6 +19,7 @@ const INTERLEAVED_THINKING_BETA: &str = "interleaved-thinking-2025-05-14";
 const SERVER_SIDE_FALLBACK_BETA: &str = "server-side-fallback-2026-07-01";
 const MID_CONVERSATION_OUTPUT_CONFIG_BETA: &str = "mid-conversation-output-config-2026-07-01";
 const THINKING_BINDING_CONTROLS_BETA: &str = "thinking-binding-controls-2026-08-01";
+const INLINE_TOOLS_BETA: &str = "inline-tools-2026-09-15";
 const CLAUDE_CODE_BETAS: [&str; 2] = ["claude-code-20250219", "oauth-2025-04-20"];
 const CLAUDE_CODE_IDENTITY: &str = "You are Claude Code, Anthropic's official CLI for Claude.";
 const CLAUDE_CODE_TOOLS: [&str; 17] = [
@@ -78,7 +79,18 @@ pub fn build(
         &transformed[..]
     };
     let cache = cache_control(model, options.cache_retention);
-    let tools = get_current_tools(messages);
+    let eager = flag(model, "supportsEagerToolInputStreaming", true);
+    let initial_tools = initial
+        .and_then(|system| system.tools_added.clone())
+        .unwrap_or_default();
+    let native = flag(model, "supportsMidConvoSystemMessages", false)
+        && flag(model, "supportsMidConvoToolChanges", false)
+        && !initial_tools.is_empty();
+    let tools = if native {
+        initial_tools
+    } else {
+        get_current_tools(messages)
+    };
     let mid_effort = flag(model, "supportsMidConvoEffort", false);
     let (max_tokens, reasoning) = plan(model, messages, options);
     let active_effort = match &reasoning {
@@ -91,6 +103,8 @@ pub fn build(
         cache.as_ref(),
         flag(model, "allowEmptySignature", false),
         mid_effort.then_some(model.provider.as_str()),
+        native,
+        eager,
     );
     let messages_json = if mid_effort {
         insert_thinking_levels(converted, &levels, &active_effort)
@@ -117,12 +131,11 @@ pub fn build(
         let tool_cache = cache
             .as_ref()
             .filter(|_| flag(model, "supportsCacheControlOnTools", true));
-        body["tools"] = Value::Array(convert_tools(
-            &tools,
-            oauth,
-            flag(model, "supportsEagerToolInputStreaming", true),
-            tool_cache,
-        ));
+        let mut definitions = convert_tools(&tools, oauth, eager, tool_cache);
+        if native {
+            definitions.push(deferred_placeholder());
+        }
+        body["tools"] = Value::Array(definitions);
     }
     if mid_effort {
         body["thinking"] = json!({
@@ -174,6 +187,7 @@ pub fn build(
             (fine_grained, &[FINE_GRAINED_TOOL_STREAMING_BETA]),
             (interleaved, &[INTERLEAVED_THINKING_BETA]),
             (!fallbacks.is_empty(), &[SERVER_SIDE_FALLBACK_BETA]),
+            (native, &[INLINE_TOOLS_BETA]),
             (
                 mid_effort,
                 &[
@@ -329,6 +343,15 @@ fn betas(
     unique
 }
 
+fn deferred_placeholder() -> Value {
+    json!({
+        "name": "__pi_deferred_placeholder__",
+        "description": "Reserved placeholder. Never available. Never call this.",
+        "input_schema": {"type": "object", "properties": {}, "required": []},
+        "defer_loading": true,
+    })
+}
+
 fn text_block(text: &str, cache: Option<&Value>) -> Value {
     let mut block = json!({"type": "text", "text": text});
     if let Some(cache) = cache {
@@ -365,6 +388,8 @@ fn convert(
     cache: Option<&Value>,
     empty_signature: bool,
     managed_provider: Option<&str>,
+    native: bool,
+    eager: bool,
 ) -> (Vec<Value>, Vec<(usize, String)>) {
     let mut params: Vec<Value> = Vec::new();
     let mut levels: Vec<(usize, String)> = Vec::new();
@@ -374,11 +399,35 @@ fn convert(
         match message {
             Message::System(system) => {
                 let text = render_system_update(system);
+                let mut blocks = Vec::new();
                 if !text.is_empty() {
-                    pending.push(json!({
-                        "role": "system",
-                        "content": [{"type": "text", "text": text}],
-                    }));
+                    blocks.push(json!({"type": "text", "text": text}));
+                }
+                if native {
+                    let added = system.tools_added.as_deref().unwrap_or_default();
+                    for removed in system.tools_removed.as_deref().unwrap_or_default() {
+                        if added.iter().any(|tool| tool.name == removed.name) {
+                            continue;
+                        }
+                        let name = if oauth {
+                            to_claude_code_name(&removed.name)
+                        } else {
+                            removed.name.clone()
+                        };
+                        blocks.push(json!({
+                            "type": "tool_removal",
+                            "tool": {"type": "tool_reference", "name": name},
+                        }));
+                    }
+                    for definition in convert_tools(added, oauth, eager, None) {
+                        blocks.push(json!({
+                            "type": "tool_addition",
+                            "tool": {"type": "tool_definition", "definition": definition},
+                        }));
+                    }
+                }
+                if !blocks.is_empty() {
+                    pending.push(json!({"role": "system", "content": blocks}));
                 }
             }
             Message::User(user) => match &user.content {
@@ -467,7 +516,7 @@ fn mark_last(message: &mut Value, cache: &Value) {
     } else if let Some(block) = content.as_array_mut().and_then(|blocks| blocks.last_mut())
         && matches!(
             block["type"].as_str(),
-            Some("text" | "image" | "tool_result")
+            Some("text" | "image" | "tool_result" | "tool_addition" | "tool_removal")
         )
     {
         block["cache_control"] = cache.clone();
