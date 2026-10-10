@@ -98,7 +98,7 @@ struct Deferred {
 struct Inner {
     pending: VecDeque<Arc<FauxResponse>>,
     state: FauxState,
-    prompt_cache: HashMap<String, Vec<u16>>,
+    prompt_cache: HashMap<String, String>,
     deferred: HashMap<String, Deferred>,
 }
 
@@ -456,8 +456,8 @@ fn with_usage(
     context: &TranscriptContext,
     options: Option<&SimpleStreamOptions>,
 ) -> AssistantMessage {
-    let prompt = prompt_units(context);
-    let prompt_length = prompt.len() as u64;
+    let prompt = prompt_text(context);
+    let prompt_length = utf16_len(&prompt) as u64;
     let prompt_tokens = tokens_of(prompt_length);
     let output = tokens_of(utf16_len(&assistant_text(&message.content)) as u64);
     let mut input = prompt_tokens;
@@ -502,7 +502,7 @@ fn tokens_of(units: u64) -> u64 {
     units.div_ceil(4)
 }
 
-fn prompt_units(context: &TranscriptContext) -> Vec<u16> {
+fn prompt_text(context: &TranscriptContext) -> String {
     let mut text = String::new();
     for (index, message) in context.messages.iter().enumerate() {
         if index > 0 {
@@ -512,17 +512,32 @@ fn prompt_units(context: &TranscriptContext) -> Vec<u16> {
         text.push(':');
         push_message_text(&mut text, message);
     }
-    let mut units = Vec::with_capacity(text.len());
-    units.extend(text.encode_utf16());
-    units
+    text
 }
 
-fn common_prefix(previous: &[u16], current: &[u16]) -> u64 {
-    previous
-        .iter()
-        .zip(current)
-        .take_while(|(a, b)| a == b)
-        .count() as u64
+fn common_prefix(previous: &str, current: &str) -> u64 {
+    const BLOCK: usize = 512;
+    let (a, b) = (previous.as_bytes(), current.as_bytes());
+    let limit = a.len().min(b.len());
+    let mut at = 0;
+    while at + BLOCK <= limit && a[at..at + BLOCK] == b[at..at + BLOCK] {
+        at += BLOCK;
+    }
+    while at < limit && a[at] == b[at] {
+        at += 1;
+    }
+    while !previous.is_char_boundary(at) {
+        at -= 1;
+    }
+    let mut units = utf16_len(&previous[..at]) as u64;
+    if let (Some(x), Some(y)) = (previous[at..].chars().next(), current[at..].chars().next())
+        && x.len_utf16() == 2
+        && y.len_utf16() == 2
+        && (x as u32 - 0x10000) >> 10 == (y as u32 - 0x10000) >> 10
+    {
+        units += 1;
+    }
+    units
 }
 
 fn role_name(message: &Message) -> &'static str {

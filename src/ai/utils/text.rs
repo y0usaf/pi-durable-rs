@@ -1,7 +1,9 @@
 use crate::ai::types::{SystemBlock, SystemContent, SystemMessage};
 
 pub fn utf16_len(text: &str) -> usize {
-    text.encode_utf16().count()
+    text.bytes()
+        .map(|b| usize::from(b & 0xC0 != 0x80) + usize::from(b >= 0xF0))
+        .sum()
 }
 
 pub fn system_content_text(content: &SystemContent) -> String {
