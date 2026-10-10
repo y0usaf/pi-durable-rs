@@ -36,5 +36,9 @@ name = "provider_e2e"
 required-features = ["anthropic"]
 
 [[example]]
+name = "openai_responses_e2e"
+required-features = ["openai"]
+
+[[example]]
 name = "oauth_flow"
 required-features = ["anthropic"]
