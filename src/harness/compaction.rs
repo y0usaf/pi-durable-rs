@@ -256,7 +256,10 @@ fn select(task: Task, runtime: Runtime<'_>, cancel: &CancelToken) -> Result<()> 
     let first_kept = view.entries[cut].id;
     let source = CompactionSource {
         reason: task.input.reason,
-        entries: view.entries[..cut].to_vec(),
+        entries: view.entries[..cut]
+            .iter()
+            .map(|entry| (**entry).clone())
+            .collect(),
         messages: summarized_messages(&view, cut),
         first_kept,
         instructions: task.input.instructions.clone(),
