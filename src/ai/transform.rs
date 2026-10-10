@@ -53,13 +53,13 @@ fn downgrade_unsupported_images(messages: &[Message], model: &Model) -> Vec<Mess
         .iter()
         .map(|message| match message {
             Message::User(user) => match &user.content {
-                UserContent::Blocks(blocks) => Message::User(UserMessage {
+                UserContent::Blocks(blocks) => Message::User(Arc::new(UserMessage {
                     content: UserContent::Blocks(replace_images_with_placeholder(
                         blocks,
                         NON_VISION_USER_IMAGE_PLACEHOLDER,
                     )),
-                    ..user.clone()
-                }),
+                    ..(**user).clone()
+                })),
                 UserContent::Text(_) => message.clone(),
             },
             Message::ToolResult(result) => {

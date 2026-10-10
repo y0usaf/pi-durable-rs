@@ -78,11 +78,11 @@ pub fn answer(runtime: Runtime<'_>, message: AssistantMessage, cancel: &CancelTo
                     conversation_id,
                     EntryDraft {
                         kind: user_entry().kind().to_owned(),
-                        model: Some(vec![Message::User(UserMessage {
+                        model: Some(vec![Message::User(Arc::new(UserMessage {
                             role: UserRole,
                             content,
                             timestamp: now,
-                        })]),
+                        }))]),
                         data: None,
                         head: None,
                         edits: None,
@@ -327,11 +327,11 @@ pub fn finish_tool_round(
                         conversation_id,
                         EntryDraft {
                             kind: reset_entry().kind().to_owned(),
-                            model: Some(vec![Message::User(UserMessage {
+                            model: Some(vec![Message::User(Arc::new(UserMessage {
                                 role: UserRole,
                                 content: UserContent::Text(content),
                                 timestamp: now,
-                            })]),
+                            }))]),
                             data: None,
                             head: Some(crate::types::EntryHead::SelfHead),
                             edits: None,

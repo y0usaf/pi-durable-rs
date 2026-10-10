@@ -575,11 +575,11 @@ impl Conversation {
 
     pub fn reset(&self, handoff: Option<&str>, cancel: &CancelToken) -> Result<()> {
         let model = handoff.map(|text| {
-            vec![Message::User(UserMessage {
+            vec![Message::User(Arc::new(UserMessage {
                 role: UserRole,
                 content: UserContent::Text(text.to_owned()),
                 timestamp: (self.inner.now)(),
-            })]
+            }))]
         });
         let entry = WriteDraft {
             kind: reset_entry().kind().to_owned(),

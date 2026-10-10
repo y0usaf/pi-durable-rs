@@ -405,7 +405,7 @@ pub struct ToolResultMessage {
 #[serde(untagged)]
 pub enum Message {
     System(SystemMessage),
-    User(UserMessage),
+    User(Arc<UserMessage>),
     Assistant(Arc<AssistantMessage>),
     ToolResult(Arc<ToolResultMessage>),
 }

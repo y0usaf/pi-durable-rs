@@ -172,11 +172,11 @@ pub fn admit_submission(
             Ok(record.id)
         }
         SubmissionDraft::Input { content, .. } => {
-            let message = Message::User(UserMessage {
+            let message = Message::User(Arc::new(UserMessage {
                 role: UserRole,
                 content,
                 timestamp: now,
-            });
+            }));
             let entry = tx.append_entry(
                 conversation_id,
                 EntryDraft {

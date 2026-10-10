@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use serde::{Deserialize, Serialize};
 
 use crate::ai::types::{Message, UserMessage, UserRole};
@@ -190,11 +192,11 @@ pub fn apply_boundary(
         else {
             continue;
         };
-        let message = Message::User(UserMessage {
+        let message = Message::User(Arc::new(UserMessage {
             role: UserRole,
             content: content.clone(),
             timestamp: now,
-        });
+        }));
         let appended = tx.append_entry(
             boundary.conversation_id,
             EntryDraft {
