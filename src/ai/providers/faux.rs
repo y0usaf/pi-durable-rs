@@ -152,14 +152,17 @@ impl Faux {
         };
         let models = definitions
             .into_iter()
-            .map(|definition| Model {
-                name: definition.name.unwrap_or_else(|| definition.id.clone()),
-                id: definition.id,
-                api: api.clone(),
-                provider: provider.clone(),
-                reasoning: definition.reasoning,
-                context_window: definition.context_window.unwrap_or(DEFAULT_CONTEXT_WINDOW),
-                max_tokens: definition.max_tokens.unwrap_or(DEFAULT_MAX_TOKENS),
+            .map(|definition| {
+                let mut model = Model::new(
+                    &provider,
+                    &definition.id,
+                    &api,
+                    definition.context_window.unwrap_or(DEFAULT_CONTEXT_WINDOW),
+                    definition.max_tokens.unwrap_or(DEFAULT_MAX_TOKENS),
+                    definition.reasoning,
+                );
+                model.name = definition.name.unwrap_or_else(|| definition.id.clone());
+                model
             })
             .collect();
         let core = Core {

@@ -350,6 +350,8 @@ pub fn simple_options(
 ) -> SimpleStreamOptions {
     SimpleStreamOptions {
         signal: Some(signal.clone()),
+        api_key: None,
+        base_url: None,
         session_id: Some(session_id),
         reasoning: reasoning(level),
         cache_retention: stream.cache_retention,

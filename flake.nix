@@ -1,5 +1,5 @@
 {
-  description = "Pi-Rust-Durable: Rust reproduction of @earendil-works/pi-durable";
+  description = "pi-durable: durable conversations, tasks and documents over a transactional store, in Rust";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -13,10 +13,9 @@
       forAll = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
       manifest = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package;
       src = nixpkgs.lib.cleanSource ./.;
-    in
-    {
-      packages = forAll (pkgs: {
-        default = pkgs.rustPlatform.buildRustPackage {
+      build =
+        pkgs: features:
+        pkgs.rustPlatform.buildRustPackage {
           pname = manifest.name;
           inherit (manifest) version;
           inherit src;
@@ -24,33 +23,46 @@
           doCheck = false;
           buildPhase = ''
             runHook preBuild
-            cargo build --release --lib --frozen
+            cargo build --release --lib --frozen --examples --features "${features}"
             runHook postBuild
           '';
           installPhase = ''
             runHook preInstall
-            mkdir -p $out/lib
+            mkdir -p $out/lib $out/bin
             cp target/release/lib*.rlib $out/lib/
+            find target/release/examples -maxdepth 1 -type f -executable -exec cp {} $out/bin/ \;
             runHook postInstall
           '';
         };
+    in
+    {
+      packages = forAll (pkgs: {
+        default = build pkgs "providers";
+        storage-only = build pkgs "";
       });
 
-      checks = forAll (pkgs: {
-        build = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
-        clippy = self.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
-          pname = "${manifest.name}-clippy";
-          nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.clippy ];
-          buildPhase = "cargo clippy --all-targets --frozen -- -D warnings";
-          installPhase = "touch $out";
-        });
-        fmt = pkgs.runCommand "${manifest.name}-fmt" {
-          nativeBuildInputs = [
-            pkgs.cargo
-            pkgs.rustfmt
-          ];
-        } "cd ${src} && cargo fmt --check && touch $out";
-      });
+      checks = forAll (
+        pkgs:
+        let
+          system = pkgs.stdenv.hostPlatform.system;
+        in
+        {
+          build = self.packages.${system}.default;
+          storage-only = self.packages.${system}.storage-only;
+          clippy = self.packages.${system}.default.overrideAttrs (old: {
+            pname = "${manifest.name}-clippy";
+            nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.clippy ];
+            buildPhase = "cargo clippy --all-targets --frozen --features providers -- -D warnings";
+            installPhase = "touch $out";
+          });
+          fmt = pkgs.runCommand "${manifest.name}-fmt" {
+            nativeBuildInputs = [
+              pkgs.cargo
+              pkgs.rustfmt
+            ];
+          } "cd ${src} && cargo fmt --check && touch $out";
+        }
+      );
 
       devShells = forAll (pkgs: {
         default = pkgs.mkShell {

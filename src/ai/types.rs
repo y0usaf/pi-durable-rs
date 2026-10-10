@@ -522,6 +522,27 @@ pub enum AssistantMessageEvent {
     },
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ModelCostTier {
+    pub input_tokens_above: u64,
+    pub input: f64,
+    pub output: f64,
+    pub cache_read: f64,
+    pub cache_write: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ModelCost {
+    pub input: f64,
+    pub output: f64,
+    pub cache_read: f64,
+    pub cache_write: f64,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tiers: Vec<ModelCostTier>,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Model {
@@ -532,11 +553,61 @@ pub struct Model {
     pub reasoning: bool,
     pub context_window: u64,
     pub max_tokens: u64,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub base_url: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub input: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cost: Option<ModelCost>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub headers: Option<BTreeMap<String, String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub thinking_level_map: Option<JsonObject>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub prompt_cache: Option<JsonValue>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compat: Option<JsonValue>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sampling_params: Option<JsonObject>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sampling_params_by_thinking_level: Option<JsonObject>,
+}
+
+impl Model {
+    pub fn new(
+        provider: &str,
+        id: &str,
+        api: &str,
+        context_window: u64,
+        max_tokens: u64,
+        reasoning: bool,
+    ) -> Self {
+        Self {
+            id: id.to_owned(),
+            name: id.to_owned(),
+            api: api.to_owned(),
+            provider: provider.to_owned(),
+            reasoning,
+            context_window,
+            max_tokens,
+            base_url: String::new(),
+            input: Vec::new(),
+            cost: None,
+            headers: None,
+            thinking_level_map: None,
+            prompt_cache: None,
+            compat: None,
+            sampling_params: None,
+            sampling_params_by_thinking_level: None,
+        }
+    }
 }
 
 #[derive(Clone, Default)]
 pub struct SimpleStreamOptions {
     pub signal: Option<CancelToken>,
+    pub api_key: Option<String>,
+    pub base_url: Option<String>,
     pub session_id: Option<String>,
     pub reasoning: Option<ThinkingLevel>,
     pub cache_retention: Option<CacheRetention>,
