@@ -1,7 +1,7 @@
 use std::path::Path;
 use std::time::Duration;
 
-use rusqlite::{Connection, Params, Row, TransactionBehavior};
+use rusqlite::{Connection, Params, Row};
 
 use crate::errors::{Error, Result};
 
@@ -89,20 +89,39 @@ pub(crate) fn transaction<T>(
     connection: &mut Connection,
     body: impl FnOnce(&Connection) -> Result<T>,
 ) -> Result<T> {
-    let transaction = connection
-        .transaction_with_behavior(TransactionBehavior::Immediate)
-        .map_err(sql)?;
-    match body(&transaction) {
+    run(connection, "BEGIN IMMEDIATE", [])?;
+    let mut open = Open {
+        connection,
+        finished: false,
+    };
+    match body(open.connection) {
         Ok(value) => {
-            transaction.commit().map_err(sql)?;
+            run(open.connection, "COMMIT", [])?;
+            open.finished = true;
             Ok(value)
         }
-        Err(error) => match transaction.rollback() {
-            Ok(()) => Err(error),
+        Err(error) => match run(open.connection, "ROLLBACK", []) {
+            Ok(()) => {
+                open.finished = true;
+                Err(error)
+            }
             Err(rollback) => Err(Error::StorageRejected {
                 message: format!("SQLite transaction failed and rollback failed: {rollback}"),
                 cause: Some(Box::new(error)),
             }),
         },
+    }
+}
+
+struct Open<'a> {
+    connection: &'a Connection,
+    finished: bool,
+}
+
+impl Drop for Open<'_> {
+    fn drop(&mut self) {
+        if !self.finished && !self.connection.is_autocommit() {
+            let _ = self.connection.execute_batch("ROLLBACK");
+        }
     }
 }
