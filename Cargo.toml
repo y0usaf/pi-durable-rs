@@ -34,3 +34,7 @@ required-features = ["providers"]
 [[example]]
 name = "provider_e2e"
 required-features = ["anthropic"]
+
+[[example]]
+name = "oauth_flow"
+required-features = ["anthropic"]
