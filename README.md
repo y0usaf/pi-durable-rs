@@ -1,85 +1,228 @@
 # pi-durable
 
-Durable conversations, tasks and documents over a transactional store, with a synchronous agent harness on top, for Rust applications.
+A Rust library that keeps an LLM agent's conversations, tool calls and background tasks in a transactional store, so a process that dies mid-turn picks up where it stopped.
 
-It is a Rust reproduction of Pi's [`@earendil-works/pi-durable`](https://github.com/earendil-works/pi) 1.1.0 and the parts of `pi-ai` its harness needs, with no runtime or build dependency on Pi or Node.
+It won't: ship a CLI or a UI; bring an async runtime; follow redirects or speak through proxies; talk to every provider Pi does (three wire formats are real, the rest are yours to add behind the `Api` trait); store your credentials (you hand it keys or a resolver, and it never reads or writes a token file); run on Windows.
 
-It won't: ship a CLI, a UI or an async runtime; follow redirects or proxies; speak every `pi-ai` provider (Anthropic Messages, OpenAI Chat Completions and Responses, and the Vercel AI Gateway through Anthropic Messages are the real ones; the rest are yours to add behind the `Api` trait); store your credentials (you hand it keys, or a resolver, and it never reads or writes a token file).
+## Why it exists
 
-Oracle: [earendil-works/pi](https://github.com/earendil-works/pi) at `f1b2e77f5b13b2a199b1052cb79c235451afe7d7` (`packages/durable` 1.1.0, `packages/chord` parts, `packages/ai`). Behaviour is translated from the TypeScript; [PiG](https://github.com/MichaelKinsy/PiG)'s Go port is used only as a map of where to draw the lines. `docs/COVERAGE.md` lists which PiG and pi-durable surfaces are covered, divergent or missing.
+Pi's TypeScript package [`@earendil-works/pi-durable`](https://github.com/earendil-works/pi) 1.1.0 already does this job well. This crate is the same design for programs that are written in Rust and don't want a Node process next to them. It is a port, not a redesign: behaviour is translated from the TypeScript at one pinned commit (`f1b2e77f5b13b2a199b1052cb79c235451afe7d7`, a flake input in `flake.nix`), together with the parts of `pi-ai` its harness needs. A flake check runs both implementations on the same scripted conversations and compares what they wrote down (see [What the parity check covers](#what-the-parity-check-covers)).
 
-## Features
+The two can share a SQLite file: the check kills a TypeScript or Rust writer mid-tool-call and lets the other implementation finish the turn (`parity/run.sh`, the `cross` cells).
+
+Do not mistake it for finished. Read [Where it differs](#where-it-differs-from-typescript-pi-durable) before you build on it.
+
+## Try it
+
+It is not on crates.io yet (`repository` is unset in `Cargo.toml`), so depend on it by path or git:
+
+```toml
+pi-durable = { path = "../pi-durable-rs", features = ["providers"] }
+serde_json = "1"
+```
+
+The example below uses the scripted `faux` model, so it runs offline. This example builds and runs offline; a second run continues the same conversation from `agent.db`, so the reply prints twice:
+
+```rust
+use std::sync::Arc;
+
+use pi_durable::ai::providers::faux::{Faux, FauxOptions, FauxResponse};
+use pi_durable::ai::types::{AssistantBlock, Message};
+use pi_durable::cancel::CancelToken;
+use pi_durable::harness::agent::{AgentChange, Change};
+use pi_durable::harness::harness::Harness;
+use pi_durable::harness::registry::Registry;
+use pi_durable::harness::submissions::{SubmissionDraft, WhenBusy};
+use pi_durable::harness::types::{Extension, HarnessOptions, ModelRef, RootOptions};
+use pi_durable::storage::sqlite::SqliteStorage;
+use serde_json::json;
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let cancel = CancelToken::new();
+
+    let faux = Arc::new(Faux::new(FauxOptions::default()));
+    faux.set_responses(vec![FauxResponse::Message(Box::new(serde_json::from_value(json!({
+        "role": "assistant", "content": [{"type": "text", "text": "Hello from the faux model."}],
+        "api": "faux", "provider": "faux", "model": "faux-1", "stopReason": "stop", "timestamp": 0,
+        "usage": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0, "totalTokens": 0,
+            "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0, "total": 0}}
+    }))?))]);
+
+    let registry = Arc::new(Registry::default());
+    registry.install(Extension {
+        name: "app".into(),
+        tools: vec![],
+        sections: vec![],
+        wraps: vec![],
+        hooks: vec![],
+        tasks: vec![],
+    })?;
+
+    let harness = Harness::open(
+        Arc::new(SqliteStorage::open("agent.db", &Default::default())?),
+        HarnessOptions {
+            models: faux,
+            registry,
+            settings: None,
+            conversation_created: None,
+            now: None,
+            env: None,
+            on_report: None,
+        },
+    )?;
+
+    let root = harness.root(
+        RootOptions {
+            agent: Some(AgentChange {
+                model: Change::Set(ModelRef { provider: "faux".into(), model_id: "faux-1".into() }),
+                ..Default::default()
+            }),
+            init: None,
+        },
+        &cancel,
+    )?;
+
+    root.submit(
+        SubmissionDraft::Input {
+            request_id: None,
+            content: serde_json::from_value(json!("hello"))?,
+            when_busy: WhenBusy::default(),
+        },
+        &cancel,
+    )?;
+    harness.wait_for_idle(&cancel)?;
+
+    for message in root.context(None, &cancel)?.messages {
+        if let Message::Assistant(reply) = message {
+            for block in &reply.content {
+                if let AssistantBlock::Text(text) = block {
+                    println!("{}", text.text);
+                }
+            }
+        }
+    }
+    harness.close(&cancel)?;
+    Ok(())
+}
+```
+
+Four things to know from reading it:
+
+- A **harness** owns a storage, a model source and a registry of extensions. A **conversation** (here the root one) takes submissions and writes every step of the agent loop as an entry in the store.
+- Every call takes a `CancelToken`. Pass one you never cancel if you don't need it.
+- `registry.install(...)` is required, even with an empty extension. Known bug: `Registry::default()` has no built-in tasks and `Harness::open` does not check, so without an install `wait_for_idle` never returns. TypeScript's `createRegistry()` includes them and `Harness` throws if they are missing (`registry.ts:10,22`, `harness.ts:423`).
+- For a real model, swap `models: faux` for `Arc::new(Providers::builtin())` and the `ModelRef` for, say, `anthropic` / `claude-sonnet-5-5`. `examples/agent.rs` is that, with a tool and `--db FILE --resume` to finish a turn a killed run left behind.
+
+Other runnable examples: `examples/faux_agent.rs` (scripted provider plus one tool, no network).
+
+### Features
 
 | Feature | Adds |
 | --- | --- |
 | *(none)* | storage (memory, JSONL, SQLite), session, documents, tasks, env, tools, the harness, the faux provider. No HTTP or TLS code is compiled. |
 | `http` | the HTTP/1.1 client (`ai::http`), SSE reader, OAuth helpers (`ai::oauth`) |
-| `anthropic` | Anthropic Messages API (API keys and Claude OAuth bearer tokens) and the Anthropic model catalog |
-| `vercel-gateway` | the Vercel AI Gateway catalog (served through the Anthropic Messages API) |
+| `anthropic` | Anthropic Messages API (API keys and Claude OAuth bearer tokens) and the Anthropic catalog |
+| `vercel-gateway` | the Vercel AI Gateway catalog, served through Anthropic Messages |
 | `openai` | OpenAI Chat Completions and Responses, and the OpenAI catalog |
 | `providers` | all of the above |
 
-```toml
-pi-durable = { version = "0.1", features = ["anthropic", "vercel-gateway"] }
-```
-
-## Usage
-
-A harness owns a storage, a model source and a registry of extensions. A conversation takes submissions, runs the agent loop on threads and writes every step as an entry in the store, so a killed process resumes where it stopped.
-
-```rust
-let harness = Harness::open(Arc::new(SqliteStorage::open("agent.db", &Default::default())?), HarnessOptions {
-    models: Arc::new(Providers::builtin()),
-    registry,
-    settings: None, conversation_created: None, now: None, env: None, on_report: None,
-})?;
-let root = harness.root(RootOptions { agent: Some(AgentChange {
-    model: Change::Set(ModelRef { provider: "anthropic".into(), model_id: "claude-sonnet-5-5".into() }),
-    ..Default::default()
-}), init: None }, &cancel)?;
-root.submit(SubmissionDraft::Input { request_id: None, content: UserContent::Text("hello".into()), when_busy: WhenBusy::default() }, &cancel)?;
-harness.wait_for_idle(&cancel)?;
-root.abort(false, &cancel)?;
-```
-
-Runnable versions: `examples/faux_agent.rs` (scripted provider, one tool, no network), `examples/agent.rs` (real provider: `agent vercel-ai-gateway/anthropic/claude-sonnet-5.5 "add 2 and 40 with the tool" [--cancel-after-ms N] [--db FILE [--resume]]`).
+`Providers::builtin()` only exists when at least one of `anthropic`, `openai`, `vercel-gateway` is on (`src/ai/registry.rs:42`). SQLite is `rusqlite` with its bundled C source, so a C compiler is needed.
 
 ### Providers and credentials
 
-`Providers::builtin()` registers the APIs and catalogs of the enabled features. `Providers::add_models` adds your own `Model` values (any base URL; this is how a local OpenAI-compatible server is used) and `Providers::add_api` adds your own `Api`.
+`Providers::add_models` adds your own `Model` values (any base URL, which is how a local OpenAI-compatible server is used) and `Providers::add_api` adds your own `Api`.
 
-Keys come from, in order: `SimpleStreamOptions::api_key`, the resolver you set with `Providers::set_auth` (called per request with the model; return the API key or OAuth access token, extra headers, a base URL), then the provider's environment variable (`ANTHROPIC_OAUTH_TOKEN`, `ANTHROPIC_API_KEY`, `AI_GATEWAY_API_KEY`, `OPENAI_API_KEY`). A token starting with `sk-ant-oat` is sent as a Claude OAuth bearer token. Several accounts, refresh and storage are the resolver's business.
+Keys come from, in order: `SimpleStreamOptions::api_key`, the resolver you set with `Providers::set_auth` (called per request with the model; it returns the key or OAuth token, extra headers, a base URL), then the provider's environment variable (`ANTHROPIC_OAUTH_TOKEN`, `ANTHROPIC_API_KEY`, `AI_GATEWAY_API_KEY`, `OPENAI_API_KEY`). A token starting with `sk-ant-oat` is sent as a Claude OAuth bearer token.
 
-`ai::oauth::anthropic` has the Claude login as plain functions: build the authorize link (loopback callback or copy-code redirect), wait for the callback or parse the pasted code, exchange it, refresh it. They return `Credentials { refresh, access, expires_ms }` and write nothing. Never call `refresh` on a token another program also holds: refresh rotates the refresh token.
+`ai::oauth::anthropic` has the Claude login as plain functions: build the authorize link, wait for the callback or parse a pasted code, exchange it, refresh it. They return `Credentials { refresh, access, expires_ms }` and write nothing. Never call `refresh` on a token another program also holds: refresh rotates the refresh token. Choosing between several accounts is the resolver's job.
 
 ### Cancellation
 
-Every call takes a `CancelToken`. A provider request registers the token against its socket, so cancelling shuts the connection down and the stream ends with stop reason `aborted` ("Request was aborted") within milliseconds, mid-stream or mid-connect.
+Cancelling a `CancelToken` shuts down the socket of any in-flight provider request (`src/ai/http.rs:402`), and the stream ends with stop reason `aborted` ("Request was aborted"). `provider_e2e` asserts an abort in the middle of a stream finishes in under a second against a loopback server (it reports `cancel ok in 490µs`). The compaction summary call passes the harness signal (`src/harness/compaction.rs:349`).
 
-## HTTP and TLS
+If you write your own `Api`, honouring `options.signal` is your job. Nothing stops a provider from ignoring it, and then `Models::complete_simple` blocks until the provider returns.
 
-The providers use a 600-line HTTP/1.1 client (`src/ai/http.rs`) over `rustls` with the `ring` provider and `webpki-roots`; `SSL_CERT_FILE` replaces the roots when set. Why not `ureq` or `reqwest`: cancelling a streaming response has to close the socket, and neither exposes it on a stable API (ureq's connector hook is explicitly unversioned; reqwest drags in an async runtime). TLS is the knowledge worth a dependency; HTTP/1.1 with chunked bodies and SSE is not. One connection per request (`Connection: close`), identity encoding, no redirects, no proxy support, retries with the Anthropic/OpenAI SDK rules (408, 409, 429, 5xx and connection errors; `retry-after`, `maxRetries`, `maxRetryDelayMs`).
+## How fast, how big
 
-## Provider gaps
+This is the one place the numbers live. Update it here and nowhere else.
 
-Not ported from `pi-ai`: `onPayload`/`onResponse` hooks, custom fetch, proxies, WebSocket and Codex/Azure/Bedrock/Google/Mistral transports, Copilot headers, constrained sampling and grammar tools, Anthropic workload-identity federation and `ANTHROPIC_AUTH_TOKEN` (supply it as a header from `Providers::set_auth`), OpenRouter `reasoning_details` replay, `PI_CACHE_RETENTION`. Chat Completions rejects unsupported `compat` keys with an error instead of ignoring them. Lone UTF-16 surrogates cannot occur in a Rust `String`, so `json_parse` and `error_body` differ from TypeScript on such input.
+Fair bench, TypeScript `pi-durable` 1.1.0 on Node versus this crate at `97d82f3`. Scripted fake model, one machine, 5 samples, storage on tmpfs. The machine was busy while this ran, so absolute milliseconds are inflated; the ratios are the part to trust. Median, Rust / TypeScript:
 
-Request bodies for Anthropic Messages were compared with the TypeScript `buildParams`/`convertMessages` on 770 generated cases with 0 field differences; Live proof, 2026-10-10, through the Vercel AI Gateway with `AI_GATEWAY_API_KEY`: Anthropic Messages (`agent vercel-ai-gateway/anthropic/claude-haiku-4.5 PROMPT`), OpenAI Chat Completions and Responses (`agent vercel-ai-gateway/openai/gpt-4.1-nano PROMPT --api openai-completions|openai-responses --base-url https://ai-gateway.vercel.sh/v1`) each ran a prompt with a tool round trip, and a process killed with `kill -9` after the tool result was stored finished its turn with `agent … --db FILE --resume`. Not proven live: api.anthropic.com (API key and OAuth) and api.openai.com direct.
+| Thread length | 50 turns | 250 | 1,000 | 3,500 |
+| --- | ---: | ---: | ---: | ---: |
+| Warm turn, ms | 7.9 / 19 | 8.3 / 20 | 8.5 / 20 | 10 / 29 |
+| Cold: open + first turn, ms | 11 / 50 | 14 / 58 | 23 / 75 | 56 / 154 |
 
-## Scope
+Peak memory is 10 to 38 MB for Rust against 87 to 169 MB for TypeScript across those lengths.
 
-- `chord`: only `delta/` (ops, change tracker, immutable apply, strict JSON clone), replicated state and `copyJson`. Chord's `Context` is not ported; a cancellation token stands in where TypeScript passes a `Context` or `AbortSignal`.
-- `durable`: ids, errors, entries, documents, types, truncate, codecs, storage (memory, JSONL, SQLite), session, env, tools and the harness (agent loop, scheduler, compaction, hooks, task graph, views).
-- `ai`: types, event streams, faux provider, retry/overflow/validation helpers, message transformation, streaming JSON, the providers above, catalogs generated from PiG's `models_generated.go` by `scripts/gen-catalog.py`.
+Before the recent performance commits (`38e15ae`) the same bench had warm turns roughly tied with TypeScript 1.1.0 and cold starts 2 to 3 times faster. A real model call takes seconds, so none of this decides much unless you run many conversations in one process or open them often. The bench harness is not in this repo yet, so these numbers cannot be rerun from here.
 
-## Layout
+## Where it differs from TypeScript pi-durable
 
-| Module | Source |
+Everything below was read from the code and docs in this repository, from the pinned TypeScript at `f1b2e77`, or from running the `nix` checks. Where a claim could not be checked, it says so.
+
+### API shape
+
+| Topic | TypeScript | Rust | Where |
+| --- | --- | --- | --- |
+| Concurrency | `async` functions, one event loop | blocking calls; the scheduler runs tasks on pooled worker threads; handlers take turns under a FIFO lock so they interleave like JS tasks do between `await`s | `src/workers.rs`, `src/turn.rs` |
+| Cancellation | `Context` / `AbortSignal` | `&CancelToken` on every call; cancelling gives `Error::Aborted` ("aborted") | `src/cancel.rs`, `src/errors.rs` |
+| Errors | classes `ReadAfterWrite`, `StorageRejected`, `ConversationBusy` plus plain `Error` | one `enum Error` (those three, `Aborted`, `Invalid(String)`, `Json`); it is not `Clone`, so a failure replayed to a later caller keeps its text but becomes `Invalid` | `errors.ts`, `src/errors.rs` |
+| Messages | plain objects | typed enums; `Message::User / Assistant / ToolResult` hold an `Arc`, so cloning a transcript copies pointers; faux responses hold a `Box`. JSON shape is the same (camelCase) | `src/ai/types.rs:406`, `src/ai/providers/faux.rs:81` |
+| Absent values | `undefined` | `Option::None`, skipped when serialised; an explicit JSON `null` in `details` / `data` stays `Some(null)` | `src/ai/types.rs` (`present`) |
+| Registry | `createRegistry()` has built-ins; `Harness` throws without them | `Registry::default()` has none until an install; no check (see Try it) | `registry.ts`, `src/harness/registry.rs` |
+| Extensions and tools | `defineExtension`, `defineTool`, typebox schemas | struct literals (`Extension`, `ToolRegistration`); schemas are hand-built JSON; argument validation follows typebox 1.3.27 for the subset tools use and errors on other keywords | `src/harness/define.rs`, `src/ai/utils/validation.rs` |
+| Hooks | handlers get a `HookApi` (memo, models, conversation) | closures with no `HookApi`; a hook cannot call `memo` or `models` | `docs/COVERAGE.md` |
+| Documents | positional `args`, checked in overloads | explicit owner and key, ids and versions are `u64`, scope checked at run time on `DocToken<T>` | `src/documents.rs` |
+| Transaction | async callback; unawaited `Tx` calls are an error | methods return values directly, so that error cannot happen | `session/transaction.ts:679` |
+| Storage | memory, JSONL, SQLite (Node and Cloudflare) | memory, JSONL, SQLite (`rusqlite`); no Cloudflare backend | `packages/durable/src/storage/sqlite/cloudflare.ts`, `src/storage/` |
+| Names | camelCase | snake_case in Rust; stored JSON keeps the TypeScript camelCase | |
+| Context reads | per-conversation cache (`settings.contextRetentionMs`, default ten minutes) | none; callers read through `capture_context_bounds` | `harness/agent.ts:52`, `src/harness/context.rs` |
+
+The crate is 0.1.0 and its API is still moving.
+
+### Behaviour gaps
+
+- **Tool-call order.** Parallel tool calls run on separate threads under the turn lock, so their start and settle order matches TypeScript's in the parity scenario `f2-tool-parallel`. Storage commits do not yield the turn (`src/turn.rs`), so interleaving at commit level can differ; no check looks for it.
+- **File watching** polls every 2000 ms (`WatchOptions::poll_interval`), never TypeScript's native mode, with no debounce and no `overflow` change.
+- **Tracker op sequences** differ (Rust diffs base against draft; arrays diff element by element). Applying either sequence gives the same value, but tool-output events may carry a different, equivalent op.
+- **Bash output windows.** `ToolExecutionApi::outputWindow` does not exist; `skipped` is always `None` and chunk boundaries differ on large output. The retained tail matches.
+- **Unicode.** Strings cannot hold lone surrogates, so a cut through a surrogate pair yields U+FFFD; `t` counts stay UTF-16 units.
+- **Not ported from chord:** replicated state for views (`viewState` observers run synchronously on the commit path), `copyJson`, `isJsonValue`, the revision validator.
+- **Not ported** (from `docs/COVERAGE.md`): `HookApi`, a commit-subscribe callback (use `DocumentWatch`), coding services and resource loader, MCP, the codemode sandbox.
+- **Process groups** use `process_group(0)` plus a two-line `extern "C"` call to `kill(2)`; temp-file names come from `RandomState` instead of a UUID. Unix only.
+- **Close.** `Harness::close` joins running invocations before closing the session; TypeScript seals admission first, so a task admitted during close can start in Rust and be refused in TypeScript.
+
+### Providers
+
+TypeScript's `packages/ai/src/providers` has about 40 provider modules and `auth/oauth` has nine logins. Rust has three wire formats (Anthropic Messages, OpenAI Chat Completions, OpenAI Responses), three catalogs (Anthropic, OpenAI, Vercel AI Gateway, generated from PiG's Go catalog by `scripts/gen-catalog.py`), and one login (Anthropic).
+
+Not ported: `onPayload` / `onResponse` hooks, custom fetch, proxies, redirects, WebSocket and the Codex, Azure, Bedrock, Google, Mistral transports, Copilot headers, constrained sampling and grammar tools, Anthropic workload-identity federation and `ANTHROPIC_AUTH_TOKEN` (set it as a header from `set_auth`), OpenRouter `reasoning_details` replay, `PI_CACHE_RETENTION`. Chat Completions rejects unknown `compat` keys with an error instead of ignoring them.
+
+The HTTP client is hand-written HTTP/1.1 over `rustls` (`src/ai/http.rs`). One connection per request, no redirects, no proxy. It exists because cancelling a streaming response has to close the socket, and `ureq` and `reqwest` do not expose it on a stable API.
+
+### What is proven and what is not
+
+| Path | Status |
 | --- | --- |
-| `chord` | `packages/chord/src/{delta,json.ts,services/state.ts}` |
-| `ids`, `errors`, `entries`, `documents`, `types`, `truncate`, `codecs`, `tasks` | `packages/durable/src/*.ts` |
-| `storage`, `session`, `env`, `tools`, `harness` | `packages/durable/src/{storage,session,env,tools,harness}` |
-| `ai` | `packages/ai/src/{types,api,utils,providers,auth/oauth}` |
+| Anthropic Messages, OpenAI Chat Completions and Responses through the **Vercel AI Gateway** | Run live on 2026-10-10 with a tool round trip, and a `kill -9` then `--resume` finished the turn. Reported, not repeatable from this repository without a gateway key; unverified here. |
+| **api.anthropic.com** direct, API key | Not proven live. |
+| **Anthropic OAuth** (login and bearer tokens) | Not proven live. `oauth_flow` runs it against a loopback fake server only. |
+| **api.openai.com** direct | Not proven live. |
+| Retry on 429, cancel mid-stream, tool turns | Proven against loopback fake servers in `provider_e2e`, `openai_completions_e2e`, `openai_responses_e2e` (`nix flake check`). |
+| Anthropic request bodies | Reported: 770 generated cases compared with TypeScript, 0 field differences. The probe is not in the repository, so this is unverified. |
+| Other reported probe counts (700 reducer cases per seed, 40,000 validation cases, 7 serialisation fixtures) | Probes not in the repository; unverified. |
+
+### What the parity check covers
+
+`nix build .#checks.x86_64-linux.parity` passed with `total probes 48 diffs 0`. It drives the same scenarios through the TypeScript package at the pinned commit and through `examples/parity.rs`, then compares the stored entries, reports and task records after normalising timestamps, usage, response ids, and the text of an aborted partial (`parity/compare.mjs`).
+
+- **Scenarios:** 23 in seven files (`parity/scenarios/`): plain turns (4), tool calls (5: single, parallel, unknown tool, bad arguments, two rounds), cancel (3), crash and resume (2), compaction (2), retry (3), queueing (4: steer, follow-up, reject while busy, de-duplicated request id).
+- **Probes:** 21 non-crash scenarios on memory and on SQLite storage (42), plus the two crash scenarios run as a writer-then-reader matrix with three TypeScript/Rust pairings (6).
+- **Steps the driver can take:** submit, wait idle, sleep, wait for a run or tool, abort, compact, crash point.
+- **Model and tools:** the faux provider with two toy tools (`echo`, `sleep`).
+
+What 48 green probes do **not** say: anything about a real provider or the HTTP code, the built-in `read` / `write` / `edit` / `bash` tools, the execution environment, JSONL storage, hooks, prompt sections, extension-defined tasks, fork / reset / configure, images or thinking blocks, event streams and watches, or timing. Some of those have older, uncommitted probes (see above), and some have none.
 
 ## Build and checks
 
@@ -88,102 +231,19 @@ nix build
 nix flake check
 ```
 
-`nix flake check` builds with and without features, runs clippy and rustfmt, and runs the end-to-end examples against loopback fake servers (`provider_e2e`, `oauth_flow`, and the OpenAI ones). The `parity` check reruns the TypeScript differential offline: `parity/run.sh` drives the same scenarios through `@earendil-works/pi-durable` (pi at the pinned commit, a flake input) and through `examples/parity.rs`, on memory and SQLite storage and as a `kill -9` crash matrix across both implementations, then diffs normalised entries, tasks and reports (48 probes, 0 diffs). Real-provider checks need a key and are run by hand.
+`nix flake check` builds with and without features, runs `clippy` and `rustfmt`, the loopback end-to-end examples, and the parity check described above. The crate uses edition 2024, so it needs a recent Rust (`Cargo.toml` sets no `rust-version`, so the exact floor is unknown).
+
+## Layout
+
+| Module | TypeScript source |
+| --- | --- |
+| `chord` | `packages/chord/src/{delta,json.ts,services/state.ts}` (only the delta tracker, ops and state) |
+| `ids`, `errors`, `entries`, `documents`, `types`, `truncate`, `tasks` | `packages/durable/src/*.ts` |
+| `storage`, `session`, `env`, `tools`, `harness` | `packages/durable/src/{storage,session,env,tools,harness}` |
+| `ai` | `packages/ai/src/{types,api,utils,providers,auth/oauth}` |
+
+`docs/COVERAGE.md` lists which PiG calls a downstream agent (Boar) makes and whether this crate covers them.
 
 ## Licence
 
-MIT, as Pi. `repository` in `Cargo.toml` is left for the publisher to set.
-
-## Divergences
-
-Every place behaviour differs from the TypeScript, and why.
-
-- Synchronous API, no async runtime. TypeScript returns promises; this port blocks and uses threads where TypeScript uses concurrency.
-- Replicated-state listeners run synchronously on the thread that publishes the source frame, as in PiG, where TypeScript delivers from the microtask queue.
-- JavaScript `undefined` has no JSON form. Absent values are `Option::None` and are skipped when serialized, following PiG, which drops `omitUndefinedProperties`.
-- `Context` and `AbortSignal` are replaced by a cancellation token.
-- The tracker copies the value when a change begins and emits ops by diffing base against draft. Op sequences therefore differ from TypeScript's piece-table emission; applying either sequence to the base gives the same value. Replacing with an equal value emits no ops, as in TypeScript.
-- Rust strings cannot hold lone surrogates, so `t` counts stay UTF-16 units as in TypeScript, but a cut through a surrogate pair yields U+FFFD.
-- `copyJson`, `isJsonValue` and the revision validator are not ported: `serde_json::Value` cannot hold cycles, non-finite numbers, symbols or sparse arrays, and it keeps `1` and `1.0` apart where JavaScript does not.
-- A `Prepared` change is consumed by `adopt` and the draft is a plain `&mut` value, so the "already used", "aborted" and settled-proxy errors cannot occur; stale and foreign adoptions still fail.
-- Subscriber errors go to an error sink given at construction instead of an asynchronous rethrow. Source-listener errors return from `change` and `replace`, several together as `Error::Listeners`. Delivery is synchronous, so there is no per-subscriber queue or 100-frame cap.
-- Document addresses take explicit owner and key arguments, not TypeScript's positional `args`, and owner IDs and versions are `u64`, so negative or non-integer values cannot be expressed. Scope and version checks run at runtime on `DocToken<T>`, where TypeScript checks them in overloads.
-- Rust strings are well-formed UTF-8, so lone surrogates cannot occur, and `truncate_head_of` panics on an empty prefix that TypeScript rejects with a `TypeError`.
-- A scan with `limit: 0` that finds a row fails with `Invalid("Storage scan limit must be at least 1")`. TypeScript's page helper crashes on the same input with an internal `TypeError` (`Cannot read properties of undefined`). With no matching row both return an empty page.
-- Memory storage takes typed records, so a malformed chord op or a submission missing its required field cannot be built in Rust. TypeScript's memory storage stores such values at commit without checking them, and fails later on read or never. The Rust driver therefore cannot submit them to the Rust side.
-- Windows and PowerShell are not supported. Process groups and the shell are Unix only, so `Command::Line` runs `bash` (or `sh`) and nothing else.
-- File watching polls directory snapshots every 2000 ms (`WatchOptions::poll_interval`) instead of native `fs.watch`/inotify, so `FileWatcher::mode` is always `polling`, never TypeScript's `native`. Polling needs no crate and no inotify FFI, at the cost of latency. There is no 50 ms debounce; changes found in one poll are reported together. Polling never reports TypeScript's `overflow` change, which only native watching can need; Rust `WatchChange` has no such variant.
-- Output callbacks return `Result<(), String>`. An `Err` stops the command and becomes `callback_error` with the message, as in TypeScript.
-- Output is queued through a bounded channel of 16 chunks, so a slow spill or caller stalls the child's pipe, as TypeScript pauses its streams. Chunk sizes and pause points differ from Node's stream buffering.
-- Temp names have no UUID: std has no UUID generator, so `uuid()` in `src/env/node.rs` builds a v4-shaped string from `RandomState` hashes of time, a counter, and the pid. It is unique in practice and not cryptographic.
-- Process groups use `CommandExt::process_group(0)` and a two-line `extern "C"` to `kill(2)`, instead of a libc crate.
-- `openNodeJsonlStorage` reads `process.cwd()`. `jsonl::open_node` reads `std::env::current_dir()` at open and fails with `JSONL current directory failed` if that fails, instead of taking a cwd argument. This follows Go's `os.Getwd` at open time; PiG has no JSONL port, so this is the nearest choice rather than a copied one.
-- Transaction methods return values directly, so TypeScript's rule that a commit callback must not settle with unawaited `Tx` operations (`Session commit callback settled before its pending Tx operations`) has no case to fire and is not ported.
-- `Tx::create_task` takes the initial checkpoint already computed (`TaskCreate::checkpoint`). TypeScript calls `definition.initial(input)` inside the write, so an exception from `initial` surfaces there instead of before the call.
-- A failed draft acquisition is replayed to later `doc` and `retire_doc` calls on the same address with the same message, as in TypeScript, but as `Error::Invalid(message)`, since `Error` is not `Clone`. The original variant is lost; the text is identical.
-- Session watches and document state subscribers receive frames from a queue shared by the session. Frames are delivered after the committing call leaves the session line, by one drainer at a time, so commit listeners run before the frames of the same commit. TypeScript delivers these from microtasks, so the order matches and the timing differs. The per-subscriber queue belongs to the session path only; chord subscribers still deliver synchronously.
-- An unstarted watch keeps at most 100 pending frames. On overflow the queue is replaced by one `Replace` op carrying the newest value, as in TypeScript's `MAX_PENDING_WATCH_FRAMES`.
-- pi-ai `Message` is typed (`ai::types::Message`) and round-trips to the TypeScript JSON shape. Role and `type` tags are fixed-value unit types, so a wrong tag fails to deserialize. Untagged enums pick the first variant that fits, so a block is matched by field shape, not by tag.
-- pi-ai `details` and `data` keep an explicit JSON `null` as `Some(null)`, so they round-trip; a missing key is `None`.
-- pi-ai `uuidv7` takes its random seed from `/dev/urandom` (Unix only) and uses `u64` where TypeScript uses `bigint`; the bit layout and monotonic sequence follow TypeScript.
-- pi-ai `validateToolArguments` (`src/ai/utils/validation.rs`) follows typebox 1.3.27 for the JSON Schema subset the tools use. It rejects other keywords with an error instead of ignoring them, and `$ref`, `patternProperties`, `format` and `const` are unsupported. Coercion and the error text match TypeScript. Typebox's compiled `Check` takes a fast path for `additionalProperties: false` when `required` names every property, so an unrelated key can pass `Check` while `Errors` still reports it; the port reproduces that. Boolean subschemas never count as validators in the coercion and null-stripping steps, as in TypeScript. Probes: 40,000 random cases, 0 mismatches.
-- pi-ai faux provider (`src/ai/providers/faux.rs`) runs each stream on a spawned thread, and `tokensPerSecond` delays use `thread::sleep` in whole milliseconds. Chunk sizes come from `RandomState`, not `Math.random`, and ids are `prefix:ms:hex`. Chunks are reproducible only when `tokenSize` has equal min and max.
-- pi-ai faux event snapshots are fixed when pushed. TypeScript shares content blocks between `partial` objects, so an event read after later deltas shows the later text; Rust does not.
-- pi-ai faux drops the `onResponse` hooks, the `fauxText`/`fauxAssistantMessage`/`fauxToolCall` builders and `pendingResponseCount`. `fetch_deferred` returns only the final message; `Faux::fetch_stream` returns the event stream.
-- pi-ai regex patterns (retry, overflow) are compiled with the `regex` crate, not JavaScript RegExp: `.` excludes the same line terminators, patterns match on ASCII-lowercased text, and case folding is ASCII only.
-- Session-created state sources and watches report chord errors to stderr through a sink. TypeScript reports them with `reportErrorAsync`.
-- A cancelled session operation fails with the fixed text `The operation was aborted` (watch) or `This operation was aborted` (commit). TypeScript uses the signal's reason when that reason is an `Error`.
-- Context reads take `&dyn Storage` and a cancellation token. There is no `readOnLine` hop: the caller captures bounds and reads entries on its own thread, and entries at or below the tail are immutable, so the reads stay consistent.
-- `readContextFrom` returns owned copies and has no `freezeJson`; the range is immutable by ownership, not by a deep freeze.
-- `renderSections` reports a failing section through an `FnMut(&Error)` sink and returns `Err` only on cancellation. Section maps are ordered `Vec` pairs with the same set and order rules as `Map`; `PromptInput.shown` is a `BTreeMap`.
-- `harness::view` observers run synchronously on the commit path, with `before`, `after`, `ops` and the publication. Chord replicated state (`viewState`) is not ported. `Conversation.watch` uses the session's `WatchShared` with the document object type, not a generic value type. Frames come from the shared delivery queue in commit order, and `wait_for_idle` drains that queue before it returns, so a watch stopped after `waitForIdle` has every frame of the idle period.
-- `harness::task_graph` scans live tasks per status and sorts them by id, instead of TS's `scanTasks` order. Its `phase` read panics on a checkpoint without `phase`; TS casts. Chord state is not ported. `watchTaskGraph` (`Harness::watch_task_graph`) uses the same `WatchShared` path as `Conversation.watch`. Terminal tasks leave the graph by a `d` op, as in TS.
-- `create_session(storage, now)` takes `Option<Clock>` in place of TypeScript's `{ now }` options object. An absent clock reads the system time in milliseconds.
-
-- Tools are registered as plain `ToolRegistration` values in `src/harness/coding_tools.rs`, not through TypeScript's `defineTool`/`defineExtension`/`CodingTools`. Schemas are JSON values built by hand, not typebox. `createPowerShellTool` is not ported, since PowerShell is unsupported.
-- npm `diff` is not a dependency: `src/tools/jsdiff.rs` reproduces only `diffLines` and the `createTwoFilesPatch` hunk output that edit-diff.ts uses (Myers diff over lines, four lines of context). It has no change objects for word or character diffs, and it does not reproduce jsdiff's `oneChangePerToken` or option handling. NFKC normalization for fuzzy edit matching takes the `unicode-normalization` crate, since its tables would otherwise be rediscovered.
-
-- `bash` streams each chunk through `api.output` as the command runs, as TypeScript does. Rust `ExecOptions` has no `window` (`ShellOutputWindow`), so chunk boundaries and the `skipped` argument (always `None`) differ on large output. The retained tail matches.
-- A tool error (`ToolError`) is returned as `Err` from `ToolExecute`, as TypeScript throws from `execute`. The runner that turns it into a `tool_error` diagnostic and a `failed` task is not ported yet. Only read's unsupported-image path returns `isError`, as in TypeScript.
-- Harness cancellation is `Error::Aborted` (`aborted`), the code TypeScript's `abortResult` gives. A waiter registers `CancelToken::on_cancel` and blocks on a `Condvar`; it never polls.
-- `define.rs` has `section`, `wrap_tool` and `wrap_section`. `define_extension` and `define_tool` are struct literals (`Extension`, `ToolRegistration`), not functions.
-- Extension tasks and hooks are typed. The registry rejects a task whose name is a built-in or already installed, as TypeScript does. Hook handlers are `Arc<dyn Any>` and are downcast per task type (`erased::each_hook`), not JSON values. An extension names its task with a typed `HookTask<H>` (`tool::TOOL_HOOK`, `generation::GENERATION_HOOK`, `compaction::COMPACTION_HOOK`), so `HookRegistration::new(&TOOL_HOOK, handlers)` cannot pair a task with another task's handlers. Hooks reach a task through the agent's extensions; the scheduler has no separate hook callback.
-- `json.rs` keeps only `assign_value`; `assign_json` and `Slot` had no caller.
-- The provider session ID's initial value calls `uuidv7(None).expect(...)`, so an OS random-source failure panics. The `Initial` closure cannot return an error.
-- `ai::types::Transport` is added with TypeScript's string values.
-- `inbox.rs` and `live.rs` match TypeScript on 700 reducer cases per seed (seeds 1, 2, 3, 5, 9, 11, 0 mismatches), using a fake `Tx` on both sides; the probe is not committed. `provider.rs` matches only the initial doc shape; `ensure_provider_session_id` is not probed. `live.rs` stores `AssistantMessage` directly where TypeScript stores a JSON representation.
-- Agent events are a blocking `AgentEventStream` with `start(listener)`, `stop()` and `closed()`, following `harness/events.ts`, which has no async iterable. The listener runs on the delivery drainer, not a consumer thread.
-- A watch overflow in `AgentEventStream` ends the stream with `WatchEnd::ListenerError` when the snapshot cannot be built, instead of panicking.
-- `ToolTask` output after the tool settles is refused by the type system, not by `assertLive`: `ToolExecutionApi` borrows for one `execute` call, so no tool can hold it past settlement. TypeScript throws `Tool call <id> has settled` there. The Rust settled check still guards `output`, `diagnostic` and `details` on a live call.
-- `ToolExecutionApi::outputWindow` is not implemented: the Rust `ShellOutputWindow` type does not exist yet, so the window that tells a tool its skip pace is missing.
-- The chord tracker diffs strings with TypeScript's `emitString` rule (`overlap` with scan 65536, probe 64, 8 candidates). Arrays still diff element by element, while TypeScript uses a cost-based LCS with identity anchors. On the same change TypeScript can emit one `set` where Rust emits a `t` or element ops; applying either gives the same value, and tool-output events may carry a different (equal in effect) `output` op.
-- The generation task (`src/harness/generation.rs`, `generation/classify.rs`, `generation/rounds.rs`) is ported against `HarnessTaskRuntime` (`src/harness/runtime.rs`), a trait over `TaskRuntime` that adds `context(at)` and `wait_for_task`. The scheduler reaches it through `erase` in `src/harness/erased.rs`, which adapts the typed runtime and hook lookup.
-- Generation hooks are closures on `GenerationHooks` (`before_request`, `after_response`, `on_yield`, `after_tools`). They take the message or the messages, not TypeScript's `HookApi`, so a hook cannot call `memo` or `models`. `on_yield` returns `Option<UserInput>`, not a promise of one.
-- `beforeTool` hooks and tool results race across parallel tool calls. Each tool call runs on its own thread, so with two calls the before-hooks run in either order, and the results can settle in either order. TypeScript runs each call as a task on one event loop, so the order is call order on every run (20 runs of hooks and 3 of parallel). The race is on the tool task path (`tool.rs` and the scheduler), not in the hook registry.
-- `ToolExecutionApi.conversation(id, cancel)` returns a `ConversationHandle` (TypeScript `types.ts:205`, `boundConversation` in `harness.ts`). Each call checks that the invocation is live and combines the caller's cancel with the invocation's signal. The `SubmissionHandle` from `submit` is not bound: its `status`, `wait` and `abort` run on the caller's cancel only, while TypeScript binds them to the invocation. Only compiled, not probed.
-- Partials follow TypeScript's timer (`generation.ts` 360–400). The first non-empty partial starts a timer of `progress.partialIntervalMs`; when it fires, the latest partial commits, so partials are at most one per interval. The stream reads with `EventStream::next_event_timeout` (`src/ai/event_stream.rs`), which waits on the stream's condvar with a deadline. A pending partial is dropped when the stream ends first, as in TypeScript's `finally`. Commits run on the generation thread, not in flight in parallel, so one commit is in flight at a time, as in TypeScript.
-- `simple_options` passes only the signal, session ID, reasoning, cache retention and a `deferred` flag. A deferred window is reduced to `true`. `transport`, `timeoutMs`, `maxRetries`, `maxRetryDelayMs`, `headers` and `metadata` are dropped because the Rust `SimpleStreamOptions` has no such fields.
-- A round's result entries come from the slot's `entry` (unavailable calls) or from the tool task's `ToolTaskResult.entry_id`. TypeScript reads only the slot, because its tool task writes it; `tool.rs` does not set `ToolSlot.entry` here.
-- `GenerationCheckpoint` holds an erased `TaskId` for compactions and tool tasks, not `TaskId<CompactionResult>`. `GenerationResult` serializes as `{"entryId": ...}`, the TypeScript shape.
-- A section error that `render_sections` reports reaches `runtime.report` as `Error::Invalid` with the error's text, because `Error` is not `Clone`.
-- `Deferred::Window` is a struct variant with an optional `window`, so `{}` and `{"window":"1h"}` both parse as TypeScript writes them.
-- Compaction (`src/harness/compaction.rs`): `definition()` is the `pi.compaction` task; the registry installs it as a built-in. `create_compaction` takes no `instructions`, so it always creates a task with none; a manual compaction with instructions needs a new entry point.
-- Compaction `max_tokens` is stored in the checkpoint but not sent: `SimpleStreamOptions` has no `max_tokens` field. Like `simple_options`, the summary request forwards only the signal, session ID, reasoning, and `cacheRetention: none` with `deferred` off; `streamOptions` is stored, not forwarded.
-- Compaction cancellation: the summary call is `Models::complete_simple`, which blocks on the stream. Abort relies on the provider honouring `SimpleStreamOptions.signal`; there is no `CancelToken::on_cancel` bridge, because `EventStream` has no cancel hook. Same gap as generation's `stream_response`.
-- Compaction `beforeCompact` receives a `CompactionSource` closure argument, not `HookApi` and `Context`, as with the other Rust hooks. The first `Decline` or `Summary` wins, as in TypeScript.
-- Compaction reasons: `harness::types::CompactionReason` and `types::CompactionReason` are two identical enums. The compaction task maps between them with `entry_reason` because `CompactionData` and `CompactionStatus` use the second.
-- Compaction summarize: if `firstKept` is missing from the context at `tail`, TypeScript's `findIndex` gives -1; this port returns `Error::Invalid`.
-- `serializeConversation` matches TypeScript byte for byte on 7 probe fixtures covering text, images, skipped system messages, nested and integer-keyed arguments, escapes, unicode, and empty content. The one difference is the surrogate-pair truncation above.
-- `TaskRuntime::commit` takes a closure that returns the next `NextTaskState`, not TypeScript's `commit(change)` promise that resolves to a state.
-- `ensure_provider_session_id` takes `&dyn TaskRuntime`, not `&mut`, so generation can call it while it holds the runtime.
-- `tool.rs` changes are two visibility lines: `erase` and `append_tool_result` are `pub` for generation.
-- `Harness` covers open (which starts the scheduler), root, create and fork, configure, agent resolution, submit, reset, commit, context, entries, usage, task graph, view state, resume, wait for task and idle, abort task, inspect, compact, and conversation abort and wait. `close` joins running invocations before it closes the session. TypeScript joins after sealing admission and before storage closes, so a task admitted during close can start in Rust and be refused in TypeScript. Probes: a TypeScript Harness with faux and the Rust Harness ran seven scenarios: plain, one tool call, two parallel tool calls, abort during a streamed reply, hooks, watch, and env. Entries, reports, task records and the hook or watch log were compared after dropping usage, timestamps, provider api ids and response ids. Results: plain, tool, cancel, env and watch match on every run (watch 20 of 20 after the partial timer). Parallel matches on 8 of 20 runs and hooks on 12 of 20, because of the races below. Events and live deltas were not compared.
-- `Harness::open` has no built-in task check. `Registry::snapshot` always includes `pi.generation`, `pi.tool` and `pi.compaction`, so a missing built-in cannot occur.
-- `Conversation::context(at)` reads through `capture_context_bounds` and keeps no per-conversation context cache (TypeScript `contextRetentionMs`).
-- `HarnessOptions.env` is an `EnvBuilder` called with the conversation's `cwd` at each use, not at open. `Harness::build_env` is TypeScript's public `buildEnv`; the scheduler uses the same function. The target carries `read: &Session`, where TypeScript passes the Harness.
-- `Tx::create_root_conversation` is new in the session layer and reserves `ROOT_CONVERSATION_ID`, as TypeScript's `createRootConversation` does.
-- `AssistantMessageEventStream::bind_cancel` is the cancel bridge: it registers `CancelToken::on_cancel`, and on cancel it pushes the `aborted` error event TypeScript's faux pushes, with the latest partial's content and `errorMessage: "Request was aborted"`. With no partial yet it does nothing, so the producer reports the abort. Faux binds each stream and each deferred fetch. A bound stream adds one callback to its token, kept until the token cancels. A real provider must also shut its socket down on cancel; none exists yet.
-- Corrections to the bullets above: `max_tokens` is now sent (`SimpleStreamOptions.max_tokens`), and compaction's summary request forwards the stream options with `deferred` off, `cacheRetention` none and `maxTokens` set, as TypeScript does. `simple_options` forwards `transport`, `timeoutMs`, `maxRetries`, `maxRetryDelayMs`, `headers` and `metadata`. Compaction's summary call blocks on `complete_simple`, so it stops early only when the provider honours the signal: faux does now, real providers do not yet.
-- `create_compaction_with(input: CompactionInput, owner)` carries `instructions` into the task input and the summary prompt. `create_compaction` keeps its reason-only signature for the generation callers, so a manual compaction with instructions uses the new entry point.
-- `harness::types::CompactionReason` is now a re-export of `types::CompactionReason`; the two identical enums are one, and `entry_reason` is gone.
-- Parallel handlers run under a FIFO turn lock (`src/turn.rs`): one invocation, drain or tool-task thread runs at a time, and it gives the turn up only inside `turn::pause`, around a wait for another thread (waiters, latches, sleeps, model stream reads, process output, progress joins, the file mutation queue, and tool bodies that call `pause` themselves). Each thread takes a ticket when it is spawned or kicked, so handlers that never block run in reservation order, as JS tasks do between awaits. Deadlock rule: no lock may be held across `pause` and the re-acquire, so every `pause` body drops its guards before returning; the storage line never waits for the turn, so a holder may block on a commit; `pause` wakes its waiter by the usual notify and the re-acquire itself cannot be cancelled, because the holder always releases at its next blocking point. Residual: storage commits do not yield, so commit-level interleaving can differ from TS `await` points; wall-clock-paced progress flushes and non-handler threads (main thread calls, reconcile, expiry) still race handlers. Acceptance: the `parity` flake check, with f2-tool-parallel compared exactly (ids and order).
+MIT, as Pi.
