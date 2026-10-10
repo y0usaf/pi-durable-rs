@@ -14,3 +14,4 @@ pub mod tools;
 pub mod truncate;
 pub mod turn;
 pub mod types;
+mod workers;
