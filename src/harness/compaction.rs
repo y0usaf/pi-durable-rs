@@ -1,4 +1,5 @@
 use std::collections::{BTreeMap, HashSet};
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -596,8 +597,8 @@ fn mismatch(phase: &str) -> Error {
     ))
 }
 
-fn user_text_message(text: String, timestamp: u64) -> UserMessage {
-    UserMessage {
+fn user_text_message(text: String, timestamp: u64) -> Arc<UserMessage> {
+    Arc::new(UserMessage {
         role: UserRole,
         content: UserContent::Blocks(vec![UserBlock::Text(TextContent {
             kind: TextType,
@@ -605,7 +606,7 @@ fn user_text_message(text: String, timestamp: u64) -> UserMessage {
             text_signature: None,
         })]),
         timestamp,
-    }
+    })
 }
 
 fn summary_max_tokens(reserve_tokens: u64, model_max_tokens: u64) -> u64 {
