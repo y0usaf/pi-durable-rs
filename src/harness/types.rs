@@ -1,5 +1,6 @@
 use std::any::Any;
 use std::collections::BTreeMap;
+use std::marker::PhantomData;
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
@@ -190,6 +191,24 @@ pub struct Extension {
     pub tasks: Vec<Arc<dyn ErasedTask>>,
 }
 
+/// Names a task together with the handler type its hooks take, so a registration
+/// cannot pair a task with handlers of another task's type.
+pub struct HookTask<H> {
+    name: &'static str,
+    handlers: PhantomData<fn() -> H>,
+}
+
+impl<H> HookTask<H> {
+    /// Names the task `name`, whose hooks are `H`. Built-in tasks export one, such as
+    /// `tool::TOOL_HOOK`.
+    pub const fn new(name: &'static str) -> Self {
+        Self {
+            name,
+            handlers: PhantomData,
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct HookRegistration {
     pub task: String,
@@ -197,9 +216,10 @@ pub struct HookRegistration {
 }
 
 impl HookRegistration {
-    pub fn new<H: Any + Send + Sync>(task: &str, handlers: H) -> Self {
+    /// Registers `handlers` for the task `task`, as an extension's `hooks` entry.
+    pub fn new<H: Any + Send + Sync>(task: &HookTask<H>, handlers: H) -> Self {
         Self {
-            task: task.to_owned(),
+            task: task.name.to_owned(),
             handlers: Arc::new(handlers),
         }
     }

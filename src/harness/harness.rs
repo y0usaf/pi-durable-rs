@@ -439,7 +439,6 @@ fn scheduler(
         models: Arc::clone(models),
         env: Arc::new(move |id, cancel| build_env(&env_session, env_build.as_ref(), id, cancel)),
         conversation,
-        hooks_of: Arc::new(|_, _| Vec::new()),
         settings: Arc::new(move || resolve_settings(settings_of.as_ref())),
         now: Arc::new(move || clock()),
         registry: Arc::clone(registry),
