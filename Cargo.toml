@@ -30,3 +30,7 @@ providers = ["anthropic", "openai", "vercel-gateway"]
 [[example]]
 name = "agent"
 required-features = ["providers"]
+
+[[example]]
+name = "provider_e2e"
+required-features = ["anthropic"]
