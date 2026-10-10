@@ -1,8 +1,14 @@
 use crate::ai::types::{SystemBlock, SystemContent, SystemMessage};
 
 pub fn utf16_len(text: &str) -> usize {
-    text.bytes()
-        .map(|b| usize::from(b & 0xC0 != 0x80) + usize::from(b >= 0xF0))
+    text.as_bytes()
+        .chunks(127)
+        .map(|chunk| {
+            chunk
+                .iter()
+                .map(|&b| u8::from(b & 0xC0 != 0x80) + u8::from(b >= 0xF0))
+                .sum::<u8>() as usize
+        })
         .sum()
 }
 
