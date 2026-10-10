@@ -617,7 +617,8 @@ impl Conversation {
         let storage = &*self.inner.storage;
         self.inner.session.read_on_line(|| {
             let bounds = capture_context_bounds(storage, id, at, cancel)?;
-            read_context_from(storage, id, bounds, None, cancel).map(|(view, _)| view)
+            read_context_from(storage, id, bounds, None, cancel)
+                .map(|(view, _)| Arc::unwrap_or_clone(view))
         })
     }
 

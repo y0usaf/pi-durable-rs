@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use serde_json::json;
+use std::sync::Arc;
 
 use crate::ai::types::{
     AssistantBlock, Message, StopReason, TextContent, TextType, ToolCall, ToolResultMessage,
@@ -34,7 +34,7 @@ pub struct ContextView {
 pub struct ContextRange {
     pub bounds: ContextBounds,
     pub entries: Vec<EntryRecord>,
-    pub view: ContextView,
+    pub view: Arc<ContextView>,
     pub edited: std::collections::BTreeSet<EntryId>,
     pub settled: Vec<Message>,
     pub open: Vec<Message>,
@@ -88,17 +88,17 @@ pub fn read_context_from(
     storage: &dyn Storage,
     conversation_id: ConversationId,
     bounds: Option<ContextBounds>,
-    previous: Option<&ContextRange>,
+    previous: Option<&Arc<ContextRange>>,
     cancel: &CancelToken,
-) -> Result<(ContextView, Option<ContextRange>)> {
+) -> Result<(Arc<ContextView>, Option<Arc<ContextRange>>)> {
     let Some(bounds) = bounds else {
-        return Ok((empty_view(), None));
+        return Ok((Arc::new(empty_view()), None));
     };
     let head_id = |head: &Option<HeadMarker>| head.as_ref().map(|marker| marker.entry.id);
     let range = match previous {
         Some(previous) if head_id(&previous.bounds.head) == head_id(&bounds.head) => {
             if bounds.tail == previous.bounds.tail {
-                previous.clone()
+                Arc::clone(previous)
             } else if bounds.tail < previous.bounds.tail {
                 let kept = previous
                     .entries
@@ -106,7 +106,7 @@ pub fn read_context_from(
                     .filter(|entry| entry.id <= bounds.tail)
                     .cloned()
                     .collect();
-                derive_range(bounds, kept)
+                Arc::new(derive_range(bounds, kept))
             } else {
                 let min = EntryId(previous.bounds.tail.0 + 1);
                 let added = scan_range(
@@ -116,16 +116,16 @@ pub fn read_context_from(
                     Some(bounds.tail),
                     cancel,
                 )?;
-                extend_range(previous, bounds, added)
+                Arc::new(extend_range(previous, bounds, added))
             }
         }
         _ => {
             let (min, max) = range_bounds(&bounds);
             let entries = scan_range(storage, conversation_id, min, max, cancel)?;
-            derive_range(bounds, entries)
+            Arc::new(derive_range(bounds, entries))
         }
     };
-    let view = range.view.clone();
+    let view = Arc::clone(&range.view);
     Ok((view, Some(range)))
 }
 
@@ -140,7 +140,7 @@ pub fn derive_context(
     };
     let (min, max) = range_bounds(&bounds);
     let entries = scan_range(storage, conversation_id, min, max, cancel)?;
-    Ok(derive_range(bounds, entries).view)
+    Ok(Arc::unwrap_or_clone(derive_range(bounds, entries).view))
 }
 
 pub fn active_entries(
@@ -206,12 +206,12 @@ fn derive_range(bounds: ContextBounds, entries: Vec<EntryRecord>) -> ContextRang
     let flat: Vec<Message> = contributions.iter().flatten().cloned().collect();
     let (settled, open) = settle(Vec::new(), flat);
     let messages = lead_with_system(concat(&settled, &order_tool_results(&open)));
-    let view = ContextView {
+    let view = Arc::new(ContextView {
         head: bounds.head.as_ref().map(|head| head.entry.clone()),
         entries: active,
         contributions,
         messages,
-    };
+    });
     ContextRange {
         bounds,
         entries,
@@ -243,12 +243,12 @@ fn extend_range(
     view_entries.extend(added);
     let mut view_contributions = previous.view.contributions.clone();
     view_contributions.extend(contributions);
-    let view = ContextView {
+    let view = Arc::new(ContextView {
         head: bounds.head.as_ref().map(|head| head.entry.clone()),
         entries: view_entries,
         contributions: view_contributions,
         messages: lead_with_system(concat(&settled, &order_tool_results(&open))),
-    };
+    });
     ContextRange {
         bounds,
         entries,

@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use std::collections::BTreeMap;
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
@@ -626,15 +626,16 @@ fn request(
         return fail_no_model(runtime, Some(&model_ref), cancel);
     };
     let view = runtime.context(Some(cutoff), cancel)?;
-    let mut messages = view.messages.clone();
+    let mut replaced: Option<Vec<Message>> = None;
     runtime.hooks().each(&mut |hooks| {
         if let Some(hook) = hooks.before_request.as_ref()
-            && let Some(replaced) = hook(&messages)?
+            && let Some(next) = hook(replaced.as_deref().unwrap_or(&view.messages))?
         {
-            messages = replaced;
+            replaced = Some(next);
         }
         Ok(())
     })?;
+    let messages = replaced.as_deref().unwrap_or(&view.messages);
     let session_id = ensure_provider_session_id(runtime, cancel)?;
     let options = simple_options(
         &stream_options,
@@ -642,13 +643,13 @@ fn request(
         runtime.signal(),
         session_id,
     );
-    let message = classify::stream_response(runtime, &model, &messages, options, attempt, cancel)?;
+    let message = classify::stream_response(runtime, &model, messages, options, attempt, cancel)?;
     let request = classify::Request {
         attempt,
         compacted,
         model: model_ref,
         cutoff,
-        messages: Some(view.messages),
+        view: Some(view),
         poll_at: None,
     };
     classify::classify(runtime, &request, message, cancel)
@@ -723,7 +724,7 @@ fn poll(
         compacted,
         model: model_ref,
         cutoff,
-        messages: None,
+        view: None,
         poll_at: Some(poll_at),
     };
     classify::classify(runtime, &request, message, cancel)

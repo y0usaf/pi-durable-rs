@@ -209,7 +209,7 @@ struct Overlay {
 }
 
 struct KeptContext {
-    range: ContextRange,
+    range: Arc<ContextRange>,
     idle_since: Option<u64>,
 }
 
