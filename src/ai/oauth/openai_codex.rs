@@ -10,7 +10,6 @@ use crate::cancel::CancelToken;
 
 pub const ORIGINATOR: &str = "pig";
 const TOKEN_TIMEOUT: Duration = Duration::from_secs(30);
-const EXPIRY_MARGIN_MS: i64 = 5 * 60 * 1000;
 const JWT_CLAIM: &str = "https://api.openai.com/auth";
 
 #[derive(Debug, Clone)]
@@ -20,6 +19,10 @@ pub struct Endpoints {
     pub token_url: String,
     pub redirect_uri: String,
     pub scope: String,
+    pub device_user_code_url: String,
+    pub device_token_url: String,
+    pub device_verification_uri: String,
+    pub device_redirect_uri: String,
 }
 
 impl Default for Endpoints {
@@ -30,6 +33,11 @@ impl Default for Endpoints {
             token_url: "https://auth.openai.com/oauth/token".to_owned(),
             redirect_uri: "http://localhost:1455/auth/callback".to_owned(),
             scope: "openid profile email offline_access".to_owned(),
+            device_user_code_url: "https://auth.openai.com/api/accounts/deviceauth/usercode"
+                .to_owned(),
+            device_token_url: "https://auth.openai.com/api/accounts/deviceauth/token".to_owned(),
+            device_verification_uri: "https://auth.openai.com/codex/device".to_owned(),
+            device_redirect_uri: "https://auth.openai.com/deviceauth/callback".to_owned(),
         }
     }
 }
@@ -81,10 +89,13 @@ fn credentials(text: &str, operation: &str) -> Result<Credentials, String> {
             "OpenAI Codex token {operation} response missing fields"
         ));
     }
+    if account_id_from_token(&data.access_token).is_none() {
+        return Err("Failed to extract accountId from token".to_owned());
+    }
     Ok(Credentials {
         refresh: data.refresh_token,
         access: data.access_token,
-        expires_ms: now_ms() + (data.expires_in * 1000.0) as i64 - EXPIRY_MARGIN_MS,
+        expires_ms: now_ms() + (data.expires_in * 1000.0) as i64,
     })
 }
 
