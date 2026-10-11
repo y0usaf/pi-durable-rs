@@ -58,8 +58,23 @@ pub fn build(
     }
     if !tools.is_empty() {
         body["tools"] = json!([{"functionDeclarations": declarations(tools)}]);
+        if let Some(mode) = options
+            .tool_choice
+            .as_deref()
+            .filter(|choice| !choice.is_empty())
+            .map(|choice| match choice {
+                "none" => "NONE",
+                "any" => "ANY",
+                _ => "AUTO",
+            })
+        {
+            body["toolConfig"] = json!({"functionCallingConfig": {"mode": mode}});
+        }
     }
     let mut generation = Map::new();
+    if let Some(temperature) = options.temperature {
+        generation.insert("temperature".to_owned(), json!(temperature));
+    }
     if let Some(max_tokens) = options.max_tokens.filter(|tokens| *tokens > 0) {
         generation.insert("maxOutputTokens".to_owned(), json!(max_tokens));
     }

@@ -186,7 +186,7 @@ fn response_info(response: &Response) -> ResponseInfo {
 
 fn payload_options(options: &SimpleStreamOptions, config: &Config) -> Map<String, Value> {
     let mut fields = Map::new();
-    if let Some(temperature) = config.temperature {
+    if let Some(temperature) = options.temperature.or(config.temperature) {
         fields.insert("temperature".to_owned(), json!(temperature));
     }
     if let Some(max_tokens) = options.max_tokens.filter(|tokens| *tokens > 0) {
@@ -205,12 +205,18 @@ fn payload_options(options: &SimpleStreamOptions, config: &Config) -> Map<String
     {
         fields.insert("sessionId".to_owned(), json!(session));
     }
-    if let Some(choice) = config
+    if let Some(choice) = options
         .tool_choice
-        .as_ref()
-        .filter(|choice| !choice.is_null())
+        .as_deref()
+        .map(|choice| json!(choice))
+        .or_else(|| {
+            config
+                .tool_choice
+                .clone()
+                .filter(|choice| !choice.is_null())
+        })
     {
-        fields.insert("toolChoice".to_owned(), choice.clone());
+        fields.insert("toolChoice".to_owned(), choice);
     }
     fields
 }

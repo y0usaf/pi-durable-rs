@@ -372,6 +372,8 @@ pub fn simple_options(
         headers: stream.headers.clone(),
         cache_points: Vec::new(),
         metadata: stream.metadata.clone(),
+        temperature: None,
+        tool_choice: None,
     }
 }
 

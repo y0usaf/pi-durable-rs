@@ -61,6 +61,7 @@ impl Compat {
 }
 
 pub struct Turn {
+    pub request_model: Option<String>,
     pub cache_key: Option<String>,
     pub retention: CacheRetention,
     pub max_tokens: u64,
@@ -76,7 +77,7 @@ pub fn build(
 ) -> Result<Value, String> {
     let plain = !turn.chatgpt_sign_in && !compat.codex;
     let mut params = json!({
-        "model": model.id,
+        "model": turn.request_model.as_deref().unwrap_or(&model.id),
         "input": input(model, context, compat)?,
         "stream": true,
         "store": false,
