@@ -13,19 +13,10 @@ const GRANT_TYPE: &str = "urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer"
 const LIFETIME_SECS: u64 = 3600;
 
 pub fn access_token() -> Result<String, String> {
-    if let Some(token) = env::var("GOOGLE_CLOUD_ACCESS_TOKEN")
-        .ok()
-        .map(|token| token.trim().to_owned())
-        .filter(|token| !token.is_empty())
-    {
-        return Ok(token);
-    }
     let path = env::var("GOOGLE_APPLICATION_CREDENTIALS")
         .ok()
         .filter(|path| !path.trim().is_empty())
-        .ok_or_else(|| {
-            "Vertex ADC: set GOOGLE_CLOUD_ACCESS_TOKEN or GOOGLE_APPLICATION_CREDENTIALS".to_owned()
-        })?;
+        .ok_or_else(|| "Vertex ADC: set GOOGLE_APPLICATION_CREDENTIALS".to_owned())?;
     let text = std::fs::read_to_string(&path).map_err(|error| format!("Vertex ADC: {error}"))?;
     let file: Value =
         serde_json::from_str(&text).map_err(|error| format!("parse credentials file: {error}"))?;
