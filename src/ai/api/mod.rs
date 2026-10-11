@@ -1,6 +1,12 @@
 #[cfg(feature = "anthropic")]
 pub mod anthropic;
 #[cfg(feature = "openai")]
+pub mod azure;
+#[cfg(feature = "openai")]
+pub mod mistral;
+#[cfg(feature = "openai")]
 pub mod openai_completions;
 #[cfg(feature = "openai")]
 pub mod openai_responses;
+#[cfg(feature = "openai")]
+pub mod pi_messages;
