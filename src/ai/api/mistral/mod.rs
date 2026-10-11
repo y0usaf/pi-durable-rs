@@ -102,6 +102,12 @@ fn run(
     if let Some(max_tokens) = options.max_tokens.filter(|tokens| *tokens > 0) {
         body["max_tokens"] = json!(max_tokens);
     }
+    if let Some(temperature) = options.temperature {
+        body["temperature"] = json!(temperature);
+    }
+    if let Some(choice) = &options.tool_choice {
+        body["tool_choice"] = json!(choice);
+    }
     let (effort, prompt_mode) = reasoning(model, options);
     if let Some(effort) = effort {
         body["reasoning_effort"] = json!(effort);
