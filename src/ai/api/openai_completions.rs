@@ -16,6 +16,7 @@ use crate::ai::error_body::format_provider_error;
 use crate::ai::event_stream::AssistantMessageEventStream;
 use crate::ai::http::{Request, RetryPolicy, send_retrying};
 use crate::ai::registry::Api;
+use crate::ai::simple_options::cache_retention;
 use crate::ai::stream::spawn;
 use crate::ai::thinking::clamp_thinking_level;
 use crate::ai::types::{
@@ -64,7 +65,9 @@ fn run(
         ));
     }
     let compat = Compat::resolve(model, &base_url)?;
-    let headers = headers(model, &options)?;
+    let retention = cache_retention(&options);
+    let open_router = model.provider == "openrouter" || base_url.contains("openrouter.ai");
+    let headers = headers(model, &options, &compat, retention, open_router)?;
     let effort = options
         .reasoning
         .map(model_level)
@@ -74,7 +77,7 @@ fn run(
         base_url: &base_url,
         effort,
         max_tokens: options.max_tokens.unwrap_or(model.max_tokens),
-        retention: options.cache_retention.unwrap_or(CacheRetention::Short),
+        retention,
         session_id: options.session_id.as_deref(),
     };
     let body = request::build(model, &compat, &context, &settings);
@@ -112,6 +115,9 @@ fn model_level(level: ThinkingLevel) -> ModelThinkingLevel {
 fn headers(
     model: &Model,
     options: &SimpleStreamOptions,
+    compat: &Compat,
+    retention: CacheRetention,
+    open_router: bool,
 ) -> Result<BTreeMap<String, String>, String> {
     let mut headers = BTreeMap::new();
     let overrides = options.headers.clone().unwrap_or_default();
@@ -129,6 +135,20 @@ fn headers(
         None => return Err(format!("No API key for provider: {}", model.provider)),
     }
     headers.extend(model.headers.clone().unwrap_or_default());
+    if let Some(session) = options
+        .session_id
+        .as_deref()
+        .filter(|session| !session.is_empty() && retention != CacheRetention::None)
+        .filter(|_| compat.send_session_affinity)
+    {
+        if open_router {
+            headers.insert("x-session-id".to_owned(), session.to_owned());
+        } else {
+            headers.insert("session_id".to_owned(), session.to_owned());
+            headers.insert("x-client-request-id".to_owned(), session.to_owned());
+            headers.insert("x-session-affinity".to_owned(), session.to_owned());
+        }
+    }
     headers.extend(overrides);
     Ok(headers)
 }

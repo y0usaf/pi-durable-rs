@@ -56,6 +56,7 @@ pub struct Compat {
     pub mid_convo_system_messages: bool,
     pub mid_convo_tool_additions: bool,
     pub long_cache_retention: bool,
+    pub send_session_affinity: bool,
     pub vllm_priority: Option<JsonValue>,
 }
 
@@ -159,6 +160,7 @@ impl Compat {
                 || is_cf_gateway
                 || is_nvidia
                 || is_ant_ling),
+            send_session_affinity: is_openrouter,
             vllm_priority: None,
         }
     }
@@ -186,6 +188,7 @@ impl Compat {
             "supportsMidConvoSystemMessages" => self.mid_convo_system_messages = flag()?,
             "supportsMidConvoToolAdditions" => self.mid_convo_tool_additions = flag()?,
             "supportsLongCacheRetention" => self.long_cache_retention = flag()?,
+            "sendSessionAffinityHeaders" => self.send_session_affinity = flag()?,
             "maxTokensField" => {
                 self.legacy_max_tokens = match text()? {
                     "max_tokens" => true,

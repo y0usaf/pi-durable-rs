@@ -35,7 +35,12 @@ pub fn account_id(
     api_key: Option<&str>,
 ) -> Result<String, String> {
     explicit
-        .and_then(|headers| headers.get(ACCOUNT_HEADER))
+        .and_then(|headers| {
+            headers
+                .iter()
+                .find(|(name, _)| name.eq_ignore_ascii_case(ACCOUNT_HEADER))
+                .map(|(_, value)| value)
+        })
         .filter(|id| !id.is_empty())
         .cloned()
         .or_else(|| api_key.and_then(account_id_from_token))
