@@ -5,7 +5,7 @@ use serde_json::{Value, json};
 
 use crate::ai::simple_options::{adjust_max_tokens_for_thinking, clamp_max_tokens_to_context};
 use crate::ai::thinking::level_name;
-use crate::ai::transform::transform_messages;
+use crate::ai::transform::transform_messages_sourced;
 use crate::ai::types::{
     AssistantBlock, CacheRetention, ImageContent, Message, Model, ModelThinkingLevel,
     SimpleStreamOptions, SystemMessage, ThinkingLevel, Tool, ToolResultMessage, UserBlock,
@@ -67,18 +67,25 @@ pub fn build(
     messages: &[Message],
     oauth: bool,
     options: &SimpleStreamOptions,
-) -> Built {
+) -> Result<Built, String> {
     let normalize =
         |id: &str, _: &Model, _: &crate::ai::types::AssistantMessage| normalize_tool_call_id(id);
-    let transformed = transform_messages(messages, model, Some(&normalize));
+    let (transformed, sources): (Vec<Message>, Vec<Option<usize>>) =
+        transform_messages_sourced(messages, model, Some(&normalize))
+            .into_iter()
+            .unzip();
     let initial = get_initial_system_message(messages);
     let system_text = initial.map(system_message_text).unwrap_or_default();
-    let conversation = if initial.is_some() {
-        transformed.get(1..).unwrap_or_default()
-    } else {
-        &transformed[..]
-    };
+    let offset = usize::from(initial.is_some());
+    let conversation = transformed.get(offset..).unwrap_or_default();
+    let sources = sources.get(offset..).unwrap_or_default();
     let cache = cache_control(model, options.cache_retention);
+    let targets = cache_targets(messages, &options.cache_points)?;
+    let tail = if targets.is_empty() {
+        cache.as_ref()
+    } else {
+        None
+    };
     let eager = flag(model, "supportsEagerToolInputStreaming", true);
     let initial_tools = initial
         .and_then(|system| system.tools_added.clone())
@@ -99,8 +106,13 @@ pub fn build(
     };
     let (converted, levels) = convert(
         conversation,
+        Marks {
+            cache: cache.as_ref(),
+            targets: &targets,
+            tail,
+            sources,
+        },
         oauth,
-        cache.as_ref(),
         flag(model, "allowEmptySignature", false),
         mid_effort.then_some(model.provider.as_str()),
         native,
@@ -197,11 +209,14 @@ pub fn build(
             ),
         ],
     );
-    Built {
+    if !targets.is_empty() && cache.is_some() {
+        keep_last_prefix_mark(&mut body);
+    }
+    Ok(Built {
         body,
         betas,
         provider_thinking_level: mid_effort.then_some(active_effort),
-    }
+    })
 }
 
 pub fn from_claude_code_name(name: &str, tools: &[Tool]) -> String {
@@ -230,6 +245,101 @@ fn normalize_tool_call_id(id: &str) -> String {
         })
         .take(64)
         .collect()
+}
+
+const MAX_CACHE_POINTS: usize = 2;
+
+fn cache_targets(
+    messages: &[Message],
+    points: &[crate::ai::types::CachePoint],
+) -> Result<Vec<(usize, Option<usize>)>, String> {
+    if points.len() > MAX_CACHE_POINTS {
+        return Err(format!(
+            "at most {MAX_CACHE_POINTS} cache points: with the prefix mark that is Go's three"
+        ));
+    }
+    let mut targets: Vec<(usize, Option<usize>)> = Vec::new();
+    for point in points {
+        let Some(message) = messages.get(point.message) else {
+            return Err(format!(
+                "cache point message {} is out of range",
+                point.message
+            ));
+        };
+        let valid = match message {
+            Message::User(user) => match (&user.content, point.block) {
+                (UserContent::Text(text), block) => {
+                    block.unwrap_or(0) == 0 && !text.trim().is_empty()
+                }
+                (UserContent::Blocks(blocks), Some(block)) => {
+                    blocks.get(block).is_some_and(user_block_kept)
+                }
+                (UserContent::Blocks(blocks), None) => blocks.iter().any(user_block_kept),
+            },
+            Message::ToolResult(_) => matches!(point.block, None | Some(0)),
+            Message::System(_) | Message::Assistant(_) => false,
+        };
+        if !valid {
+            return Err(format!(
+                "cache point {}:{:?} names no markable block",
+                point.message, point.block
+            ));
+        }
+        let target = (point.message, point.block);
+        if targets.contains(&target) {
+            return Err(format!(
+                "cache point {}:{:?} is listed twice",
+                point.message, point.block
+            ));
+        }
+        targets.push(target);
+    }
+    Ok(targets)
+}
+
+fn marks_for(targets: &[(usize, Option<usize>)], source: Option<usize>) -> Vec<Option<usize>> {
+    targets
+        .iter()
+        .filter(|(at, _)| Some(*at) == source)
+        .map(|(_, block)| *block)
+        .collect()
+}
+
+fn user_block_kept(block: &UserBlock) -> bool {
+    match block {
+        UserBlock::Text(text) => !text.text.trim().is_empty(),
+        UserBlock::Image(_) => true,
+    }
+}
+
+fn keep_last_prefix_mark(body: &mut Value) {
+    let system_marked = body["system"].as_array().is_some_and(|blocks| {
+        blocks
+            .iter()
+            .any(|block| block.get("cache_control").is_some())
+    });
+    if !system_marked {
+        return;
+    }
+    if let Some(tools) = body["tools"].as_array_mut() {
+        for tool in tools {
+            if let Some(object) = tool.as_object_mut() {
+                object.remove("cache_control");
+            }
+        }
+    }
+    if let Some(blocks) = body["system"].as_array_mut() {
+        let last = blocks
+            .iter()
+            .rposition(|block| block.get("cache_control").is_some());
+        for (index, block) in blocks.iter_mut().enumerate() {
+            if Some(index) != last
+                && let Some(object) = block.as_object_mut()
+            {
+                object.remove("cache_control");
+            }
+        }
+    }
 }
 
 fn cache_control(model: &Model, retention: Option<CacheRetention>) -> Option<Value> {
@@ -382,15 +492,28 @@ fn render_system_update(system: &SystemMessage) -> String {
     parts.join("\n\n")
 }
 
+struct Marks<'a> {
+    cache: Option<&'a Value>,
+    targets: &'a [(usize, Option<usize>)],
+    tail: Option<&'a Value>,
+    sources: &'a [Option<usize>],
+}
+
 fn convert(
     messages: &[Message],
+    marks: Marks<'_>,
     oauth: bool,
-    cache: Option<&Value>,
     empty_signature: bool,
     managed_provider: Option<&str>,
     native: bool,
     eager: bool,
 ) -> (Vec<Value>, Vec<(usize, String)>) {
+    let Marks {
+        cache,
+        targets,
+        tail,
+        sources,
+    } = marks;
     let mut params: Vec<Value> = Vec::new();
     let mut levels: Vec<(usize, String)> = Vec::new();
     let mut pending: Vec<Value> = Vec::new();
@@ -430,26 +553,48 @@ fn convert(
                     pending.push(json!({"role": "system", "content": blocks}));
                 }
             }
-            Message::User(user) => match &user.content {
-                UserContent::Text(text) => {
-                    if !text.trim().is_empty() {
-                        params.push(json!({"role": "user", "content": text}));
+            Message::User(user) => {
+                let marks = marks_for(targets, sources[index]);
+                match &user.content {
+                    UserContent::Text(text) => {
+                        if !text.trim().is_empty() {
+                            let content = match cache {
+                                Some(cache) if !marks.is_empty() => {
+                                    json!([{"type": "text", "text": text, "cache_control": cache}])
+                                }
+                                _ => json!(text),
+                            };
+                            params.push(json!({"role": "user", "content": content}));
+                        }
+                    }
+                    UserContent::Blocks(blocks) => {
+                        let mut kept: Vec<(usize, Value)> = blocks
+                            .iter()
+                            .enumerate()
+                            .filter_map(|(at, block)| match block {
+                                UserBlock::Text(text) => (!text.text.trim().is_empty())
+                                    .then(|| (at, json!({"type": "text", "text": text.text}))),
+                                UserBlock::Image(image) => Some((at, image_block(image))),
+                            })
+                            .collect();
+                        if let Some(cache) = cache {
+                            for mark in &marks {
+                                let at = match mark {
+                                    Some(block) => kept.iter().position(|(at, _)| *at == *block),
+                                    None => kept.len().checked_sub(1),
+                                };
+                                if let Some(at) = at {
+                                    kept[at].1["cache_control"] = cache.clone();
+                                }
+                            }
+                        }
+                        let blocks: Vec<Value> = kept.into_iter().map(|(_, block)| block).collect();
+                        if !blocks.is_empty() {
+                            params.push(json!({"role": "user", "content": blocks}));
+                        }
                     }
                 }
-                UserContent::Blocks(blocks) => {
-                    let blocks: Vec<Value> = blocks
-                        .iter()
-                        .filter_map(|block| match block {
-                            UserBlock::Text(text) => (!text.text.trim().is_empty())
-                                .then(|| json!({"type": "text", "text": text.text})),
-                            UserBlock::Image(image) => Some(image_block(image)),
-                        })
-                        .collect();
-                    if !blocks.is_empty() {
-                        params.push(json!({"role": "user", "content": blocks}));
-                    }
-                }
-            },
+            }
             Message::Assistant(assistant) => {
                 params.append(&mut pending);
                 let blocks = assistant_blocks(&assistant.content, oauth, empty_signature);
@@ -470,7 +615,15 @@ fn convert(
             Message::ToolResult(_) => {
                 let mut results = Vec::new();
                 while let Some(Message::ToolResult(result)) = messages.get(index) {
-                    results.push(tool_result(result));
+                    let mut value = tool_result(result);
+                    if let Some(cache) = cache {
+                        for mark in marks_for(targets, sources[index]) {
+                            if matches!(mark, None | Some(0)) {
+                                value["cache_control"] = cache.clone();
+                            }
+                        }
+                    }
+                    results.push(value);
                     index += 1;
                 }
                 params.push(json!({"role": "user", "content": results}));
@@ -480,8 +633,8 @@ fn convert(
         index += 1;
     }
     params.append(&mut pending);
-    if let (Some(cache), Some(last)) = (cache, params.last_mut()) {
-        mark_last(last, cache);
+    if let (Some(tail), Some(last)) = (tail, params.last_mut()) {
+        mark_last(last, tail);
     }
     (params, levels)
 }

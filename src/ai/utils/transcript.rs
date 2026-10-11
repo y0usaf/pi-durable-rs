@@ -1,6 +1,7 @@
 use super::text::system_content_text;
 use crate::ai::types::{
-    Context, Message, Sections, SystemContent, SystemMessage, SystemRole, Tool, TranscriptContext,
+    CachePoint, Context, Message, Sections, SystemContent, SystemMessage, SystemRole, Tool,
+    TranscriptContext,
 };
 
 pub fn to_tool_declaration(tool: &Tool) -> Tool {
@@ -229,4 +230,27 @@ pub fn resolve_transcript_tools(
         request_tools,
         anchors_additions,
     }
+}
+
+pub fn cache_points(messages: &[Message]) -> Vec<CachePoint> {
+    let first = messages
+        .iter()
+        .position(|message| matches!(message, Message::User(_)));
+    let last = messages
+        .iter()
+        .rposition(|message| matches!(message, Message::User(_) | Message::ToolResult(_)));
+    let mut points = Vec::new();
+    if let Some(first) = first {
+        points.push(CachePoint {
+            message: first,
+            block: None,
+        });
+    }
+    if let Some(last) = last.filter(|last| Some(*last) != first) {
+        points.push(CachePoint {
+            message: last,
+            block: None,
+        });
+    }
+    points
 }
