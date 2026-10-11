@@ -132,6 +132,7 @@ fn call_phase(
     rt: &ToolRuntime<'_>,
     cancel: &CancelToken,
 ) -> Result<()> {
+    let assistant = task.input.assistant;
     let call = read_call(rt, &task.input, cancel)?;
     let agent = rt.agent(cancel)?;
     let Some(tool) = find_tool(&agent, &call) else {
@@ -222,7 +223,7 @@ fn call_phase(
         }),
         cancel,
     )?;
-    run(rt, &call, tool, final_args, cancel)
+    run(rt, assistant, &call, tool, final_args, cancel)
 }
 
 fn execute_phase(
@@ -230,6 +231,7 @@ fn execute_phase(
     rt: &ToolRuntime<'_>,
     cancel: &CancelToken,
 ) -> Result<()> {
+    let assistant = task.input.assistant;
     let ToolTaskCheckpoint::Execute { arguments, replay } = task.checkpoint().clone() else {
         return Err(Error::Invalid(format!(
             "Task {} has no execute intent",
@@ -258,7 +260,7 @@ fn execute_phase(
                 }),
                 cancel,
             )?;
-            run(rt, &call, tool, arguments, cancel)
+            run(rt, assistant, &call, tool, arguments, cancel)
         }
         _ => {
             let message = format!(
@@ -378,6 +380,7 @@ struct Shared {
 
 struct Api<'s> {
     rt: &'s ToolRuntime<'s>,
+    assistant: EntryId,
     shared: &'s Shared,
     progress: &'s Progress<'s>,
     call_id: String,
@@ -386,6 +389,7 @@ struct Api<'s> {
 
 fn run(
     rt: &ToolRuntime<'_>,
+    assistant: EntryId,
     call: &ToolCall,
     tool: &ToolRegistration,
     args: JsonObject,
@@ -422,6 +426,7 @@ fn run(
         };
         let api = Api {
             rt,
+            assistant,
             shared: &shared,
             progress: &progress,
             call_id: call.id.clone(),
@@ -969,6 +974,10 @@ impl ToolExecutionApi for Api<'_> {
 
     fn call_id(&self) -> &str {
         &self.call_id
+    }
+
+    fn assistant_entry(&self) -> Option<EntryId> {
+        Some(self.assistant)
     }
 
     fn registry(&self) -> Arc<RegistrySnapshot> {

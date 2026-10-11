@@ -15,7 +15,7 @@ use crate::harness::output::{OutputChunk, Retain, ShellOutputSkip};
 use crate::harness::registry::{Registry, RegistrySnapshot};
 use crate::harness::scheduler::ErasedTask;
 use crate::harness::submissions::{SubmissionDraft, SubmissionHandle};
-use crate::ids::{ConversationId, TaskId};
+use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::types::{DocumentObserver, DocumentReader, Tx};
 use crate::types::{
     AnyTaskRecord, ConversationOwnership, ConversationRecord, JsonValue, ToolDiagnostic,
@@ -106,6 +106,9 @@ pub trait ToolExecutionApi: DocumentObserver + DocumentReader {
     fn task_id(&self) -> TaskId;
     fn conversation_id(&self) -> ConversationId;
     fn call_id(&self) -> &str;
+    fn assistant_entry(&self) -> Option<EntryId> {
+        None
+    }
     fn registry(&self) -> Arc<RegistrySnapshot>;
     fn agent(&self, cancel: &CancelToken) -> Result<Agent>;
     fn models(&self) -> &dyn Models;
