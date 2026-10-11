@@ -98,6 +98,11 @@ fn check_schema(schema: &Value) -> Result<(), String> {
                     check_schema(sub)?;
                 }
             }
+            "enum" => {
+                if !value.as_array().is_some_and(|options| !options.is_empty()) {
+                    return Err("\"enum\" must be a non-empty array".to_owned());
+                }
+            }
             "minItems" => {
                 if !value.is_u64() {
                     return Err("\"minItems\" must be a non-negative integer".to_owned());
@@ -184,6 +189,13 @@ fn check(schema: &Value, value: &Value) -> bool {
     if map
         .get("type")
         .is_some_and(|declared| !type_matches(declared, value))
+    {
+        return false;
+    }
+    if map
+        .get("enum")
+        .and_then(Value::as_array)
+        .is_some_and(|options| !options.iter().any(|option| canonical(option) == *value))
     {
         return false;
     }
@@ -308,6 +320,18 @@ fn errors(schema: &Value, value: &Value, path: &str, ctx: &mut Ctx) -> bool {
     if let Some(declared) = map.get("type") {
         let matched = type_matches(declared, value);
         all &= matched || ctx.add(type_issue(declared, path));
+    }
+    if let Some(options) = map.get("enum").and_then(Value::as_array) {
+        let matched = options.iter().any(|option| canonical(option) == *value);
+        all &= matched
+            || ctx.add(Issue::new(
+                "enum",
+                path,
+                &format!(
+                    "must be equal to one of the allowed values: {}",
+                    Value::Array(options.clone())
+                ),
+            ));
     }
     if let Value::Object(object) = value {
         let mut block = true;
