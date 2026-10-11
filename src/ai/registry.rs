@@ -43,12 +43,7 @@ impl Providers {
     pub fn builtin() -> Self {
         let mut providers = Self::new();
         #[cfg(feature = "anthropic")]
-        {
-            providers.add_api("anthropic-messages", super::api::anthropic::api());
-            providers.add_models(super::catalog::anthropic());
-        }
-        #[cfg(feature = "vercel-gateway")]
-        providers.add_models(super::catalog::vercel_gateway());
+        providers.add_api("anthropic-messages", super::api::anthropic::api());
         #[cfg(feature = "openai")]
         {
             providers.add_api("openai-completions", super::api::openai_completions::api());
@@ -57,9 +52,8 @@ impl Providers {
                 "openai-codex-responses",
                 super::api::openai_responses::api(),
             );
-            providers.add_models(super::catalog::openai());
-            providers.add_models(super::catalog::openai_codex());
         }
+        providers.add_models(super::catalog::all());
         providers
     }
 
