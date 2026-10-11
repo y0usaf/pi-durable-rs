@@ -4,7 +4,7 @@
 
 mod codex;
 mod events;
-mod request;
+pub(crate) mod request;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -43,19 +43,25 @@ impl Api for OpenAiResponses {
         let signal = options.signal.clone();
         let run_model = model.clone();
         spawn(model, signal.as_ref(), move |out, output| {
-            run(&run_model, &context, &options, out, output)
+            run(&run_model, None, &context, &options, out, output)
         })
     }
 }
 
-fn run(
+pub(crate) struct Route {
+    pub url: String,
+    pub key_header: &'static str,
+}
+
+pub(crate) fn run(
     model: &Model,
+    route: Option<&Route>,
     context: &TranscriptContext,
     options: &SimpleStreamOptions,
     out: &AssistantMessageEventStream,
     output: &mut AssistantMessage,
 ) -> Result<(), String> {
-    if model.base_url.is_empty() {
+    if route.is_none() && model.base_url.is_empty() {
         return Err(format!("No base URL for model {}", model.id));
     }
     let compat = Compat::of(model);
@@ -69,10 +75,10 @@ fn run(
     let retention = cache_retention(options);
     let turn = turn(model, &context, options, retention, api_key);
     let body = request::build(model, &context, &compat, &turn)?;
-    let url = if compat.codex {
-        endpoint(&model.base_url)
-    } else {
-        format!("{}/responses", model.base_url.trim_end_matches('/'))
+    let url = match route {
+        Some(route) => route.url.clone(),
+        None if compat.codex => endpoint(&model.base_url),
+        None => format!("{}/responses", model.base_url.trim_end_matches('/')),
     };
     let account = if compat.codex {
         Some(account_id(options.headers.as_ref(), api_key)?)
@@ -93,6 +99,7 @@ fn run(
         &compat,
         api_key,
         account.as_deref(),
+        route.map_or("authorization", |route| route.key_header),
     ) {
         request = request.header(&name, value);
     }
@@ -177,10 +184,16 @@ fn headers(
     compat: &Compat,
     api_key: Option<&str>,
     account: Option<&str>,
+    key_header: &str,
 ) -> Vec<(String, String)> {
     let mut headers = Vec::new();
     if let Some(key) = api_key {
-        set_header(&mut headers, "authorization", format!("Bearer {key}"));
+        let value = if key_header == "authorization" {
+            format!("Bearer {key}")
+        } else {
+            key.to_owned()
+        };
+        set_header(&mut headers, key_header, value);
     }
     for (name, value) in model.headers.iter().flatten() {
         set_header(&mut headers, name, value.clone());

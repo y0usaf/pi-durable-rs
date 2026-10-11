@@ -249,7 +249,7 @@ fn input(
     Ok(items)
 }
 
-fn render_update(system: &SystemMessage) -> String {
+pub(crate) fn render_update(system: &SystemMessage) -> String {
     let mut parts = Vec::new();
     let text = system_content_text(&system.content);
     if !text.is_empty() {
