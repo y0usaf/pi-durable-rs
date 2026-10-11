@@ -162,12 +162,8 @@ fn run(
 }
 
 fn chat_completions_url(base: &str) -> String {
-    let base = base.trim_end_matches('/');
-    if base.ends_with("/v1") {
-        format!("{base}/chat/completions")
-    } else {
-        format!("{base}/v1/chat/completions")
-    }
+    let end = base.find(['?', '#']).unwrap_or(base.len());
+    format!("{}/v1/chat/completions", base[..end].trim_end_matches('/'))
 }
 
 fn status_error(status: u16, text: &str) -> String {
