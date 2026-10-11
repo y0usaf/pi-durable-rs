@@ -98,6 +98,11 @@ fn check_schema(schema: &Value) -> Result<(), String> {
                     check_schema(sub)?;
                 }
             }
+            "minItems" => {
+                if !value.is_u64() {
+                    return Err("\"minItems\" must be a non-negative integer".to_owned());
+                }
+            }
             "additionalProperties" => check_schema(value)?,
             "items" => match value {
                 Value::Array(tuple) => {
@@ -222,7 +227,11 @@ fn check(schema: &Value, value: &Value) -> bool {
                 .all(|(sub, item)| check(sub, item)),
             other => array.iter().all(|item| check(other, item)),
         });
-        if !items_ok {
+        let min_ok = map
+            .get("minItems")
+            .and_then(Value::as_u64)
+            .is_none_or(|min| array.len() as u64 >= min);
+        if !(items_ok && min_ok) {
             return false;
         }
     }
@@ -316,6 +325,14 @@ fn errors(schema: &Value, value: &Value, path: &str, ctx: &mut Ctx) -> bool {
     }
     if let (Value::Array(array), Some(items)) = (value, map.get("items")) {
         all &= error_items(items, array, path, ctx);
+    }
+    if let (Value::Array(array), Some(min)) = (value, map.get("minItems").and_then(Value::as_u64)) {
+        all &= array.len() as u64 >= min
+            || ctx.add(Issue::new(
+                "minItems",
+                path,
+                &format!("must NOT have fewer than {min} items"),
+            ));
     }
     if let Some(subs) = map.get("allOf").and_then(Value::as_array) {
         all &= error_all_of(subs, value, path, ctx);
