@@ -321,7 +321,7 @@ fn keep_last_prefix_mark(body: &mut Value) {
     if !system_marked {
         return;
     }
-    if let Some(tools) = body["tools"].as_array_mut() {
+    if let Some(tools) = body.get_mut("tools").and_then(Value::as_array_mut) {
         for tool in tools {
             if let Some(object) = tool.as_object_mut() {
                 object.remove("cache_control");
