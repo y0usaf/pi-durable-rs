@@ -54,9 +54,9 @@ fn prepare(
     let route = Route {
         url: format!("{base}/responses?api-version={}", query_escape(&version)),
         key_header: "api-key",
+        request_model: Some(deployment_name(&model.id)),
     };
     let mut wire = model.clone();
-    wire.id = deployment_name(&model.id);
     let compat = wire.compat.get_or_insert_with(|| Value::Object(Map::new()));
     if let Some(compat) = compat.as_object_mut() {
         compat
