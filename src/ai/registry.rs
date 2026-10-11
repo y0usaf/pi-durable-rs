@@ -53,6 +53,9 @@ impl Providers {
                 "openai-codex-responses",
                 super::api::openai_responses::api(),
             );
+            providers.add_api("mistral-conversations", super::api::mistral::api());
+            providers.add_api("azure-openai-responses", super::api::azure::api());
+            providers.add_api("pi-messages", super::api::pi_messages::api());
         }
         #[cfg(feature = "http")]
         providers.add_api("bedrock-converse-stream", super::api::bedrock::api());
