@@ -1,3 +1,4 @@
+mod config;
 mod eventstream;
 mod request;
 mod sigv4;
@@ -19,8 +20,9 @@ use crate::ai::types::{
 use crate::ai::utils::text::system_message_text;
 use crate::ai::utils::transcript::{
     collapse_system_messages, get_current_tools, get_initial_system_message,
-    without_initial_system_message,
 };
+
+use config::{env, profile_region};
 
 const DEFAULT_MAX_RETRY_DELAY_MS: u64 = 60_000;
 
@@ -67,9 +69,8 @@ fn run(
     let system = get_initial_system_message(messages)
         .map(system_message_text)
         .filter(|text| !text.is_empty());
-    let conversation = without_initial_system_message(messages);
     let tools = get_current_tools(messages);
-    let built = request::build(model, conversation, system.as_deref(), &tools, &options)?;
+    let built = request::build(model, messages, system.as_deref(), &tools, &options)?;
     let body = serde_json::to_vec(&built).map_err(|error| error.to_string())?;
 
     let configured = options
@@ -77,11 +78,18 @@ fn run(
         .as_deref()
         .or(Some(model.base_url.as_str()))
         .filter(|url| !url.is_empty());
-    let region = region(model, configured);
-    let endpoint = configured.map_or_else(
-        || format!("https://bedrock-runtime.{region}.amazonaws.com"),
-        |url| url.trim_end_matches('/').to_owned(),
-    );
+    let region = region(model, configured)?;
+    let endpoint = match configured {
+        Some(url)
+            if endpoint_region(url).is_none()
+                || (env("AWS_REGION").is_none()
+                    && env("AWS_DEFAULT_REGION").is_none()
+                    && env("AWS_PROFILE").is_none()) =>
+        {
+            url.trim_end_matches('/').to_owned()
+        }
+        _ => format!("https://bedrock-runtime.{region}.amazonaws.com"),
+    };
     let path = format!(
         "/model/{}/converse-stream",
         sigv4::uri_encode(&model.id, false)
@@ -177,6 +185,13 @@ fn run(
 }
 
 fn auth(options: &SimpleStreamOptions) -> Result<Auth, String> {
+    if env("AWS_BEDROCK_SKIP_AUTH").as_deref() == Some("1") {
+        return Ok(Auth::Sigv4 {
+            access_key: "dummy-access-key".to_owned(),
+            secret_key: "dummy-secret-key".to_owned(),
+            session_token: None,
+        });
+    }
     if let Some(token) = options
         .api_key
         .clone()
@@ -185,29 +200,28 @@ fn auth(options: &SimpleStreamOptions) -> Result<Auth, String> {
     {
         return Ok(Auth::Bearer(token));
     }
-    match (env("AWS_ACCESS_KEY_ID"), env("AWS_SECRET_ACCESS_KEY")) {
-        (Some(access_key), Some(secret_key)) => Ok(Auth::Sigv4 {
-            access_key,
-            secret_key,
-            session_token: env("AWS_SESSION_TOKEN"),
-        }),
-        _ => Err(
-            "No AWS credentials for provider amazon-bedrock: set AWS_BEARER_TOKEN_BEDROCK or AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
-                .to_owned(),
-        ),
+    let credentials = config::credentials()?;
+    Ok(Auth::Sigv4 {
+        access_key: credentials.access_key,
+        secret_key: credentials.secret_key,
+        session_token: credentials.session_token,
+    })
+}
+
+fn region(model: &Model, endpoint: Option<&str>) -> Result<String, String> {
+    if let Some(region) = arn_region(&model.id) {
+        return Ok(region);
     }
-}
-
-fn env(name: &str) -> Option<String> {
-    std::env::var(name).ok().filter(|value| !value.is_empty())
-}
-
-fn region(model: &Model, endpoint: Option<&str>) -> String {
-    arn_region(&model.id)
-        .or_else(|| env("AWS_REGION"))
-        .or_else(|| env("AWS_DEFAULT_REGION"))
-        .or_else(|| endpoint.and_then(endpoint_region))
-        .unwrap_or_else(|| "us-east-1".to_owned())
+    if let Some(region) = env("AWS_REGION").or_else(|| env("AWS_DEFAULT_REGION")) {
+        return Ok(region);
+    }
+    if let Some(profile) = env("AWS_PROFILE") {
+        return profile_region(&profile)?
+            .ok_or_else(|| format!("amazon-bedrock: profile {profile} sets no region"));
+    }
+    Ok(endpoint
+        .and_then(endpoint_region)
+        .unwrap_or_else(|| "us-east-1".to_owned()))
 }
 
 fn arn_region(id: &str) -> Option<String> {
