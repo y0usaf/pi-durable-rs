@@ -216,9 +216,17 @@ fn thinking_config(model: &Model, level: ThinkingLevel) -> Result<Value, String>
         || GEMINI3_FLASH.is_match(id)
         || GEMMA4.is_match(id)
         || matches!(id, "gemini-flash-latest" | "gemini-flash-lite-latest");
-    let clamped = clamp_thinking_level(model, ModelThinkingLevel::from(level));
-    if clamped == ModelThinkingLevel::Off {
-        return Ok(json!({"thinkingBudget": 0}));
+    let requested = ModelThinkingLevel::from(level);
+    let clamped = clamp_thinking_level(model, requested);
+    if requested == ModelThinkingLevel::Off || clamped == ModelThinkingLevel::Off {
+        if !uses_level {
+            return Ok(json!({"thinkingBudget": 0}));
+        }
+        let fallback = clamp_thinking_level(model, ModelThinkingLevel::Off);
+        if fallback == ModelThinkingLevel::Off {
+            return Ok(json!({"thinkingBudget": 0}));
+        }
+        return Ok(json!({"thinkingLevel": resolve_level(model, fallback)?.to_uppercase()}));
     }
     let resolved = resolve_level(model, clamped)?;
     let mut config = json!({"includeThoughts": true});
