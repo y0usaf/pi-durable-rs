@@ -4,6 +4,8 @@ use serde::Deserialize;
 use serde_json::Value;
 
 use crate::ai::http::{Request, send};
+use crate::ai::oauth::anthropic::parse_authorization_input;
+use crate::ai::oauth::callback::Listener;
 use crate::ai::oauth::pkce::Pkce;
 use crate::ai::oauth::{Credentials, form_encode, now_ms};
 use crate::cancel::CancelToken;
@@ -11,6 +13,7 @@ use crate::cancel::CancelToken;
 pub const ORIGINATOR: &str = "pig";
 const TOKEN_TIMEOUT: Duration = Duration::from_secs(30);
 const JWT_CLAIM: &str = "https://api.openai.com/auth";
+const CALLBACK_PATH: &str = "/auth/callback";
 
 #[derive(Debug, Clone)]
 pub struct Endpoints {
@@ -163,6 +166,32 @@ pub fn refresh(
         cancel,
     )?;
     credentials(&text, "refresh")
+}
+
+pub fn code_from_manual_input(input: &str, state: &str) -> Result<String, String> {
+    let parsed = parse_authorization_input(input);
+    if parsed
+        .state
+        .as_deref()
+        .is_some_and(|value| !value.is_empty() && value != state)
+    {
+        return Err("State mismatch".to_owned());
+    }
+    parsed
+        .code
+        .filter(|code| !code.is_empty())
+        .ok_or_else(|| "Missing authorization code".to_owned())
+}
+
+pub fn login_browser(
+    endpoints: &Endpoints,
+    pkce: &Pkce,
+    listener: Listener,
+    state: &str,
+    cancel: &CancelToken,
+) -> Result<Credentials, String> {
+    let code = listener.wait_code("OpenAI", CALLBACK_PATH, state, cancel)?;
+    exchange_code(endpoints, &code, &pkce.verifier, Some(cancel))
 }
 
 pub fn account_id_from_token(access: &str) -> Option<String> {
