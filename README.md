@@ -172,7 +172,7 @@ Everything below was read from the code and docs in this repository, from the pi
 | Absent values | `undefined` | `Option::None`, skipped when serialised; an explicit JSON `null` in `details` / `data` stays `Some(null)` | `src/ai/types.rs` (`present`) |
 | Registry | `createRegistry()` has built-ins; `Harness` throws without them | `Registry::default()` has none until an install; no check (see Try it) | `registry.ts`, `src/harness/registry.rs` |
 | Extensions and tools | `defineExtension`, `defineTool`, typebox schemas | struct literals (`Extension`, `ToolRegistration`); schemas are hand-built JSON; argument validation follows typebox 1.3.27 for the subset tools use and errors on other keywords | `src/harness/define.rs`, `src/ai/utils/validation.rs` |
-| Hooks | handlers get a `HookApi` (memo, models, conversation) | closures with no `HookApi`; a hook cannot call `memo` or `models` | `docs/COVERAGE.md` |
+| Hooks | handlers get a `HookApi` (memo, models, conversation) | generation and compaction hooks get a `HookApi` with `conversation_id` only; no memo or models | `src/harness/types.rs` |
 | Documents | positional `args`, checked in overloads | explicit owner and key, ids and versions are `u64`, scope checked at run time on `DocToken<T>` | `src/documents.rs` |
 | Transaction | async callback; unawaited `Tx` calls are an error | methods return values directly, so that error cannot happen | `session/transaction.ts:679` |
 | Storage | memory, JSONL, SQLite (Node and Cloudflare) | memory, JSONL, SQLite (`rusqlite`); no Cloudflare backend | `packages/durable/src/storage/sqlite/cloudflare.ts`, `src/storage/` |
@@ -189,7 +189,7 @@ The crate is 0.1.0 and its API is still moving.
 - **Bash output windows.** `ToolExecutionApi::outputWindow` does not exist; `skipped` is always `None` and chunk boundaries differ on large output. The retained tail matches.
 - **Unicode.** Strings cannot hold lone surrogates, so a cut through a surrogate pair yields U+FFFD; `t` counts stay UTF-16 units.
 - **Not ported from chord:** replicated state for views (`viewState` observers run synchronously on the commit path), `copyJson`, `isJsonValue`, the revision validator.
-- **Not ported** (from `docs/COVERAGE.md`): `HookApi`, a commit-subscribe callback (use `DocumentWatch`), coding services and resource loader, MCP, the codemode sandbox.
+- **Not ported** (from `docs/COVERAGE.md`): `HookApi` memo and models, a commit-subscribe callback (use `DocumentWatch`), coding services and resource loader, MCP, the codemode sandbox.
 - **Process groups** use `process_group(0)` plus a two-line `extern "C"` call to `kill(2)`; temp-file names come from `RandomState` instead of a UUID. Unix only.
 - **Close.** `Harness::close` joins running invocations before closing the session; TypeScript seals admission first, so a task admitted during close can start in Rust and be refused in TypeScript.
 

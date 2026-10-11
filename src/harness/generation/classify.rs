@@ -13,7 +13,7 @@ use crate::harness::generation::{
     GenerationCheckpoint, Runtime, append_assistant, edit_live, end_run, read_live, write_live,
 };
 use crate::harness::live::{DeferredStatus, GenerationStatus, RetryStatus};
-use crate::harness::types::{CompactionReason, ModelRef};
+use crate::harness::types::{CompactionReason, HookApi, ModelRef};
 use crate::ids::{EntryId, TaskId};
 use crate::tasks::{JoinPolicy, NextTaskState, TaskOutcome, TaskOutcomeError};
 use crate::types::SubmissionSettlement;
@@ -170,9 +170,12 @@ pub fn classify(
         )?;
         return Ok(());
     }
+    let api = HookApi {
+        conversation_id: runtime.conversation_id(),
+    };
     runtime.hooks().each(&mut |hooks| {
         if let Some(hook) = hooks.after_response.as_ref() {
-            hook(&message)?;
+            hook(&api, &message)?;
         }
         Ok(())
     })?;

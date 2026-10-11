@@ -20,8 +20,8 @@ use crate::harness::provider::ensure_provider_session_id;
 use crate::harness::runtime::{HarnessPhaseHandler, HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::tool::{ToolTaskInput, erase, harness_error, tool_task};
 use crate::harness::types::{
-    CompactionPolicy, CompactionReason, ConversationStreamOptions, Deferred, HookTask, ModelRef,
-    PromptInput, Settings,
+    CompactionPolicy, CompactionReason, ConversationStreamOptions, Deferred, HookApi, HookTask,
+    ModelRef, PromptInput, Settings,
 };
 use crate::harness::usage::{UsageBucket, record_usage};
 use crate::harness::util::{conversation_doc, edit_doc, read_draft, write_draft};
@@ -94,12 +94,15 @@ pub type Runtime<'a> = &'a (
 > + Sync
     );
 
-pub type BeforeRequestHook = Box<dyn Fn(&[Message]) -> Result<Option<Vec<Message>>> + Send + Sync>;
-pub type AfterResponseHook = Box<dyn Fn(&AssistantMessage) -> Result<()> + Send + Sync>;
+pub type BeforeRequestHook =
+    Box<dyn Fn(&HookApi, &[Message]) -> Result<Option<Vec<Message>>> + Send + Sync>;
+pub type AfterResponseHook = Box<dyn Fn(&HookApi, &AssistantMessage) -> Result<()> + Send + Sync>;
 pub type OnYieldHook = Box<
-    dyn Fn(&AssistantMessage) -> Result<Option<crate::harness::types::UserInput>> + Send + Sync,
+    dyn Fn(&HookApi, &AssistantMessage) -> Result<Option<crate::harness::types::UserInput>>
+        + Send
+        + Sync,
 >;
-pub type AfterToolsHook = Box<dyn Fn(EntryId, &[EntryId]) -> Result<()> + Send + Sync>;
+pub type AfterToolsHook = Box<dyn Fn(&HookApi, EntryId, &[EntryId]) -> Result<()> + Send + Sync>;
 
 #[derive(Default)]
 pub struct GenerationHooks {
@@ -627,9 +630,12 @@ fn request(
     };
     let view = runtime.context(Some(cutoff), cancel)?;
     let mut replaced: Option<Vec<Message>> = None;
+    let api = HookApi {
+        conversation_id: runtime.conversation_id(),
+    };
     runtime.hooks().each(&mut |hooks| {
         if let Some(hook) = hooks.before_request.as_ref()
-            && let Some(next) = hook(replaced.as_deref().unwrap_or(&view.messages))?
+            && let Some(next) = hook(&api, replaced.as_deref().unwrap_or(&view.messages))?
         {
             replaced = Some(next);
         }

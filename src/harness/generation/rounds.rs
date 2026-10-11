@@ -18,7 +18,7 @@ use crate::harness::generation::{
 use crate::harness::inbox::{Phase, apply_boundary, prepare_boundary};
 use crate::harness::live::{SlotStatus, ToolSlot};
 use crate::harness::tool::{ToolTaskResult, erase, harness_error};
-use crate::harness::types::{ToolControl, ToolExecutionMode};
+use crate::harness::types::{HookApi, ToolControl, ToolExecutionMode};
 use crate::ids::{EntryId, TaskId};
 use crate::tasks::{JoinPolicy, NextTaskState, RunningTask, TaskOutcome};
 use crate::types::{EntryDraft, SubmissionSettlement};
@@ -51,12 +51,15 @@ pub fn read_calls(
 
 pub fn answer(runtime: Runtime<'_>, message: AssistantMessage, cancel: &CancelToken) -> Result<()> {
     let mut continuation: Option<UserContent> = None;
+    let api = HookApi {
+        conversation_id: runtime.conversation_id(),
+    };
     runtime.hooks().each(&mut |hooks| {
         if continuation.is_some() {
             return Ok(());
         }
         if let Some(hook) = hooks.on_yield.as_ref() {
-            continuation = hook(&message)?;
+            continuation = hook(&api, &message)?;
         }
         Ok(())
     })?;
@@ -291,9 +294,12 @@ pub fn finish_tool_round(
                 .or_else(|| slot.task_id.and_then(|id| entries.get(&id).copied()))
         })
         .collect();
+    let api = HookApi {
+        conversation_id: runtime.conversation_id(),
+    };
     runtime.hooks().each(&mut |hooks| {
         if let Some(hook) = hooks.after_tools.as_ref() {
-            hook(assistant, &results)?;
+            hook(&api, assistant, &results)?;
         }
         Ok(())
     })?;
