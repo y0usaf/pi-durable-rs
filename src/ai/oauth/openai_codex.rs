@@ -1,17 +1,26 @@
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use serde::Deserialize;
-use serde_json::Value;
+use serde_json::{Value, json};
 
 use crate::ai::http::{Request, send};
+use crate::ai::oauth::anthropic::parse_authorization_input;
+use crate::ai::oauth::callback::Listener;
 use crate::ai::oauth::pkce::Pkce;
 use crate::ai::oauth::{Credentials, form_encode, now_ms};
 use crate::cancel::CancelToken;
 
 pub const ORIGINATOR: &str = "pig";
 const TOKEN_TIMEOUT: Duration = Duration::from_secs(30);
-const EXPIRY_MARGIN_MS: i64 = 5 * 60 * 1000;
 const JWT_CLAIM: &str = "https://api.openai.com/auth";
+const CALLBACK_PATH: &str = "/auth/callback";
+const DEVICE_CODE_TIMEOUT: Duration = Duration::from_secs(15 * 60);
+const MIN_INTERVAL_MS: u64 = 1000;
+const SLOW_DOWN_STEP_MS: u64 = 5000;
+const DEVICE_NOT_ENABLED: &str = "OpenAI Codex device code login is not enabled for this server. Use browser login or verify the server URL.";
+const DEVICE_CANCELLED: &str = "Login cancelled";
+const DEVICE_TIMED_OUT: &str = "Device flow timed out";
+const DEVICE_SLOW_DOWN_TIMED_OUT: &str = "Device flow timed out after one or more slow_down responses. This is often caused by clock drift in WSL or VM environments. Please sync or restart the VM clock and try again.";
 
 #[derive(Debug, Clone)]
 pub struct Endpoints {
@@ -20,6 +29,10 @@ pub struct Endpoints {
     pub token_url: String,
     pub redirect_uri: String,
     pub scope: String,
+    pub device_user_code_url: String,
+    pub device_token_url: String,
+    pub device_verification_uri: String,
+    pub device_redirect_uri: String,
 }
 
 impl Default for Endpoints {
@@ -30,6 +43,11 @@ impl Default for Endpoints {
             token_url: "https://auth.openai.com/oauth/token".to_owned(),
             redirect_uri: "http://localhost:1455/auth/callback".to_owned(),
             scope: "openid profile email offline_access".to_owned(),
+            device_user_code_url: "https://auth.openai.com/api/accounts/deviceauth/usercode"
+                .to_owned(),
+            device_token_url: "https://auth.openai.com/api/accounts/deviceauth/token".to_owned(),
+            device_verification_uri: "https://auth.openai.com/codex/device".to_owned(),
+            device_redirect_uri: "https://auth.openai.com/deviceauth/callback".to_owned(),
         }
     }
 }
@@ -81,10 +99,13 @@ fn credentials(text: &str, operation: &str) -> Result<Credentials, String> {
             "OpenAI Codex token {operation} response missing fields"
         ));
     }
+    if account_id_from_token(&data.access_token).is_none() {
+        return Err("Failed to extract accountId from token".to_owned());
+    }
     Ok(Credentials {
         refresh: data.refresh_token,
         access: data.access_token,
-        expires_ms: now_ms() + (data.expires_in * 1000.0) as i64 - EXPIRY_MARGIN_MS,
+        expires_ms: now_ms() + (data.expires_in * 1000.0) as i64,
     })
 }
 
@@ -152,6 +173,237 @@ pub fn refresh(
         cancel,
     )?;
     credentials(&text, "refresh")
+}
+
+pub fn code_from_manual_input(input: &str, state: &str) -> Result<String, String> {
+    let parsed = parse_authorization_input(input);
+    if parsed
+        .state
+        .as_deref()
+        .is_some_and(|value| !value.is_empty() && value != state)
+    {
+        return Err("State mismatch".to_owned());
+    }
+    parsed
+        .code
+        .filter(|code| !code.is_empty())
+        .ok_or_else(|| "Missing authorization code".to_owned())
+}
+
+pub fn login_browser(
+    endpoints: &Endpoints,
+    pkce: &Pkce,
+    listener: Listener,
+    state: &str,
+    cancel: &CancelToken,
+) -> Result<Credentials, String> {
+    let code = listener.wait_code("OpenAI", CALLBACK_PATH, state, cancel)?;
+    exchange_code(endpoints, &code, &pkce.verifier, Some(cancel))
+}
+
+#[derive(Deserialize)]
+struct UserCodeResponse {
+    device_auth_id: String,
+    user_code: String,
+    interval: Value,
+}
+
+#[derive(Deserialize)]
+struct DeviceAuthorization {
+    authorization_code: String,
+    code_verifier: String,
+}
+
+pub struct DeviceCode {
+    pub device_auth_id: String,
+    pub user_code: String,
+    pub verification_uri: String,
+    pub interval_seconds: f64,
+}
+
+pub enum DevicePoll<T> {
+    Pending,
+    SlowDown,
+    Failed(String),
+    Complete(T),
+}
+
+fn body_suffix(text: &str) -> String {
+    if text.is_empty() {
+        String::new()
+    } else {
+        format!(": {text}")
+    }
+}
+
+fn post_json_status(
+    url: &str,
+    body: &Value,
+    cancel: Option<&CancelToken>,
+) -> Result<(u16, String), String> {
+    let request = Request::new("POST", url)
+        .json(body)
+        .timeout(Some(TOKEN_TIMEOUT));
+    let response = send(&request, cancel).map_err(|error| format!("Error: {error}"))?;
+    let status = response.status;
+    let text = response.text().map_err(|error| format!("Error: {error}"))?;
+    Ok((status, text))
+}
+
+fn parse_interval(value: &Value) -> Option<f64> {
+    match value {
+        Value::Number(number) => number.as_f64(),
+        Value::String(text) => {
+            let trimmed = text.trim();
+            if trimmed.is_empty() {
+                Some(0.0)
+            } else {
+                trimmed
+                    .parse::<f64>()
+                    .ok()
+                    .filter(|seconds| seconds.is_finite())
+            }
+        }
+        _ => None,
+    }
+}
+
+fn error_code(text: &str) -> String {
+    let Ok(value) = serde_json::from_str::<Value>(text) else {
+        return String::new();
+    };
+    match &value["error"] {
+        Value::String(code) => code.clone(),
+        Value::Object(object) => object
+            .get("code")
+            .and_then(Value::as_str)
+            .unwrap_or("")
+            .to_owned(),
+        _ => String::new(),
+    }
+}
+
+pub fn start_device_login(
+    endpoints: &Endpoints,
+    cancel: Option<&CancelToken>,
+) -> Result<DeviceCode, String> {
+    let body = json!({ "client_id": endpoints.client_id });
+    let (status, text) = post_json_status(&endpoints.device_user_code_url, &body, cancel)?;
+    if status == 404 {
+        return Err(DEVICE_NOT_ENABLED.to_owned());
+    }
+    if status != 200 {
+        return Err(format!(
+            "OpenAI Codex device code request failed with status {status}{}",
+            body_suffix(&text)
+        ));
+    }
+    let invalid = || format!("Invalid OpenAI Codex device code response: {text}");
+    let data: UserCodeResponse = serde_json::from_str(&text).map_err(|_| invalid())?;
+    let interval_seconds = parse_interval(&data.interval)
+        .filter(|seconds| *seconds >= 0.0)
+        .filter(|_| !data.device_auth_id.is_empty() && !data.user_code.is_empty())
+        .ok_or_else(invalid)?;
+    Ok(DeviceCode {
+        device_auth_id: data.device_auth_id,
+        user_code: data.user_code,
+        verification_uri: endpoints.device_verification_uri.clone(),
+        interval_seconds,
+    })
+}
+
+fn poll_device(
+    endpoints: &Endpoints,
+    device: &DeviceCode,
+    cancel: &CancelToken,
+) -> Result<DevicePoll<DeviceAuthorization>, String> {
+    let body = json!({
+        "device_auth_id": device.device_auth_id,
+        "user_code": device.user_code,
+    });
+    let (status, text) = post_json_status(&endpoints.device_token_url, &body, Some(cancel))?;
+    if status == 200 {
+        return Ok(match serde_json::from_str::<DeviceAuthorization>(&text) {
+            Ok(auth) if !auth.authorization_code.is_empty() && !auth.code_verifier.is_empty() => {
+                DevicePoll::Complete(auth)
+            }
+            _ => DevicePoll::Failed(format!(
+                "Invalid OpenAI Codex device auth token response: {text}"
+            )),
+        });
+    }
+    if status == 403 || status == 404 {
+        return Ok(DevicePoll::Pending);
+    }
+    Ok(match error_code(&text).as_str() {
+        "deviceauth_authorization_pending" => DevicePoll::Pending,
+        "slow_down" => DevicePoll::SlowDown,
+        _ => DevicePoll::Failed(format!(
+            "OpenAI Codex device auth failed with status {status}{}",
+            body_suffix(&text)
+        )),
+    })
+}
+
+fn poll_flow<T>(
+    interval_seconds: f64,
+    cancel: &CancelToken,
+    mut poll: impl FnMut() -> Result<DevicePoll<T>, String>,
+) -> Result<T, String> {
+    let deadline = Instant::now() + DEVICE_CODE_TIMEOUT;
+    let mut interval_ms = ((interval_seconds * 1000.0).floor() as u64).max(MIN_INTERVAL_MS);
+    let mut slow_downs = 0;
+    while Instant::now() < deadline {
+        if cancel.is_cancelled() {
+            return Err(DEVICE_CANCELLED.to_owned());
+        }
+        match poll()? {
+            DevicePoll::Complete(value) => return Ok(value),
+            DevicePoll::Failed(message) => return Err(message),
+            DevicePoll::SlowDown => {
+                slow_downs += 1;
+                interval_ms += SLOW_DOWN_STEP_MS;
+            }
+            DevicePoll::Pending => {}
+        }
+        let remaining_ms = deadline
+            .saturating_duration_since(Instant::now())
+            .as_millis() as u64;
+        if remaining_ms == 0 {
+            break;
+        }
+        if cancel.wait_timeout(Duration::from_millis(interval_ms.min(remaining_ms))) {
+            return Err(DEVICE_CANCELLED.to_owned());
+        }
+    }
+    Err(if slow_downs > 0 {
+        DEVICE_SLOW_DOWN_TIMED_OUT
+    } else {
+        DEVICE_TIMED_OUT
+    }
+    .to_owned())
+}
+
+pub fn login_device(
+    endpoints: &Endpoints,
+    cancel: &CancelToken,
+    on_code: impl FnOnce(&DeviceCode),
+) -> Result<Credentials, String> {
+    let device = start_device_login(endpoints, Some(cancel))?;
+    on_code(&device);
+    let authorization = poll_flow(device.interval_seconds, cancel, || {
+        poll_device(endpoints, &device, cancel)
+    })?;
+    let device_endpoints = Endpoints {
+        redirect_uri: endpoints.device_redirect_uri.clone(),
+        ..endpoints.clone()
+    };
+    exchange_code(
+        &device_endpoints,
+        &authorization.authorization_code,
+        &authorization.code_verifier,
+        Some(cancel),
+    )
 }
 
 pub fn account_id_from_token(access: &str) -> Option<String> {
