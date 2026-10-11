@@ -195,12 +195,6 @@ fn headers(
     for (name, value) in model.headers.iter().flatten() {
         set_header(&mut headers, name, value.clone());
     }
-    if let Some(account) = account {
-        set_header(&mut headers, "chatgpt-account-id", account.to_owned());
-        for (name, value) in HEADERS {
-            set_header(&mut headers, name, value.to_owned());
-        }
-    }
     let session = options
         .session_id
         .as_deref()
@@ -219,6 +213,15 @@ fn headers(
     }
     for (name, value) in options.headers.iter().flatten() {
         set_header(&mut headers, name, value.clone());
+    }
+    if let Some(account) = account {
+        if let Some(key) = api_key {
+            set_header(&mut headers, "authorization", format!("Bearer {key}"));
+        }
+        set_header(&mut headers, "chatgpt-account-id", account.to_owned());
+        for (name, value) in HEADERS.iter().filter(|(name, _)| *name != "accept") {
+            set_header(&mut headers, name, value.to_string());
+        }
     }
     headers
 }
