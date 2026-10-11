@@ -1,7 +1,3 @@
-//! What the OpenAI Responses adapter does differently for ChatGPT's Codex backend: the endpoint,
-//! the account and session headers, and the zstd raw frame around the body. Selected by
-//! `model.api == "openai-codex-responses"` (see `request::Compat`).
-
 use std::collections::BTreeMap;
 
 use crate::ai::oauth::openai_codex::{ORIGINATOR, account_id_from_token};
@@ -34,8 +30,6 @@ pub fn endpoint(base_url: &str) -> String {
     }
 }
 
-/// The account the request is billed to: an explicit `chatgpt-account-id` header from the auth
-/// resolver, else the claim in the access token.
 pub fn account_id(
     explicit: Option<&BTreeMap<String, String>>,
     api_key: Option<&str>,
@@ -48,7 +42,6 @@ pub fn account_id(
         .ok_or_else(|| "openai-codex-responses: failed to extract accountId from token".to_owned())
 }
 
-/// A zstd frame holding the bytes as raw (uncompressed) blocks, as PiG sends Codex bodies.
 pub fn zstd_raw_frame(data: &[u8]) -> Vec<u8> {
     let mut frame = vec![0x28, 0xb5, 0x2f, 0xfd];
     let size = data.len() as u64;

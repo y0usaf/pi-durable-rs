@@ -1,5 +1,3 @@
-//! OpenAI Codex (ChatGPT plan) OAuth: browser login with PKCE, code exchange and token refresh.
-
 use std::time::Duration;
 
 use serde::Deserialize;
@@ -15,7 +13,6 @@ const TOKEN_TIMEOUT: Duration = Duration::from_secs(30);
 const EXPIRY_MARGIN_MS: i64 = 5 * 60 * 1000;
 const JWT_CLAIM: &str = "https://api.openai.com/auth";
 
-/// Where the Codex login and token calls go. `Default` is the production set.
 #[derive(Debug, Clone)]
 pub struct Endpoints {
     pub client_id: String,
@@ -38,7 +35,6 @@ impl Default for Endpoints {
 }
 
 impl Endpoints {
-    /// The URL the user opens, in the parameter order PiG uses.
     pub fn authorize_link(&self, pkce: &Pkce, state: &str) -> String {
         let params = [
             ("response_type", "code"),
@@ -60,7 +56,6 @@ impl Endpoints {
     }
 }
 
-/// A fresh random state for one login: 16 random bytes, hex encoded.
 pub fn new_state() -> Result<String, String> {
     use ring::rand::{SecureRandom, SystemRandom};
     let mut bytes = [0u8; 16];
@@ -120,7 +115,6 @@ fn post_form(
     Ok(text)
 }
 
-/// Trades an authorization code (with its PKCE verifier) for tokens.
 pub fn exchange_code(
     endpoints: &Endpoints,
     code: &str,
@@ -142,7 +136,6 @@ pub fn exchange_code(
     credentials(&text, "exchange")
 }
 
-/// Trades a refresh token for a new access token and refresh token.
 pub fn refresh(
     endpoints: &Endpoints,
     refresh_token: &str,
@@ -161,7 +154,6 @@ pub fn refresh(
     credentials(&text, "refresh")
 }
 
-/// The `chatgpt_account_id` claim of a Codex access token, if the token carries one.
 pub fn account_id_from_token(access: &str) -> Option<String> {
     let payload = access
         .split('.')
