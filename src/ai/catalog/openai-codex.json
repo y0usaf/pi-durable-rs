@@ -1,0 +1,362 @@
+[
+  {
+    "id": "gpt-5.3-codex-spark",
+    "name": "GPT-5.3 Codex Spark",
+    "api": "openai-codex-responses",
+    "provider": "openai-codex",
+    "reasoning": true,
+    "contextWindow": 128000,
+    "maxTokens": 128000,
+    "baseUrl": "https://chatgpt.com/backend-api",
+    "input": [
+      "text"
+    ],
+    "cost": {
+      "input": 1.75,
+      "output": 14.0,
+      "cacheRead": 0.175,
+      "cacheWrite": 0.0
+    },
+    "thinkingLevelMap": {
+      "minimal": "low",
+      "xhigh": "xhigh"
+    },
+    "compat": {
+      "supportsOpenAIGrammarTools": true
+    }
+  },
+  {
+    "id": "gpt-5.5",
+    "name": "GPT-5.5",
+    "api": "openai-codex-responses",
+    "provider": "openai-codex",
+    "reasoning": true,
+    "contextWindow": 272000,
+    "maxTokens": 128000,
+    "baseUrl": "https://chatgpt.com/backend-api",
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 5.0,
+      "output": 30.0,
+      "cacheRead": 0.5,
+      "cacheWrite": 0.0,
+      "tiers": [
+        {
+          "inputTokensAbove": 272000,
+          "input": 10.0,
+          "output": 45.0,
+          "cacheRead": 1.0,
+          "cacheWrite": 0.0
+        }
+      ]
+    },
+    "thinkingLevelMap": {
+      "minimal": "low",
+      "xhigh": "xhigh"
+    },
+    "compat": {
+      "supportsOpenAIGrammarTools": true,
+      "supportsToolSearch": true,
+      "supportsMidConvoSystemMessages": true
+    }
+  },
+  {
+    "id": "gpt-5.6-luna",
+    "name": "GPT-5.6 Luna",
+    "api": "openai-codex-responses",
+    "provider": "openai-codex",
+    "reasoning": true,
+    "contextWindow": 272000,
+    "maxTokens": 128000,
+    "baseUrl": "https://chatgpt.com/backend-api",
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 0.2,
+      "output": 1.2,
+      "cacheRead": 0.02,
+      "cacheWrite": 0.25,
+      "tiers": [
+        {
+          "inputTokensAbove": 272000,
+          "input": 0.4,
+          "output": 1.8,
+          "cacheRead": 0.04,
+          "cacheWrite": 0.5
+        }
+      ]
+    },
+    "thinkingLevelMap": {
+      "max": "max",
+      "minimal": "low",
+      "xhigh": "xhigh"
+    },
+    "compat": {
+      "supportsOpenAIGrammarTools": true,
+      "supportsToolSearch": true,
+      "supportsAdditionalTools": true,
+      "supportsMidConvoSystemMessages": true
+    }
+  },
+  {
+    "id": "gpt-5.6-sol",
+    "name": "GPT-5.6 Sol",
+    "api": "openai-codex-responses",
+    "provider": "openai-codex",
+    "reasoning": true,
+    "contextWindow": 272000,
+    "maxTokens": 128000,
+    "baseUrl": "https://chatgpt.com/backend-api",
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 4.0,
+      "output": 20.0,
+      "cacheRead": 0.4,
+      "cacheWrite": 5.0,
+      "tiers": [
+        {
+          "inputTokensAbove": 272000,
+          "input": 8.0,
+          "output": 30.0,
+          "cacheRead": 0.8,
+          "cacheWrite": 10.0
+        }
+      ]
+    },
+    "thinkingLevelMap": {
+      "max": "max",
+      "minimal": "low",
+      "xhigh": "xhigh"
+    },
+    "compat": {
+      "supportsOpenAIGrammarTools": true,
+      "supportsToolSearch": true,
+      "supportsAdditionalTools": true,
+      "supportsMidConvoSystemMessages": true
+    }
+  },
+  {
+    "id": "gpt-5.6-terra",
+    "name": "GPT-5.6 Terra",
+    "api": "openai-codex-responses",
+    "provider": "openai-codex",
+    "reasoning": true,
+    "contextWindow": 272000,
+    "maxTokens": 128000,
+    "baseUrl": "https://chatgpt.com/backend-api",
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 2.0,
+      "output": 12.0,
+      "cacheRead": 0.2,
+      "cacheWrite": 2.5,
+      "tiers": [
+        {
+          "inputTokensAbove": 272000,
+          "input": 4.0,
+          "output": 18.0,
+          "cacheRead": 0.4,
+          "cacheWrite": 5.0
+        }
+      ]
+    },
+    "thinkingLevelMap": {
+      "max": "max",
+      "minimal": "low",
+      "xhigh": "xhigh"
+    },
+    "compat": {
+      "supportsOpenAIGrammarTools": true,
+      "supportsToolSearch": true,
+      "supportsAdditionalTools": true,
+      "supportsMidConvoSystemMessages": true
+    }
+  },
+  {
+    "id": "gpt-6-astra",
+    "name": "GPT-6 Astra",
+    "api": "openai-codex-responses",
+    "provider": "openai-codex",
+    "reasoning": true,
+    "contextWindow": 272000,
+    "maxTokens": 128000,
+    "baseUrl": "https://chatgpt.com/backend-api",
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 10.0,
+      "output": 50.0,
+      "cacheRead": 1.0,
+      "cacheWrite": 12.5,
+      "tiers": [
+        {
+          "inputTokensAbove": 272000,
+          "input": 20.0,
+          "output": 75.0,
+          "cacheRead": 2.0,
+          "cacheWrite": 25.0
+        }
+      ]
+    },
+    "thinkingLevelMap": {
+      "high": "high",
+      "low": "low",
+      "max": "max",
+      "medium": "medium",
+      "minimal": "low",
+      "off": null,
+      "xhigh": "xhigh"
+    },
+    "compat": {
+      "supportsOpenAIGrammarTools": true,
+      "supportsToolSearch": true,
+      "supportsAdditionalTools": true,
+      "supportsMidConvoSystemMessages": true
+    }
+  },
+  {
+    "id": "gpt-6-luna",
+    "name": "GPT-6 Luna",
+    "api": "openai-codex-responses",
+    "provider": "openai-codex",
+    "reasoning": true,
+    "contextWindow": 272000,
+    "maxTokens": 128000,
+    "baseUrl": "https://chatgpt.com/backend-api",
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 0.1,
+      "output": 0.5,
+      "cacheRead": 0.01,
+      "cacheWrite": 0.125,
+      "tiers": [
+        {
+          "inputTokensAbove": 272000,
+          "input": 0.2,
+          "output": 0.75,
+          "cacheRead": 0.02,
+          "cacheWrite": 0.25
+        }
+      ]
+    },
+    "thinkingLevelMap": {
+      "high": "high",
+      "low": "low",
+      "max": "max",
+      "medium": "medium",
+      "minimal": "low",
+      "off": "none",
+      "xhigh": "xhigh"
+    },
+    "compat": {
+      "supportsOpenAIGrammarTools": true,
+      "supportsToolSearch": true,
+      "supportsAdditionalTools": true,
+      "supportsMidConvoSystemMessages": true
+    }
+  },
+  {
+    "id": "gpt-6-sol",
+    "name": "GPT-6 Sol",
+    "api": "openai-codex-responses",
+    "provider": "openai-codex",
+    "reasoning": true,
+    "contextWindow": 272000,
+    "maxTokens": 128000,
+    "baseUrl": "https://chatgpt.com/backend-api",
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 2.0,
+      "output": 10.0,
+      "cacheRead": 0.2,
+      "cacheWrite": 2.5,
+      "tiers": [
+        {
+          "inputTokensAbove": 272000,
+          "input": 4.0,
+          "output": 15.0,
+          "cacheRead": 0.4,
+          "cacheWrite": 5.0
+        }
+      ]
+    },
+    "thinkingLevelMap": {
+      "high": "high",
+      "low": "low",
+      "max": "max",
+      "medium": "medium",
+      "minimal": "low",
+      "off": "none",
+      "xhigh": "xhigh"
+    },
+    "compat": {
+      "supportsOpenAIGrammarTools": true,
+      "supportsToolSearch": true,
+      "supportsAdditionalTools": true,
+      "supportsMidConvoSystemMessages": true
+    }
+  },
+  {
+    "id": "gpt-6.1-sol",
+    "name": "GPT-6.1 Sol",
+    "api": "openai-codex-responses",
+    "provider": "openai-codex",
+    "reasoning": true,
+    "contextWindow": 272000,
+    "maxTokens": 128000,
+    "baseUrl": "https://chatgpt.com/backend-api",
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 2.0,
+      "output": 10.0,
+      "cacheRead": 0.1,
+      "cacheWrite": 2.5,
+      "tiers": [
+        {
+          "inputTokensAbove": 272000,
+          "input": 4.0,
+          "output": 15.0,
+          "cacheRead": 0.2,
+          "cacheWrite": 5.0
+        }
+      ]
+    },
+    "thinkingLevelMap": {
+      "high": "high",
+      "low": "low",
+      "max": "max",
+      "medium": "medium",
+      "minimal": "low",
+      "off": null,
+      "xhigh": "xhigh"
+    },
+    "compat": {
+      "supportsOpenAIGrammarTools": true,
+      "supportsToolSearch": true,
+      "supportsAdditionalTools": true,
+      "supportsMidConvoSystemMessages": true
+    }
+  }
+]

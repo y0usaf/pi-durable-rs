@@ -16,6 +16,7 @@ PROVIDERS = {
     "anthropic": "anthropic.json",
     "vercel-ai-gateway": "vercel-ai-gateway.json",
     "openai": "openai.json",
+    "openai-codex": "openai-codex.json",
 }
 KNOWN_FIELDS = {
     "ID", "Provider", "DisplayName", "API", "BaseURL", "Headers", "Compat",

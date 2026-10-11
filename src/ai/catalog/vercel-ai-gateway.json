@@ -1679,6 +1679,29 @@
     }
   },
   {
+    "id": "deepseek/deepseek-v4.1-flash-fast",
+    "name": "DeepSeek V4.1 Flash Fast",
+    "api": "anthropic-messages",
+    "provider": "vercel-ai-gateway",
+    "reasoning": true,
+    "contextWindow": 1048576,
+    "maxTokens": 1000000,
+    "baseUrl": "https://ai-gateway.vercel.sh",
+    "input": [
+      "text",
+      "image"
+    ],
+    "cost": {
+      "input": 0.3,
+      "output": 1.2,
+      "cacheRead": 0.006,
+      "cacheWrite": 0.0
+    },
+    "compat": {
+      "allowEmptySignature": true
+    }
+  },
+  {
     "id": "fireworks/ember-1",
     "name": "Ember-1",
     "api": "anthropic-messages",
@@ -2123,31 +2146,9 @@
       "text"
     ],
     "cost": {
-      "input": 0.0,
-      "output": 0.0,
-      "cacheRead": 0.0,
-      "cacheWrite": 0.0
-    },
-    "compat": {
-      "allowEmptySignature": true
-    }
-  },
-  {
-    "id": "inclusionai/ling-3.0-flash-sante-free",
-    "name": "Ling 3.0 Flash Sante (Free)",
-    "api": "anthropic-messages",
-    "provider": "vercel-ai-gateway",
-    "reasoning": true,
-    "contextWindow": 256000,
-    "maxTokens": 32000,
-    "baseUrl": "https://ai-gateway.vercel.sh",
-    "input": [
-      "text"
-    ],
-    "cost": {
-      "input": 0.0,
-      "output": 0.0,
-      "cacheRead": 0.0,
+      "input": 0.075,
+      "output": 0.22,
+      "cacheRead": 0.015,
       "cacheWrite": 0.0
     },
     "compat": {
