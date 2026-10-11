@@ -96,8 +96,12 @@ fn run(
     ) {
         request = request.header(&name, value);
     }
-    let response = send_retrying(&request, options.signal.as_ref(), retry_policy(options))
-        .map_err(|error| error.to_string())?;
+    let response = if compat.codex {
+        codex::send_with_retries(&request, options.signal.as_ref(), retry_policy(options))?
+    } else {
+        send_retrying(&request, options.signal.as_ref(), retry_policy(options))
+            .map_err(|error| error.to_string())?
+    };
     if !response.ok() {
         let status = response.status;
         let text = response.text().map_err(|error| error.to_string())?;
