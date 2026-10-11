@@ -10,6 +10,8 @@ use crate::ai::types::{
 use crate::ai::utils::text::{system_content_text, system_message_text, utf16_len};
 use crate::ai::utils::transcript::get_current_tools;
 
+use super::codex::DEFAULT_INSTRUCTIONS;
+
 const TOOL_CALL_PROVIDERS: [&str; 3] = ["openai", "openai-codex", "opencode"];
 const MIN_OUTPUT_TOKENS: u64 = 16;
 const ITEM_ID_MAX_CHARS: usize = 64;
@@ -22,6 +24,7 @@ pub struct Compat {
     strict: bool,
     max_output: bool,
     explicit_cache: bool,
+    pub codex: bool,
 }
 
 impl Compat {
@@ -48,6 +51,7 @@ impl Compat {
             strict: flag("supportsStrictMode", false),
             max_output: flag("supportsMaxOutputTokens", true),
             explicit_cache: flag("supportsExplicitPromptCacheMode", false),
+            codex: model.api == "openai-codex-responses",
         }
     }
 
@@ -70,7 +74,7 @@ pub fn build(
     compat: &Compat,
     turn: &Turn,
 ) -> Result<Value, String> {
-    let plain = !turn.chatgpt_sign_in;
+    let plain = !turn.chatgpt_sign_in && !compat.codex;
     let mut params = json!({
         "model": model.id,
         "input": input(model, context, compat)?,
@@ -99,6 +103,13 @@ pub fn build(
             params["max_output_tokens"] = json!(turn.max_tokens.max(MIN_OUTPUT_TOKENS));
         }
     }
+    if compat.codex {
+        params["instructions"] = json!(instructions(context));
+        params["text"] = json!({"verbosity": "low"});
+        params["tool_choice"] = json!("auto");
+        params["parallel_tool_calls"] = json!(true);
+        params["include"] = json!(["reasoning.encrypted_content"]);
+    }
     let tools = get_current_tools(&context.messages);
     if !tools.is_empty() {
         params["tools"] = Value::Array(tool_items(&tools, compat));
@@ -114,6 +125,18 @@ pub fn build(
         }
     }
     Ok(params)
+}
+
+fn instructions(context: &TranscriptContext) -> String {
+    let text = match context.messages.first() {
+        Some(Message::System(system)) => system_message_text(system),
+        _ => String::new(),
+    };
+    if text.is_empty() {
+        DEFAULT_INSTRUCTIONS.to_owned()
+    } else {
+        text
+    }
 }
 
 fn reasoning(model: &Model, effort: Option<ModelThinkingLevel>, params: &mut Value) {
@@ -181,6 +204,9 @@ fn input(
         let leading_system = source_index == 0 && matches!(message, Message::System(_));
         match message {
             Message::System(system) => {
+                if leading_system && compat.codex {
+                    continue;
+                }
                 let text = if leading_system {
                     system_message_text(system)
                 } else {
