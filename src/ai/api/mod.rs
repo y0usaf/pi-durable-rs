@@ -1,5 +1,7 @@
 #[cfg(feature = "anthropic")]
 pub mod anthropic;
+#[cfg(feature = "http")]
+pub mod google;
 #[cfg(feature = "openai")]
 pub mod azure;
 #[cfg(feature = "http")]
