@@ -54,6 +54,8 @@ impl Providers {
                 super::api::openai_responses::api(),
             );
         }
+        #[cfg(feature = "http")]
+        providers.add_api("bedrock-converse-stream", super::api::bedrock::api());
         providers.add_models(super::catalog::all());
         providers
     }
