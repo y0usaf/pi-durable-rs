@@ -23,6 +23,7 @@ pub struct Auth {
     pub api_key: Option<String>,
     pub headers: BTreeMap<String, String>,
     pub base_url: Option<String>,
+    pub env: BTreeMap<String, String>,
 }
 
 pub type AuthResolver = Arc<dyn Fn(&Model) -> Result<Auth, String> + Send + Sync>;
@@ -90,8 +91,10 @@ impl Providers {
         model: &Model,
         mut options: SimpleStreamOptions,
     ) -> Result<SimpleStreamOptions, String> {
+        let mut env = BTreeMap::new();
         if let Some(resolver) = &self.auth {
             let auth = resolver(model)?;
+            env = auth.env;
             if options.api_key.is_none() {
                 options.api_key = auth.api_key;
             }
@@ -105,7 +108,7 @@ impl Providers {
             }
         }
         if options.api_key.is_none() {
-            options.api_key = super::auth::env_api_key(&model.provider);
+            options.api_key = super::auth::env_api_key(&model.provider, &env);
         }
         Ok(options)
     }

@@ -1,4 +1,6 @@
-pub fn env_api_key(provider: &str) -> Option<String> {
+use std::collections::BTreeMap;
+
+pub fn env_api_key(provider: &str, overrides: &BTreeMap<String, String>) -> Option<String> {
     let names: &[&str] = match provider {
         "anthropic" => &["ANTHROPIC_OAUTH_TOKEN", "ANTHROPIC_API_KEY"],
         "github-copilot" => &["COPILOT_GITHUB_TOKEN"],
@@ -42,7 +44,11 @@ pub fn env_api_key(provider: &str) -> Option<String> {
         "xiaomi-token-plan-sgp" => &["XIAOMI_TOKEN_PLAN_SGP_API_KEY"],
         _ => &[],
     };
-    names
-        .iter()
-        .find_map(|name| std::env::var(name).ok().filter(|value| !value.is_empty()))
+    names.iter().find_map(|name| {
+        overrides
+            .get(*name)
+            .filter(|value| !value.is_empty())
+            .cloned()
+            .or_else(|| std::env::var(name).ok().filter(|value| !value.is_empty()))
+    })
 }

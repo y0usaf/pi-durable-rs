@@ -158,6 +158,12 @@ impl Process<'_> {
             }
             "response.output_item.done" => self.item_done(output_index, &event["item"]),
             "response.completed" | "response.incomplete" => self.finalize(&event["response"])?,
+            "error" if self.model.api == "openai-codex-responses" => {
+                return Err(super::codex::stream_error(event));
+            }
+            "response.failed" if self.model.api == "openai-codex-responses" => {
+                return Err(super::codex::failed_message(&event["response"]));
+            }
             "error" => {
                 return Err(format!(
                     "Error Code {}: {}",
