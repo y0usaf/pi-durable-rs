@@ -53,7 +53,12 @@ impl Providers {
         {
             providers.add_api("openai-completions", super::api::openai_completions::api());
             providers.add_api("openai-responses", super::api::openai_responses::api());
+            providers.add_api(
+                "openai-codex-responses",
+                super::api::openai_responses::api(),
+            );
             providers.add_models(super::catalog::openai());
+            providers.add_models(super::catalog::openai_codex());
         }
         providers
     }

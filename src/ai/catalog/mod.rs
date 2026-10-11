@@ -39,3 +39,8 @@ pub fn vercel_gateway() -> Vec<Model> {
 pub fn openai() -> Vec<Model> {
     parse("openai.json", include_str!("openai.json"))
 }
+
+#[cfg(feature = "openai")]
+pub fn openai_codex() -> Vec<Model> {
+    parse("openai-codex.json", include_str!("openai-codex.json"))
+}
