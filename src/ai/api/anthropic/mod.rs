@@ -60,7 +60,7 @@ fn run(
     let api_key = options.api_key.as_deref().filter(|key| !key.is_empty());
     let oauth = api_key.is_some_and(is_oauth_token);
     let mut headers = headers(model, &options, api_key, oauth)?;
-    let built = request::build(model, &transcript.messages, oauth, &options);
+    let built = request::build(model, &transcript.messages, oauth, &options)?;
     if built.provider_thinking_level.is_some() {
         output.provider_thinking_level = built.provider_thinking_level.clone();
     }

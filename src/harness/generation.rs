@@ -370,6 +370,7 @@ pub fn simple_options(
         max_retries: stream.max_retries,
         max_retry_delay_ms: stream.max_retry_delay_ms,
         headers: stream.headers.clone(),
+        cache_points: Vec::new(),
         metadata: stream.metadata.clone(),
     }
 }

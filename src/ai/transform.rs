@@ -161,14 +161,14 @@ fn synthetic_result(call: &ToolCall) -> Message {
 struct PendingCalls {
     calls: Vec<ToolCall>,
     answered: HashSet<String>,
-    held_system: Vec<Message>,
+    held_system: Vec<(Message, Option<usize>)>,
 }
 
 impl PendingCalls {
-    fn close(&mut self, result: &mut Vec<Message>) {
+    fn close(&mut self, result: &mut Vec<(Message, Option<usize>)>) {
         for call in self.calls.drain(..) {
             if !self.answered.contains(&call.id) {
-                result.push(synthetic_result(&call));
+                result.push((synthetic_result(&call), None));
             }
         }
         self.answered.clear();
@@ -187,31 +187,48 @@ pub fn transform_messages(
     model: &Model,
     normalize: Option<&ToolCallIdNormalizer<'_>>,
 ) -> Vec<Message> {
+    transform_messages_sourced(messages, model, normalize)
+        .into_iter()
+        .map(|(message, _)| message)
+        .collect()
+}
+
+pub fn transform_messages_sourced(
+    messages: &[Message],
+    model: &Model,
+    normalize: Option<&ToolCallIdNormalizer<'_>>,
+) -> Vec<(Message, Option<usize>)> {
     let mut id_map: HashMap<String, String> = HashMap::new();
     let mut transformed = Vec::with_capacity(messages.len());
-    for message in downgrade_unsupported_images(messages, model) {
-        transformed.push(match message {
-            Message::System(_) | Message::User(_) => message,
-            Message::ToolResult(result) => match id_map.get(&result.tool_call_id) {
-                Some(id) if !id.is_empty() && *id != result.tool_call_id => {
-                    let mut result = Arc::unwrap_or_clone(result);
-                    result.tool_call_id = id.clone();
-                    Message::ToolResult(Arc::new(result))
+    for (source, message) in downgrade_unsupported_images(messages, model)
+        .into_iter()
+        .enumerate()
+    {
+        transformed.push((
+            source,
+            match message {
+                Message::System(_) | Message::User(_) => message,
+                Message::ToolResult(result) => match id_map.get(&result.tool_call_id) {
+                    Some(id) if !id.is_empty() && *id != result.tool_call_id => {
+                        let mut result = Arc::unwrap_or_clone(result);
+                        result.tool_call_id = id.clone();
+                        Message::ToolResult(Arc::new(result))
+                    }
+                    _ => Message::ToolResult(result),
+                },
+                Message::Assistant(mut assistant) => {
+                    let content =
+                        transform_assistant_content(&assistant, model, normalize, &mut id_map);
+                    Arc::make_mut(&mut assistant).content = content;
+                    Message::Assistant(assistant)
                 }
-                _ => Message::ToolResult(result),
             },
-            Message::Assistant(mut assistant) => {
-                let content =
-                    transform_assistant_content(&assistant, model, normalize, &mut id_map);
-                Arc::make_mut(&mut assistant).content = content;
-                Message::Assistant(assistant)
-            }
-        });
+        ));
     }
 
     let mut result = Vec::with_capacity(transformed.len());
     let mut pending = PendingCalls::default();
-    for message in transformed {
+    for (source, message) in transformed {
         match message {
             Message::Assistant(assistant) => {
                 pending.close(&mut result);
@@ -233,22 +250,24 @@ pub fn transform_messages(
                     pending.calls = calls;
                     pending.answered.clear();
                 }
-                result.push(Message::Assistant(assistant));
+                result.push((Message::Assistant(assistant), Some(source)));
             }
             Message::ToolResult(tool_result) => {
                 pending.answered.insert(tool_result.tool_call_id.clone());
-                result.push(Message::ToolResult(tool_result));
+                result.push((Message::ToolResult(tool_result), Some(source)));
             }
             Message::System(system) => {
                 if pending.calls.is_empty() {
-                    result.push(Message::System(system));
+                    result.push((Message::System(system), Some(source)));
                 } else {
-                    pending.held_system.push(Message::System(system));
+                    pending
+                        .held_system
+                        .push((Message::System(system), Some(source)));
                 }
             }
             Message::User(user) => {
                 pending.close(&mut result);
-                result.push(Message::User(user));
+                result.push((Message::User(user), Some(source)));
             }
         }
     }

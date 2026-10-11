@@ -620,4 +620,11 @@ pub struct SimpleStreamOptions {
     pub max_retry_delay_ms: Option<u64>,
     pub headers: Option<BTreeMap<String, String>>,
     pub metadata: Option<JsonObject>,
+    pub cache_points: Vec<CachePoint>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct CachePoint {
+    pub message: usize,
+    pub block: Option<usize>,
 }
