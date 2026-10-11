@@ -1,5 +1,7 @@
 use crate::ai::thinking::clamp_thinking_level;
-use crate::ai::types::{Message, Model, ModelThinkingLevel, ThinkingLevel};
+use crate::ai::types::{
+    CacheRetention, Message, Model, ModelThinkingLevel, SimpleStreamOptions, ThinkingLevel,
+};
 use crate::ai::utils::estimate::estimate_context_tokens;
 use crate::chord::json::{JsonObject, JsonValue};
 
@@ -110,4 +112,14 @@ pub fn adjust_max_tokens_for_thinking(
         max_tokens,
         thinking_budget,
     }
+}
+
+pub fn cache_retention(options: &SimpleStreamOptions) -> CacheRetention {
+    options.cache_retention.unwrap_or_else(|| {
+        if std::env::var("PI_CACHE_RETENTION").is_ok_and(|value| value == "long") {
+            CacheRetention::Long
+        } else {
+            CacheRetention::Short
+        }
+    })
 }

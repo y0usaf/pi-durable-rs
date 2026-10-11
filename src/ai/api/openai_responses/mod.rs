@@ -15,7 +15,7 @@ use crate::ai::error_body::format_provider_error;
 use crate::ai::event_stream::AssistantMessageEventStream;
 use crate::ai::http::{Request, RetryPolicy, send_retrying};
 use crate::ai::registry::Api;
-use crate::ai::simple_options::clamp_max_tokens_to_context;
+use crate::ai::simple_options::{cache_retention, clamp_max_tokens_to_context};
 use crate::ai::stream::spawn;
 use crate::ai::thinking::clamp_thinking_level;
 use crate::ai::types::{
@@ -147,16 +147,6 @@ fn turn(
         effort,
         chatgpt_sign_in,
     }
-}
-
-fn cache_retention(options: &SimpleStreamOptions) -> CacheRetention {
-    options.cache_retention.unwrap_or_else(|| {
-        if std::env::var("PI_CACHE_RETENTION").is_ok_and(|value| value == "long") {
-            CacheRetention::Long
-        } else {
-            CacheRetention::Short
-        }
-    })
 }
 
 fn retry_policy(options: &SimpleStreamOptions) -> RetryPolicy {
