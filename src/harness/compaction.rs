@@ -24,7 +24,7 @@ use crate::harness::provider::ensure_provider_session_id;
 use crate::harness::runtime::{HarnessPhaseHandler, HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::submissions::{SubmissionDraft, admit_submission};
 use crate::harness::tool::erase;
-use crate::harness::types::{ConversationStreamOptions, HookTask, ModelRef};
+use crate::harness::types::{ConversationStreamOptions, HookApi, HookTask, ModelRef};
 use crate::harness::usage::{UsageBucket, record_usage};
 use crate::ids::{ConversationId, EntryId, SubmissionId, TaskId};
 use crate::session::types::{TaskCreate, TaskOptions, Tx};
@@ -137,7 +137,7 @@ pub struct CompactionSource {
 }
 
 pub type BeforeCompact =
-    Box<dyn Fn(&CompactionSource) -> Result<Option<CompactionDecision>> + Send + Sync>;
+    Box<dyn Fn(&HookApi, &CompactionSource) -> Result<Option<CompactionDecision>> + Send + Sync>;
 
 #[derive(Default)]
 pub struct CompactionHooks {
@@ -266,11 +266,14 @@ fn select(task: Task, runtime: Runtime<'_>, cancel: &CancelToken) -> Result<()> 
         instructions: task.input.instructions.clone(),
     };
     let mut decision = None;
+    let api = HookApi {
+        conversation_id: runtime.conversation_id(),
+    };
     runtime.hooks().each(&mut |hooks| {
         if decision.is_none()
             && let Some(hook) = hooks.before_compact.as_ref()
         {
-            decision = hook(&source)?;
+            decision = hook(&api, &source)?;
         }
         Ok(())
     })?;

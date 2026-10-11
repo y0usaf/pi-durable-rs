@@ -22,7 +22,7 @@ Status: **covered** = the Rust API exists and is used by the same shape; **diver
 | `harness.PrepareBoundary`, `ApplyBoundary`, `StartRun`, `AdmitSubmission`, `QueueModesOf`, `ResolveSettings` | `inbox::prepare_boundary`, `inbox::apply_boundary`, `generation::start_run`, `submissions::admit_submission`, `Settings` | covered (Boar's `engine.go:582-590` interrupt-and-run maps to these; not exercised end to end) |
 | `harness.CreateRegistry`, `registry.Install`, `Uninstall`, `Snapshot` | `Registry`, `RegistrySnapshot` (`harness/registry.rs`) | covered (`install`, `uninstall`, `installed`) |
 | `harness.Hook(GenerationTask/ToolTask/CompactionTask, …)` | `HookRegistration::new(&GENERATION_HOOK/TOOL_HOOK/COMPACTION_HOOK, …)` | covered by commit 110e427 (hooks reach tasks via `erased::each_hook`) |
-| `harness.GenerationHooks{BeforeRequest}`, `ToolHooks{AfterTool}`, `CompactionHooks{BeforeCompact}` | same field names, closures without `HookApi` | divergent: no `HookApi` (memo, models, conversation id); `optchat/turn.go` reads `api.ConversationId()` and must pass it another way |
+| `harness.GenerationHooks{BeforeRequest}`, `ToolHooks{AfterTool}`, `CompactionHooks{BeforeCompact}` | same field names, closures take `&HookApi` (conversation id only) | divergent: `HookApi` has the conversation id only, no memo or models; `optchat/turn.go` reads `api.ConversationId()` and can use `HookApi.conversation_id` |
 | `harness.Section`, `SectionOptions{Tag}`, `PromptSection` | `PromptSection`, `render_sections` (`harness/prompt.rs`) | covered |
 | `harness.Extension`, `ToolRegistration`, `durable.Extension` | `Extension`, `ToolRegistration` (`harness/types.rs`) | covered |
 | `durable.DefineTask`, `CreateTask`, `TaskDefinition` (optchat compactor, spawn) | `session::types::TaskCreate`, `HarnessTaskDefinition` (`harness/runtime.rs`) | divergent: typed via `HarnessTaskDefinition`, no `DefineTask` builder |
@@ -87,7 +87,7 @@ Status: **covered** = the Rust API exists and is used by the same shape; **diver
 
 1. **Landed since the audit:** Anthropic Messages, OpenAI Chat Completions and Responses, the Vercel AI Gateway, Claude OAuth functions, the `set_auth` resolver. Boar-rs supplies its own credential store (three accounts), refresh and login events.
 2. **Account selection** is the resolver's job; nothing in the crate rotates or stores tokens.
-3. **HookApi** (memo, models, conversation id, conversation access inside hooks). `optchat/turn.go` and `compactor.go` need the conversation id; a small change would pass it as an argument. ~50 lines.
+3. **HookApi memo and models.** Hooks now get the conversation id; memo, models and conversation access inside hooks remain missing.
 4. **Coding services and resource loader** (settings file, skills, prompt templates, AGENTS.md). Needed for Boar's prompts (`prompts.go`). Likely >100 lines; list, not fix.
 5. **MCP client, codemode sandbox, toolsearch**. Large; separate projects in Boar. Can be left out of the first boar-rs cut.
 6. **Commit subscription callback** (`SubscribeCommits`) for the daemon's hub. Could use `DocumentWatch`; decide in boar-rs.

@@ -209,6 +209,10 @@ impl<H> HookTask<H> {
     }
 }
 
+pub struct HookApi {
+    pub conversation_id: ConversationId,
+}
+
 #[derive(Clone)]
 pub struct HookRegistration {
     pub task: String,
