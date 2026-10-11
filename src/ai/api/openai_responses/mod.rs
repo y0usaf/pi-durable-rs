@@ -2,6 +2,7 @@
 //! items, function calls, usage, retries and provider errors. Not covered: custom and grammar tools,
 //! tool search, service tier, tool choice, the WebSocket transport and Copilot headers.
 
+mod codex;
 mod events;
 mod request;
 
@@ -23,6 +24,7 @@ use crate::ai::types::{
 };
 use crate::ai::utils::transcript::resolve_transcript;
 
+use codex::{HEADERS, account_id, endpoint, zstd_raw_frame};
 use request::{Compat, Turn};
 
 pub fn api() -> Arc<dyn Api> {
@@ -67,11 +69,31 @@ fn run(
     let retention = cache_retention(options);
     let turn = turn(model, &context, options, retention, api_key);
     let body = request::build(model, &context, &compat, &turn)?;
-    let url = format!("{}/responses", model.base_url.trim_end_matches('/'));
+    let url = if compat.codex {
+        endpoint(&model.base_url)
+    } else {
+        format!("{}/responses", model.base_url.trim_end_matches('/'))
+    };
+    let account = if compat.codex {
+        Some(account_id(options.headers.as_ref(), api_key)?)
+    } else {
+        None
+    };
     let mut request = Request::new("POST", url)
         .json(&body)
         .timeout(options.timeout_ms.map(Duration::from_millis));
-    for (name, value) in headers(model, options, retention, &compat, api_key) {
+    if compat.codex {
+        request.body = zstd_raw_frame(&request.body);
+        request = request.header("content-encoding", "zstd");
+    }
+    for (name, value) in headers(
+        model,
+        options,
+        retention,
+        &compat,
+        api_key,
+        account.as_deref(),
+    ) {
         request = request.header(&name, value);
     }
     let response = send_retrying(&request, options.signal.as_ref(), retry_policy(options))
@@ -164,6 +186,7 @@ fn headers(
     retention: CacheRetention,
     compat: &Compat,
     api_key: Option<&str>,
+    account: Option<&str>,
 ) -> Vec<(String, String)> {
     let mut headers = Vec::new();
     if let Some(key) = api_key {
@@ -172,12 +195,22 @@ fn headers(
     for (name, value) in model.headers.iter().flatten() {
         set_header(&mut headers, name, value.clone());
     }
+    if let Some(account) = account {
+        set_header(&mut headers, "chatgpt-account-id", account.to_owned());
+        for (name, value) in HEADERS {
+            set_header(&mut headers, name, value.to_owned());
+        }
+    }
     let session = options
         .session_id
         .as_deref()
         .filter(|session| !session.is_empty() && retention != CacheRetention::None);
     if let Some(session) = session {
-        if compat.openrouter_session() {
+        if compat.codex {
+            let clamped: String = session.chars().take(64).collect();
+            set_header(&mut headers, "session-id", clamped.clone());
+            set_header(&mut headers, "x-client-request-id", clamped);
+        } else if compat.openrouter_session() {
             set_header(&mut headers, "x-session-id", session.to_owned());
         } else {
             set_header(&mut headers, "session_id", session.to_owned());
