@@ -1,11 +1,11 @@
 #[cfg(feature = "anthropic")]
 pub mod anthropic;
-#[cfg(feature = "http")]
-pub mod google;
 #[cfg(feature = "openai")]
 pub mod azure;
 #[cfg(feature = "http")]
 pub mod bedrock;
+#[cfg(feature = "http")]
+pub mod google;
 #[cfg(feature = "openai")]
 pub mod mistral;
 #[cfg(feature = "openai")]

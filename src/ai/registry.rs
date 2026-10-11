@@ -59,6 +59,10 @@ impl Providers {
         }
         #[cfg(feature = "http")]
         providers.add_api("bedrock-converse-stream", super::api::bedrock::api());
+        #[cfg(feature = "http")]
+        providers.add_api("google-generative-ai", super::api::google::api());
+        #[cfg(feature = "http")]
+        providers.add_api("google-vertex", super::api::google::vertex_api());
         providers.add_models(super::catalog::all());
         providers
     }
