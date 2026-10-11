@@ -1,7 +1,3 @@
-//! OpenAI Responses API: a streamed POST to {base}/responses. Covers transcript items, reasoning
-//! items, function calls, usage, retries and provider errors. Not covered: custom and grammar tools,
-//! tool search, service tier, tool choice and Copilot headers.
-
 mod codex;
 mod events;
 mod request;
