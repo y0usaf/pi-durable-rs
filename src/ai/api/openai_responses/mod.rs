@@ -1,10 +1,7 @@
-//! OpenAI Responses API: a streamed POST to {base}/responses. Covers transcript items, reasoning
-//! items, function calls, usage, retries and provider errors. Not covered: custom and grammar tools,
-//! tool search, service tier, tool choice, the WebSocket transport and Copilot headers.
-
 mod codex;
 mod events;
 mod request;
+mod websocket;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -20,7 +17,7 @@ use crate::ai::stream::spawn;
 use crate::ai::thinking::clamp_thinking_level;
 use crate::ai::types::{
     AssistantMessage, AssistantMessageEvent, CacheRetention, Model, ModelThinkingLevel,
-    SimpleStreamOptions, TranscriptContext,
+    SimpleStreamOptions, TranscriptContext, Transport,
 };
 use crate::ai::utils::transcript::resolve_transcript;
 
@@ -79,6 +76,36 @@ fn run(
     } else {
         None
     };
+    let headers = headers(
+        model,
+        options,
+        retention,
+        &compat,
+        api_key,
+        account.as_deref(),
+    );
+    if compat.codex && options.transport != Some(Transport::Sse) {
+        let session = options
+            .session_id
+            .as_deref()
+            .filter(|session| !session.is_empty() && retention != CacheRetention::None);
+        let attempt = websocket::Attempt {
+            model,
+            compat: &compat,
+            turn: &turn,
+            url: &url,
+            headers: &headers,
+            body: &body,
+            session,
+            account: account.as_deref().unwrap_or_default(),
+            transport: options.transport,
+            timeout: options.timeout_ms.map(Duration::from_millis),
+            signal: options.signal.as_ref(),
+        };
+        if let Some(result) = websocket::run(&attempt, out, output) {
+            return result;
+        }
+    }
     let mut request = Request::new("POST", url)
         .json(&body)
         .timeout(options.timeout_ms.map(Duration::from_millis));
@@ -86,14 +113,7 @@ fn run(
         request.body = zstd_raw_frame(&request.body);
         request = request.header("content-encoding", "zstd");
     }
-    for (name, value) in headers(
-        model,
-        options,
-        retention,
-        &compat,
-        api_key,
-        account.as_deref(),
-    ) {
+    for (name, value) in headers {
         request = request.header(&name, value);
     }
     let response = if compat.codex {
