@@ -5,24 +5,26 @@ use crate::ai::types::{Message, UserMessage, UserRole};
 use crate::cancel::CancelToken;
 use crate::entries::user_entry;
 use crate::errors::{Error, Result};
-use crate::harness::generation::start_run;
+use crate::harness::generation::{read_live, start_run};
 use crate::harness::inbox::{
     InboxItem, InboxState, Phase, QueueModes, WriteDraft, apply_boundary, inbox_doc, is_stale,
     prepare_boundary, remove_inbox_item,
 };
 use crate::harness::live::{LiveState, live_doc};
 use crate::harness::types::UserInput;
-use crate::harness::util::{Waiters, closed_error};
+use crate::harness::util::{Waiters, closed_error, scan_all};
 use crate::harness::util::{read_draft, write_draft};
 use crate::ids::{ConversationId, SubmissionId};
 use crate::session::kernel::Session;
 use crate::session::types::Tx;
 use crate::session::types::Unsubscribe;
-use crate::types::{CommitChange, Storage, TableChange};
+use crate::types::{CommitChange, Storage, SubmissionQuery, SubmissionStatus, TableChange};
 use crate::types::{
     EntryDraft, InputState, SubmissionBody, SubmissionCreate, SubmissionRecord,
     SubmissionSettlement, WriteState,
 };
+
+const SCAN_PAGE_SIZE: usize = 256;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum WhenBusy {
@@ -108,11 +110,15 @@ pub fn admit_submission(
         .as_ref()
         .is_none_or(|boundary| !boundary.inbox.items.is_empty());
     if queued {
+        let body = match draft {
+            SubmissionDraft::Input { .. } => SubmissionBody::Input(InputState::Queued),
+            SubmissionDraft::Write { .. } => SubmissionBody::Write(WriteState::Queued),
+        };
         let id = tx
             .create_submission(SubmissionCreate {
                 conversation_id,
                 request_id,
-                body: SubmissionBody::Input(InputState::Queued),
+                body,
             })
             .map(|record| record.id)?;
         let item = match &draft {
@@ -197,6 +203,42 @@ pub fn admit_submission(
             Ok(record.id)
         }
     }
+}
+
+pub fn settle_orphaned_inputs(session: &Session, storage: &dyn Storage) -> Result<()> {
+    let cancel = CancelToken::new();
+    let query = SubmissionQuery {
+        conversation_id: None,
+        status: Some(SubmissionStatus::Placed),
+        order: None,
+    };
+    let placed = session.read_on_line(|| {
+        scan_all(|cursor| {
+            storage.scan_submissions(&query, SCAN_PAGE_SIZE, cursor.as_ref(), &cancel)
+        })
+    })?;
+    if placed.is_empty() {
+        return Ok(());
+    }
+    session.commit(
+        |tx| {
+            for record in placed {
+                let live = read_live(tx, record.conversation_id)?;
+                let answered = live.run.is_some_and(|run| run.inputs.contains(&record.id));
+                if !answered {
+                    tx.settle_submission(
+                        record.id,
+                        SubmissionSettlement::Unanswered {
+                            reason: "orphaned".to_owned(),
+                            detail: None,
+                        },
+                    )?;
+                }
+            }
+            Ok(())
+        },
+        &cancel,
+    )
 }
 
 pub fn abort_submission(
