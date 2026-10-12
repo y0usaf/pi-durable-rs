@@ -1,12 +1,13 @@
 mod events;
 
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::Duration;
 
 use serde_json::{Map, Value, json};
 
 use crate::ai::event_stream::{ABORTED_TEXT, AssistantMessageEventStream, now_ms};
-use crate::ai::http::{Request, send};
+use crate::ai::http::{Request, Response, send};
 use crate::ai::registry::Api;
 use crate::ai::sse::SseReader;
 use crate::ai::stream::spawn;
@@ -20,11 +21,42 @@ use events::Converter;
 
 const ERROR_BODY_DETAIL_UNITS: usize = 8192;
 
-pub fn api() -> Arc<dyn Api> {
-    Arc::new(PiMessages)
+pub type OnResponse = Arc<dyn Fn(&ResponseInfo) -> Result<(), String> + Send + Sync>;
+
+#[derive(Clone, Default)]
+pub struct Config {
+    pub base_url: Option<String>,
+    pub api_key: Option<String>,
+    pub debug: bool,
+    pub temperature: Option<f64>,
+    pub tool_choice: Option<Value>,
+    pub on_response: Option<OnResponse>,
 }
 
-struct PiMessages;
+pub struct ResponseInfo {
+    pub status: u16,
+    pub headers: BTreeMap<String, String>,
+}
+
+pub fn api() -> Arc<dyn Api> {
+    with_config(Config::default())
+}
+
+pub fn with_config(config: Config) -> Arc<dyn Api> {
+    Arc::new(PiMessages { config })
+}
+
+pub fn radius(base_url: impl Into<String>, api_key: impl Into<String>) -> Arc<dyn Api> {
+    with_config(Config {
+        base_url: Some(base_url.into()),
+        api_key: Some(api_key.into()),
+        ..Config::default()
+    })
+}
+
+struct PiMessages {
+    config: Config,
+}
 
 impl Api for PiMessages {
     fn stream_simple(
@@ -35,14 +67,16 @@ impl Api for PiMessages {
     ) -> AssistantMessageEventStream {
         let signal = options.signal.clone();
         let run_model = model.clone();
+        let config = self.config.clone();
         spawn(model, signal.as_ref(), move |out, output| {
-            run(&run_model, &context, &options, out, output)
+            run(&run_model, &config, &context, &options, out, output)
         })
     }
 }
 
 fn run(
     model: &Model,
+    config: &Config,
     context: &TranscriptContext,
     options: &SimpleStreamOptions,
     out: &AssistantMessageEventStream,
@@ -52,16 +86,25 @@ fn run(
         .api_key
         .as_deref()
         .filter(|key| !key.is_empty())
+        .or(config.api_key.as_deref().filter(|key| !key.is_empty()))
         .ok_or_else(|| format!("No API key provided for provider {:?}", model.provider))?;
-    if model.base_url.is_empty() {
+    let base_url = config
+        .base_url
+        .as_deref()
+        .filter(|url| !url.is_empty())
+        .unwrap_or(model.base_url.as_str());
+    if base_url.is_empty() {
         return Err(format!("No base URL for model {}", model.id));
     }
     let body = json!({
         "model": model.id,
         "context": { "messages": context.messages },
-        "options": Value::Object(payload_options(options)),
+        "options": Value::Object(payload_options(options, config)),
     });
-    let url = format!("{}/messages", model.base_url.trim_end_matches('/'));
+    let mut url = format!("{}/messages", base_url.trim_end_matches('/'));
+    if config.debug {
+        url.push_str("?debug=1");
+    }
     let mut headers: Vec<(String, String)> = Vec::new();
     set_header(&mut headers, "authorization", format!("Bearer {api_key}"));
     set_header(&mut headers, "accept", "text/event-stream".to_owned());
@@ -79,6 +122,9 @@ fn run(
     }
 
     let response = send(&request, options.signal.as_ref()).map_err(|error| error.to_string())?;
+    if let Some(on_response) = &config.on_response {
+        on_response(&response_info(&response))?;
+    }
     if !response.ok() {
         let status = response.status;
         let text = response.text().map_err(|error| error.to_string())?;
@@ -122,8 +168,27 @@ fn run(
     ))
 }
 
-fn payload_options(options: &SimpleStreamOptions) -> Map<String, Value> {
+fn response_info(response: &Response) -> ResponseInfo {
+    let mut headers = BTreeMap::new();
+    for (name, value) in &response.headers {
+        let key = name.to_ascii_lowercase();
+        let joined = match headers.get(&key) {
+            Some(previous) if key != "set-cookie" => format!("{previous}, {value}"),
+            _ => value.clone(),
+        };
+        headers.insert(key, joined);
+    }
+    ResponseInfo {
+        status: response.status,
+        headers,
+    }
+}
+
+fn payload_options(options: &SimpleStreamOptions, config: &Config) -> Map<String, Value> {
     let mut fields = Map::new();
+    if let Some(temperature) = options.temperature.or(config.temperature) {
+        fields.insert("temperature".to_owned(), json!(temperature));
+    }
     if let Some(max_tokens) = options.max_tokens.filter(|tokens| *tokens > 0) {
         fields.insert("maxTokens".to_owned(), json!(max_tokens));
     }
@@ -139,6 +204,19 @@ fn payload_options(options: &SimpleStreamOptions) -> Map<String, Value> {
         .filter(|session| !session.is_empty())
     {
         fields.insert("sessionId".to_owned(), json!(session));
+    }
+    if let Some(choice) = options
+        .tool_choice
+        .as_deref()
+        .map(|choice| json!(choice))
+        .or_else(|| {
+            config
+                .tool_choice
+                .clone()
+                .filter(|choice| !choice.is_null())
+        })
+    {
+        fields.insert("toolChoice".to_owned(), choice);
     }
     fields
 }

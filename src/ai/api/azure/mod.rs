@@ -54,9 +54,9 @@ fn prepare(
     let route = Route {
         url: format!("{base}/responses?api-version={}", query_escape(&version)),
         key_header: "api-key",
+        request_model: Some(deployment_name(&model.id)),
     };
     let mut wire = model.clone();
-    wire.id = deployment_name(&model.id);
     let compat = wire.compat.get_or_insert_with(|| Value::Object(Map::new()));
     if let Some(compat) = compat.as_object_mut() {
         compat
@@ -121,6 +121,10 @@ fn normalize_base(base: &str) -> Result<String, String> {
     if scheme.is_empty() || host.is_empty() {
         return Err(invalid());
     }
+    let (path, query) = match path.find('?') {
+        Some(index) => path.split_at(index),
+        None => (path, ""),
+    };
     let path = path.trim_end_matches('/');
     let azure = AZURE_HOST_SUFFIXES
         .iter()
@@ -128,7 +132,7 @@ fn normalize_base(base: &str) -> Result<String, String> {
     if azure && matches!(path, "" | "/openai" | "/openai/v1/responses") {
         return Ok(format!("{scheme}://{authority}/openai/v1"));
     }
-    Ok(format!("{scheme}://{authority}{path}"))
+    Ok(format!("{scheme}://{authority}{path}{query}"))
 }
 
 fn query_escape(value: &str) -> String {

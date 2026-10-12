@@ -241,7 +241,7 @@ pub struct ExecResult {
     pub spill_path: Option<String>,
 }
 
-pub trait ExecutionEnv {
+pub trait ExecutionEnv: Send + Sync {
     fn id(&self) -> &str;
     fn cwd(&self) -> &str;
     fn absolute_path(&self, path: &str, cancel: &CancelToken) -> Result<String, FileError>;

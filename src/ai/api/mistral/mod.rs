@@ -102,6 +102,12 @@ fn run(
     if let Some(max_tokens) = options.max_tokens.filter(|tokens| *tokens > 0) {
         body["max_tokens"] = json!(max_tokens);
     }
+    if let Some(temperature) = options.temperature {
+        body["temperature"] = json!(temperature);
+    }
+    if let Some(choice) = &options.tool_choice {
+        body["tool_choice"] = json!(choice);
+    }
     let (effort, prompt_mode) = reasoning(model, options);
     if let Some(effort) = effort {
         body["reasoning_effort"] = json!(effort);
@@ -162,12 +168,8 @@ fn run(
 }
 
 fn chat_completions_url(base: &str) -> String {
-    let base = base.trim_end_matches('/');
-    if base.ends_with("/v1") {
-        format!("{base}/chat/completions")
-    } else {
-        format!("{base}/v1/chat/completions")
-    }
+    let end = base.find(['?', '#']).unwrap_or(base.len());
+    format!("{}/v1/chat/completions", base[..end].trim_end_matches('/'))
 }
 
 fn status_error(status: u16, text: &str) -> String {

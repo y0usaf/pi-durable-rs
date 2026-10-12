@@ -48,6 +48,7 @@ impl Api for OpenAiResponses {
 pub(crate) struct Route {
     pub url: String,
     pub key_header: &'static str,
+    pub request_model: Option<String>,
 }
 
 pub(crate) fn run(
@@ -70,7 +71,7 @@ pub(crate) fn run(
         return Err(format!("No API key for provider: {}", model.provider));
     }
     let retention = cache_retention(options);
-    let turn = turn(model, &context, options, retention, api_key);
+    let turn = turn(model, &context, options, retention, api_key, route);
     let body = request::build(model, &context, &compat, &turn)?;
     let url = match route {
         Some(route) => route.url.clone(),
@@ -152,6 +153,7 @@ fn turn(
     options: &SimpleStreamOptions,
     retention: CacheRetention,
     api_key: Option<&str>,
+    route: Option<&Route>,
 ) -> Turn {
     let cache_key = match options.session_id.as_deref() {
         Some(session) if retention != CacheRetention::None => {
@@ -172,6 +174,7 @@ fn turn(
         && model.base_url == "https://api.openai.com/v1"
         && api_key.is_some_and(|key| !key.starts_with("sk-"));
     Turn {
+        request_model: route.and_then(|route| route.request_model.clone()),
         cache_key,
         retention,
         max_tokens,
