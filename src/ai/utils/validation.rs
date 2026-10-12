@@ -372,7 +372,7 @@ fn errors(schema: &Value, value: &Value, path: &str, ctx: &mut Ctx) -> bool {
             || ctx.add(Issue::new(
                 "minItems",
                 path,
-                &format!("must NOT have fewer than {min} items"),
+                &format!("must not have fewer than {min} items"),
             ));
     }
     if let Some(subs) = map.get("allOf").and_then(Value::as_array) {
