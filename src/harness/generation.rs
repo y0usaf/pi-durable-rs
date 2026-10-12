@@ -103,6 +103,7 @@ pub type OnYieldHook = Box<
         + Sync,
 >;
 pub type AfterToolsHook = Box<dyn Fn(&HookApi, EntryId, &[EntryId]) -> Result<()> + Send + Sync>;
+pub type PartialHook = Arc<dyn Fn(&HookApi, Option<Arc<AssistantMessage>>) + Send + Sync>;
 
 #[derive(Default)]
 pub struct GenerationHooks {
@@ -110,6 +111,7 @@ pub struct GenerationHooks {
     pub after_response: Option<AfterResponseHook>,
     pub on_yield: Option<OnYieldHook>,
     pub after_tools: Option<AfterToolsHook>,
+    pub on_partial: Option<PartialHook>,
 }
 
 pub const GENERATION_KIND: &str = "pi.generation";
