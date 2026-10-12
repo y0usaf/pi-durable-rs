@@ -16,7 +16,9 @@ use crate::harness::inbox::{SelfMarker, WriteDraft, WriteHead};
 use crate::harness::live::settle_scheduler_outcome;
 use crate::harness::registry::Registry;
 use crate::harness::scheduler::{Inspected, SchedulerOptions, Snapshot, TaskScheduler};
-use crate::harness::submissions::{AbortResult, SubmissionDraft, SubmissionHandle, Submissions};
+use crate::harness::submissions::{
+    AbortResult, SubmissionDraft, SubmissionHandle, Submissions, settle_orphaned_inputs,
+};
 use crate::harness::task_graph::{GraphGuard, TaskGraphView};
 use crate::harness::types::{ConversationBinder, ConversationHandle, InvocationBinding};
 use crate::harness::types::{
@@ -140,7 +142,10 @@ impl Harness {
         )?;
         let task_graph = TaskGraphView::new(&session)?;
         let views = ConversationViews::new(&session)?;
-        if let Err(error) = tasks.open() {
+        if let Err(error) = tasks
+            .open()
+            .and_then(|()| settle_orphaned_inputs(&session, storage.as_ref()))
+        {
             tasks.join();
             if let Err(close_error) = session.close(&CancelToken::new()) {
                 report(close_error);
