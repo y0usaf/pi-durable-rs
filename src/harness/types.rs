@@ -6,7 +6,7 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use crate::ai::models::Models;
-use crate::ai::types::{CacheRetention, Tool, Transport, Usage, UserBlock, UserContent};
+use crate::ai::types::{CacheRetention, Tool, ToolCall, Transport, Usage, UserBlock, UserContent};
 use crate::cancel::CancelToken;
 use crate::env::ExecutionEnv;
 use crate::errors::{Error, Result};
@@ -18,7 +18,7 @@ use crate::harness::submissions::{SubmissionDraft, SubmissionHandle};
 use crate::ids::{ConversationId, EntryId, TaskId};
 use crate::session::types::{DocumentObserver, DocumentReader, Tx};
 use crate::types::{
-    AnyTaskRecord, ConversationOwnership, ConversationRecord, JsonValue, ToolDiagnostic,
+    AnyTaskRecord, ConversationOwnership, ConversationRecord, JsonObject, JsonValue, ToolDiagnostic,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -134,6 +134,28 @@ pub trait ToolExecutionApi: DocumentObserver + DocumentReader {
         cancel: &CancelToken,
     ) -> Result<JsonValue>;
     fn get_task(&self, id: TaskId, cancel: &CancelToken) -> Result<Option<AnyTaskRecord>>;
+    fn before_tool(
+        &self,
+        _tool: &ToolRegistration,
+        call: &ToolCall,
+        _cancel: &CancelToken,
+    ) -> Result<ToolGate> {
+        Ok(ToolGate::Run(call.arguments.clone()))
+    }
+    fn after_tool(
+        &self,
+        _call: &ToolCall,
+        result: ToolExecutionResult,
+        _cancel: &CancelToken,
+    ) -> Result<ToolExecutionResult> {
+        Ok(result)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ToolGate {
+    Run(JsonObject),
+    Blocked(Box<ToolExecutionResult>),
 }
 
 pub type ToolExecute = Arc<
