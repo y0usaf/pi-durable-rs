@@ -10,7 +10,8 @@ use crate::errors::{Error, Result};
 use crate::harness::compaction::{create_compaction, select_cut};
 use crate::harness::context::ContextView;
 use crate::harness::generation::{
-    GenerationCheckpoint, Runtime, append_assistant, edit_live, end_run, read_live, write_live,
+    GenerationCheckpoint, PartialHook, Runtime, append_assistant, edit_live, end_run, read_live,
+    write_live,
 };
 use crate::harness::live::{DeferredStatus, GenerationStatus, RetryStatus};
 use crate::harness::types::{CompactionReason, HookApi, ModelRef};
@@ -32,7 +33,7 @@ pub struct Request {
     pub poll_at: Option<u64>,
 }
 
-fn partial_of(event: &AssistantMessageEvent) -> Option<&AssistantMessage> {
+fn into_partial(event: AssistantMessageEvent) -> Option<AssistantMessage> {
     match event {
         AssistantMessageEvent::Start { partial }
         | AssistantMessageEvent::TextStart { partial, .. }
@@ -56,6 +57,38 @@ pub fn stream_response(
     attempt: u64,
     cancel: &CancelToken,
 ) -> Result<AssistantMessage> {
+    let mut sinks: Vec<PartialHook> = Vec::new();
+    runtime.hooks().each(&mut |hooks| {
+        if let Some(sink) = hooks.on_partial.as_ref() {
+            sinks.push(Arc::clone(sink));
+        }
+        Ok(())
+    })?;
+    let api = HookApi {
+        conversation_id: runtime.conversation_id(),
+    };
+    let result = stream_events(
+        runtime, model, messages, options, attempt, cancel, &sinks, &api,
+    );
+    if result.is_err() || runtime.signal().is_cancelled() {
+        for sink in &sinks {
+            sink(&api, None);
+        }
+    }
+    result
+}
+
+#[allow(clippy::too_many_arguments)]
+fn stream_events(
+    runtime: Runtime<'_>,
+    model: &Model,
+    messages: &[Message],
+    options: SimpleStreamOptions,
+    attempt: u64,
+    cancel: &CancelToken,
+    sinks: &[PartialHook],
+    api: &HookApi,
+) -> Result<AssistantMessage> {
     let interval = Duration::from_millis(runtime.settings().progress.partial_interval_ms);
     let stream = runtime.models().stream_simple(
         model,
@@ -64,8 +97,11 @@ pub fn stream_response(
         },
         options,
     );
-    let mut pending: Option<AssistantMessage> = None;
+    let mut pending: Option<Arc<AssistantMessage>> = None;
     let mut due: Option<Instant> = None;
+    let mut committed = Instant::now()
+        .checked_sub(interval)
+        .unwrap_or_else(Instant::now);
     loop {
         let next = match due {
             Some(at) => stream.next_event_timeout(at.saturating_duration_since(Instant::now())),
@@ -76,19 +112,24 @@ pub fn stream_response(
         };
         match next {
             Next::Event(event) => {
-                let Some(partial) = partial_of(&event) else {
+                let Some(partial) = into_partial(event) else {
                     continue;
                 };
                 if partial.content.is_empty() {
                     continue;
                 }
-                pending = Some(partial.clone());
-                due.get_or_insert_with(|| Instant::now() + interval);
+                let partial = Arc::new(partial);
+                for sink in sinks {
+                    sink(api, Some(Arc::clone(&partial)));
+                }
+                pending = Some(partial);
+                due.get_or_insert(committed + interval);
             }
             Next::Timeout => {
                 due = None;
                 if let Some(partial) = pending.take() {
                     commit_partial(&runtime, attempt, partial, cancel)?;
+                    committed = Instant::now();
                 }
             }
             Next::End => break,
@@ -102,9 +143,10 @@ pub fn stream_response(
 fn commit_partial(
     runtime: &Runtime<'_>,
     attempt: u64,
-    snapshot: AssistantMessage,
+    snapshot: Arc<AssistantMessage>,
     cancel: &CancelToken,
 ) -> Result<()> {
+    let snapshot = Arc::try_unwrap(snapshot).unwrap_or_else(|shared| (*shared).clone());
     let conversation_id = runtime.conversation_id();
     runtime.commit(
         Box::new(move |tx, _task| {
