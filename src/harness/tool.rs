@@ -27,7 +27,8 @@ use crate::harness::progress::{Progress, Waiter};
 use crate::harness::registry::RegistrySnapshot;
 use crate::harness::runtime::{HarnessPhaseHandler, HarnessTaskDefinition, HarnessTaskRuntime};
 use crate::harness::types::{
-    HookTask, Replay, ToolControl, ToolExecutionApi, ToolExecutionResult, ToolRegistration,
+    HookTask, Replay, ToolControl, ToolExecutionApi, ToolExecutionResult, ToolGate,
+    ToolRegistration,
 };
 use crate::harness::usage::{UsageBucket, record_usage};
 use crate::harness::util::{edit_doc, read_draft, write_draft};
@@ -146,7 +147,7 @@ fn call_phase(
         Ok(args) => validate(tool, &call, args),
         Err(message) => Err(message),
     };
-    let mut args = match checked {
+    let args = match checked {
         Ok(args) => args,
         Err(message) => {
             return settle(
@@ -159,6 +160,38 @@ fn call_phase(
             );
         }
     };
+    let final_args = match before_tool_hooks(rt, tool, &call, args, cancel)? {
+        ToolGate::Run(args) => args,
+        ToolGate::Blocked(result) => {
+            return settle(rt, &call, Ending::Completed, move |_| *result, cancel, None);
+        }
+    };
+    let replay = tool.replay.unwrap_or(Replay::Unsafe);
+    let intent = final_args.clone();
+    let task_id = rt.task_id();
+    let conversation = rt.conversation_id();
+    rt.commit(
+        Box::new(move |tx: &mut dyn Tx, _task| {
+            set_slot_status(tx, conversation, task_id, SlotStatus::Running)?;
+            Ok(Some(NextTaskState::Running {
+                checkpoint: ToolTaskCheckpoint::Execute {
+                    arguments: intent,
+                    replay,
+                },
+            }))
+        }),
+        cancel,
+    )?;
+    run(rt, assistant, &call, tool, final_args, cancel)
+}
+
+pub fn before_tool_hooks(
+    rt: &ToolRuntime<'_>,
+    tool: &ToolRegistration,
+    call: &ToolCall,
+    mut args: JsonObject,
+    cancel: &CancelToken,
+) -> Result<ToolGate> {
     let mut block: Option<String> = None;
     rt.hooks().each(&mut |hook: &ToolHooks| {
         if block.is_some() {
@@ -191,39 +224,33 @@ fn call_phase(
         Ok(())
     })?;
     if let Some(reason) = block {
-        let blocked = harness_error("blocked", &format!("Tool call blocked: {reason}"));
-        return settle(rt, &call, Ending::Completed, move |_| blocked, cancel, None);
+        return Ok(ToolGate::Blocked(Box::new(harness_error(
+            "blocked",
+            &format!("Tool call blocked: {reason}"),
+        ))));
     }
-    let final_args = match validate(tool, &call, args) {
-        Ok(args) => args,
-        Err(message) => {
-            return settle(
-                rt,
-                &call,
-                Ending::Completed,
-                move |_| invalid(&message),
-                cancel,
-                None,
-            );
+    Ok(match validate(tool, call, args) {
+        Ok(args) => ToolGate::Run(args),
+        Err(message) => ToolGate::Blocked(Box::new(invalid(&message))),
+    })
+}
+
+pub fn after_tool_hooks(
+    rt: &ToolRuntime<'_>,
+    call: &ToolCall,
+    mut result: ToolExecutionResult,
+    cancel: &CancelToken,
+) -> Result<ToolExecutionResult> {
+    rt.hooks().each(&mut |hook: &ToolHooks| {
+        let Some(after) = &hook.after_tool else {
+            return Ok(());
+        };
+        if let Some(next) = after(call, result.clone(), rt, cancel)? {
+            result = next;
         }
-    };
-    let replay = tool.replay.unwrap_or(Replay::Unsafe);
-    let intent = final_args.clone();
-    let task_id = rt.task_id();
-    let conversation = rt.conversation_id();
-    rt.commit(
-        Box::new(move |tx: &mut dyn Tx, _task| {
-            set_slot_status(tx, conversation, task_id, SlotStatus::Running)?;
-            Ok(Some(NextTaskState::Running {
-                checkpoint: ToolTaskCheckpoint::Execute {
-                    arguments: intent,
-                    replay,
-                },
-            }))
-        }),
-        cancel,
-    )?;
-    run(rt, assistant, &call, tool, final_args, cancel)
+        Ok(())
+    })?;
+    Ok(result)
 }
 
 fn execute_phase(
@@ -604,7 +631,7 @@ fn final_result(
         Some(retained) if retained.text.is_empty() => Vec::new(),
         Some(retained) => vec![text_block(retained.text.clone())],
     };
-    let mut fin = ToolExecutionResult {
+    let fin = ToolExecutionResult {
         content: Some(content.clone()),
         details: result.details.clone().or(reported_details),
         diagnostics: Some(
@@ -615,15 +642,7 @@ fn final_result(
         ),
         ..result
     };
-    rt.hooks().each(&mut |hook: &ToolHooks| {
-        let Some(after) = &hook.after_tool else {
-            return Ok(());
-        };
-        if let Some(next) = after(call, fin.clone(), rt, cancel)? {
-            fin = next;
-        }
-        Ok(())
-    })?;
+    let mut fin = after_tool_hooks(rt, call, fin, cancel)?;
     let limits = shared.limits;
     let mut harness = Vec::new();
     if let Some(retained) = &retained
@@ -1065,5 +1084,23 @@ impl ToolExecutionApi for Api<'_> {
 
     fn get_task(&self, id: TaskId, cancel: &CancelToken) -> Result<Option<AnyTaskRecord>> {
         self.rt.get_task(id, cancel)
+    }
+
+    fn before_tool(
+        &self,
+        tool: &ToolRegistration,
+        call: &ToolCall,
+        cancel: &CancelToken,
+    ) -> Result<ToolGate> {
+        before_tool_hooks(self.rt, tool, call, call.arguments.clone(), cancel)
+    }
+
+    fn after_tool(
+        &self,
+        call: &ToolCall,
+        result: ToolExecutionResult,
+        cancel: &CancelToken,
+    ) -> Result<ToolExecutionResult> {
+        after_tool_hooks(self.rt, call, result, cancel)
     }
 }
