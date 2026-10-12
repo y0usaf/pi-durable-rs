@@ -58,8 +58,23 @@ pub fn build(
     }
     if !tools.is_empty() {
         body["tools"] = json!([{"functionDeclarations": declarations(tools)}]);
+        if let Some(mode) = options
+            .tool_choice
+            .as_deref()
+            .filter(|choice| !choice.is_empty())
+            .map(|choice| match choice {
+                "none" => "NONE",
+                "any" => "ANY",
+                _ => "AUTO",
+            })
+        {
+            body["toolConfig"] = json!({"functionCallingConfig": {"mode": mode}});
+        }
     }
     let mut generation = Map::new();
+    if let Some(temperature) = options.temperature {
+        generation.insert("temperature".to_owned(), json!(temperature));
+    }
     if let Some(max_tokens) = options.max_tokens.filter(|tokens| *tokens > 0) {
         generation.insert("maxOutputTokens".to_owned(), json!(max_tokens));
     }
@@ -216,9 +231,17 @@ fn thinking_config(model: &Model, level: ThinkingLevel) -> Result<Value, String>
         || GEMINI3_FLASH.is_match(id)
         || GEMMA4.is_match(id)
         || matches!(id, "gemini-flash-latest" | "gemini-flash-lite-latest");
-    let clamped = clamp_thinking_level(model, ModelThinkingLevel::from(level));
-    if clamped == ModelThinkingLevel::Off {
-        return Ok(json!({"thinkingBudget": 0}));
+    let requested = ModelThinkingLevel::from(level);
+    let clamped = clamp_thinking_level(model, requested);
+    if requested == ModelThinkingLevel::Off || clamped == ModelThinkingLevel::Off {
+        if !uses_level {
+            return Ok(json!({"thinkingBudget": 0}));
+        }
+        let fallback = clamp_thinking_level(model, ModelThinkingLevel::Off);
+        if fallback == ModelThinkingLevel::Off {
+            return Ok(json!({"thinkingBudget": 0}));
+        }
+        return Ok(json!({"thinkingLevel": resolve_level(model, fallback)?.to_uppercase()}));
     }
     let resolved = resolve_level(model, clamped)?;
     let mut config = json!({"includeThoughts": true});

@@ -621,6 +621,8 @@ pub struct SimpleStreamOptions {
     pub headers: Option<BTreeMap<String, String>>,
     pub metadata: Option<JsonObject>,
     pub cache_points: Vec<CachePoint>,
+    pub temperature: Option<f64>,
+    pub tool_choice: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

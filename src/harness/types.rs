@@ -102,7 +102,7 @@ pub trait ConversationHandle: Send + Sync {
     fn wait_for_idle(&self, cancel: &CancelToken) -> Result<()>;
 }
 
-pub trait ToolExecutionApi: DocumentObserver + DocumentReader {
+pub trait ToolExecutionApi: DocumentObserver + DocumentReader + Sync {
     fn task_id(&self) -> TaskId;
     fn conversation_id(&self) -> ConversationId;
     fn call_id(&self) -> &str;
