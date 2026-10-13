@@ -74,6 +74,8 @@ pub struct AgentState {
     pub instructions: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cwd: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub context_budget_tokens: Option<u64>,
 }
 
 pub fn agent_doc() -> Result<DocToken<AgentState>> {
@@ -119,6 +121,7 @@ pub struct AgentChange {
     pub tools: Change<ToolsChange>,
     pub instructions: Change<String>,
     pub cwd: Change<String>,
+    pub context_budget_tokens: Change<u64>,
 }
 
 #[derive(Clone)]
@@ -130,6 +133,7 @@ pub struct Agent {
     pub sections: Vec<PromptSection>,
     pub instructions: Option<String>,
     pub cwd: Option<String>,
+    pub context_budget_tokens: Option<u64>,
 }
 
 pub fn resolve_settings(settings: Option<&HarnessSettings>) -> Settings {
@@ -252,6 +256,11 @@ fn apply_change(state: &mut AgentState, change: &AgentChange) {
         Change::Keep => {}
         Change::Clear => state.cwd = None,
         Change::Set(cwd) => state.cwd = Some(cwd.clone()),
+    }
+    match &change.context_budget_tokens {
+        Change::Keep => {}
+        Change::Clear => state.context_budget_tokens = None,
+        Change::Set(tokens) => state.context_budget_tokens = Some(*tokens),
     }
 }
 
@@ -404,6 +413,7 @@ pub fn resolve_agent(
         sections,
         instructions,
         cwd: state.and_then(|state| state.cwd.clone()),
+        context_budget_tokens: state.and_then(|state| state.context_budget_tokens),
     }
 }
 
