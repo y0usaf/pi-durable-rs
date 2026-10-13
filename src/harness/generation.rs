@@ -310,6 +310,14 @@ pub enum Threshold {
     Background,
 }
 
+fn budgeted_window(context_window: u64, budget: Option<u64>) -> u64 {
+    match (context_window, budget) {
+        (window, None) => window,
+        (0, Some(budget)) => budget,
+        (window, Some(budget)) => window.min(budget),
+    }
+}
+
 pub fn threshold_compaction(
     view: &ContextView,
     planned: &[EntryDraft],
@@ -517,7 +525,7 @@ fn prepare(
         threshold_compaction(
             &view,
             &entries,
-            resolved.context_window,
+            budgeted_window(resolved.context_window, agent.context_budget_tokens),
             &settings.compaction,
         )
     } else {
