@@ -195,7 +195,7 @@ The crate is 0.1.0 and its API is still moving.
 
 ### Providers
 
-TypeScript's `packages/ai/src/providers` has about 40 provider modules and `auth/oauth` has nine logins. Rust has three wire formats (Anthropic Messages, OpenAI Chat Completions, OpenAI Responses), three catalogs (Anthropic, OpenAI, Vercel AI Gateway, generated from PiG's Go catalog by `scripts/gen-catalog.py`), and one login (Anthropic).
+TypeScript's `packages/ai/src/providers` has about 40 provider modules and `auth/oauth` has nine logins. Rust has three wire formats (Anthropic Messages, OpenAI Chat Completions, OpenAI Responses), one catalog (every chat model in the published `@earendil-works/pi-ai`, `src/ai/catalog/models.json`; to update, change `VERSION` and `INTEGRITY` in `scripts/gen-catalog.py` and run `scripts/gen-catalog.py > src/ai/catalog/models.json`), and one login (Anthropic).
 
 Not ported: `onPayload` / `onResponse` hooks, custom fetch, proxies, redirects, WebSocket and the Codex, Azure, Bedrock, Google, Mistral transports, Copilot headers, constrained sampling and grammar tools, Anthropic workload-identity federation and `ANTHROPIC_AUTH_TOKEN` (set it as a header from `set_auth`), OpenRouter `reasoning_details` replay, `PI_CACHE_RETENTION`. Chat Completions rejects unknown `compat` keys with an error instead of ignoring them.
 
