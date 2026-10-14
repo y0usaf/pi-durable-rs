@@ -733,12 +733,15 @@ fn tool_result(result: &ToolResultMessage) -> Value {
     json!({
         "type": "tool_result",
         "tool_use_id": result.tool_call_id,
-        "content": result_content(&result.content),
+        "content": result_content(&result.content, result.is_error),
         "is_error": result.is_error,
     })
 }
 
-fn result_content(content: &[UserBlock]) -> Value {
+const OMITTED_ERROR_IMAGE: &str =
+    "(image omitted: this tool result is an error, and Anthropic requires text-only content)";
+
+fn result_content(content: &[UserBlock], is_error: bool) -> Value {
     if !content
         .iter()
         .any(|block| matches!(block, UserBlock::Image(_)))
@@ -756,7 +759,8 @@ fn result_content(content: &[UserBlock]) -> Value {
         .iter()
         .map(|block| match block {
             UserBlock::Text(text) => json!({"type": "text", "text": text.text}),
-            UserBlock::Image(image) => image_block(image),
+            UserBlock::Image(image) if !is_error => image_block(image),
+            UserBlock::Image(_) => json!({"type": "text", "text": OMITTED_ERROR_IMAGE}),
         })
         .collect();
     if !blocks.iter().any(|block| block["type"] == "text") {
