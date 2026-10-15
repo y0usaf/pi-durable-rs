@@ -1,4 +1,5 @@
-use crate::ai::event_stream::Next;
+use crate::ai::event_stream::{Next, now_ms};
+use crate::ai::stream::new_output;
 use crate::ai::types::{
     AssistantBlock, AssistantMessage, AssistantMessageEvent, Message, Model, SimpleStreamOptions,
     StopReason, ToolCall,
@@ -83,13 +84,20 @@ fn stream_events(
     runtime: Runtime<'_>,
     model: &Model,
     messages: &[Message],
-    options: SimpleStreamOptions,
+    mut options: SimpleStreamOptions,
     attempt: u64,
     cancel: &CancelToken,
     sinks: &[PartialHook],
     api: &HookApi,
 ) -> Result<AssistantMessage> {
-    let interval = Duration::from_millis(runtime.settings().progress.partial_interval_ms);
+    let progress = runtime.settings().progress;
+    let interval = Duration::from_millis(progress.partial_interval_ms);
+    let stall = Duration::from_millis(progress.stall_ms);
+    let stop = CancelToken::new();
+    let _link = options.signal.replace(stop.clone()).map(|signal| {
+        let stop = stop.clone();
+        signal.subscribe(move || stop.cancel())
+    });
     let stream = runtime.models().stream_simple(
         model,
         crate::ai::types::TranscriptContext {
@@ -97,21 +105,19 @@ fn stream_events(
         },
         options,
     );
+    let mut latest: Option<Arc<AssistantMessage>> = None;
     let mut pending: Option<Arc<AssistantMessage>> = None;
     let mut due: Option<Instant> = None;
     let mut committed = Instant::now()
         .checked_sub(interval)
         .unwrap_or_else(Instant::now);
+    let mut heard = Instant::now();
     loop {
-        let next = match due {
-            Some(at) => stream.next_event_timeout(at.saturating_duration_since(Instant::now())),
-            None => match stream.next_event() {
-                Some(event) => Next::Event(event),
-                None => Next::End,
-            },
-        };
-        match next {
+        let quiet = heard + stall;
+        let wake = due.map_or(quiet, |at| at.min(quiet));
+        match stream.next_event_timeout(wake.saturating_duration_since(Instant::now())) {
             Next::Event(event) => {
+                heard = Instant::now();
                 let Some(partial) = into_partial(event) else {
                     continue;
                 };
@@ -122,8 +128,18 @@ fn stream_events(
                 for sink in sinks {
                     sink(api, Some(Arc::clone(&partial)));
                 }
+                latest = Some(Arc::clone(&partial));
                 pending = Some(partial);
                 due.get_or_insert(committed + interval);
+            }
+            Next::Timeout if Instant::now() >= quiet => {
+                stop.cancel();
+                let mut message = latest.map_or_else(|| new_output(model), Arc::unwrap_or_clone);
+                message.stop_reason = StopReason::Error;
+                message.error_message =
+                    Some(format!("Request timed out: no stream event in {stall:?}"));
+                message.timestamp = now_ms();
+                return Ok(message);
             }
             Next::Timeout => {
                 due = None;

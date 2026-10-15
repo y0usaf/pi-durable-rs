@@ -285,6 +285,7 @@ pub struct CompactionPolicy {
 pub struct ProgressPolicy {
     pub partial_interval_ms: u64,
     pub output_interval_ms: u64,
+    pub stall_ms: u64,
 }
 
 pub use crate::types::CompactionReason;
@@ -350,6 +351,7 @@ pub struct CompactionOverrides {
 pub struct ProgressOverrides {
     pub partial_interval_ms: Option<u64>,
     pub output_interval_ms: Option<u64>,
+    pub stall_ms: Option<u64>,
 }
 
 #[derive(Clone, Default)]

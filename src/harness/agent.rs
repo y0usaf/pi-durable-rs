@@ -36,6 +36,7 @@ pub const DEFAULT_COMPACTION_POLICY: CompactionPolicy = CompactionPolicy {
 pub const DEFAULT_PROGRESS_POLICY: ProgressPolicy = ProgressPolicy {
     partial_interval_ms: 100,
     output_interval_ms: 100,
+    stall_ms: 600_000,
 };
 
 const DEFAULT_CONTEXT_RETENTION_MS: u64 = 600_000;
@@ -154,6 +155,9 @@ pub fn resolve_settings(settings: Option<&HarnessSettings>) -> Settings {
             output_interval_ms: progress
                 .and_then(|progress| progress.output_interval_ms)
                 .unwrap_or(DEFAULT_PROGRESS_POLICY.output_interval_ms),
+            stall_ms: progress
+                .and_then(|progress| progress.stall_ms)
+                .unwrap_or(DEFAULT_PROGRESS_POLICY.stall_ms),
         },
         tool_execution: settings
             .and_then(|settings| settings.tool_execution)
