@@ -133,24 +133,30 @@ impl<T, R: Clone> EventStream<T, R> {
 
     pub fn next_event_timeout(&self, timeout: Duration) -> Next<T> {
         let deadline = Instant::now() + timeout;
-        let mut state = self.lock();
         loop {
-            if let Some(event) = state.queue.pop_front() {
-                return Next::Event(event);
+            {
+                let mut state = self.lock();
+                if let Some(event) = state.queue.pop_front() {
+                    return Next::Event(event);
+                }
+                if state.done {
+                    return Next::End;
+                }
+                if Instant::now() >= deadline {
+                    return Next::Timeout;
+                }
             }
-            if state.done {
-                return Next::End;
-            }
-            let now = Instant::now();
-            if now >= deadline {
-                return Next::Timeout;
-            }
-            state = self
-                .shared
-                .1
-                .wait_timeout(state, deadline - now)
-                .unwrap_or_else(PoisonError::into_inner)
-                .0;
+            pause(|| {
+                let left = deadline.saturating_duration_since(Instant::now());
+                drop(
+                    self.shared
+                        .1
+                        .wait_timeout_while(self.lock(), left, |state| {
+                            state.queue.is_empty() && !state.done
+                        })
+                        .unwrap_or_else(PoisonError::into_inner),
+                );
+            });
         }
     }
 
