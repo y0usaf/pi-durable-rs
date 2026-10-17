@@ -1,0 +1,106 @@
+[
+	{
+		"scope": "e1",
+		"path": "requests[].headers.host",
+		"action": "drop",
+		"reason": "transport: carries the loopback port, which differs per side; set by the HTTP client below the adapter"
+	},
+	{
+		"scope": "e1",
+		"path": "requests[].headers.connection",
+		"action": "drop",
+		"reason": "transport: undici keeps the connection alive while src/ai/http.rs sends close; neither is adapter behaviour"
+	},
+	{
+		"scope": "e1",
+		"path": "requests[].headers.content-length",
+		"action": "drop",
+		"reason": "transport: follows from the body bytes; the parsed body is compared itself"
+	},
+	{
+		"scope": "e1",
+		"path": "requests[].headers.accept-encoding",
+		"action": "drop",
+		"reason": "transport: undici offers gzip/deflate/br, src/ai/http.rs asks for identity; decoding happens below the adapter"
+	},
+	{
+		"scope": "e1",
+		"path": "requests[].headers.accept-language",
+		"action": "drop",
+		"reason": "transport: undici fetch default, never set by pi-ai"
+	},
+	{
+		"scope": "e1",
+		"path": "requests[].headers.sec-fetch-mode",
+		"action": "drop",
+		"reason": "transport: undici fetch default, never set by pi-ai"
+	},
+	{
+		"scope": "e1",
+		"path": "requests[].headers.transfer-encoding",
+		"action": "drop",
+		"reason": "transport: framing chosen by the HTTP client"
+	},
+	{
+		"scope": "e1",
+		"path": "requests[].headers.user-agent",
+		"action": "replace",
+		"pattern": "^pi \\(.*\\)$",
+		"with": "pi (<platform>)",
+		"reason": "getPiUserAgent embeds os.platform/release/arch of the build machine"
+	},
+	{
+		"scope": "e1",
+		"path": "message.timestamp",
+		"action": "blank",
+		"reason": "wall clock when the stream was created"
+	},
+	{
+		"scope": "e1",
+		"path": "message.durationMs",
+		"action": "drop",
+		"reason": "wall-clock duration of the run"
+	},
+	{
+		"scope": "e1",
+		"path": "events[].partial",
+		"action": "drop",
+		"reason": "TS events carry a live reference to the mutable output (partial: output), so its serialized state depends on when the consumer read it; the final message is compared instead"
+	},
+	{
+		"scope": "e1",
+		"path": "events[].message",
+		"action": "drop",
+		"reason": "same object as the final message, compared once under message"
+	},
+	{
+		"scope": "e1",
+		"path": "events[].error",
+		"action": "drop",
+		"reason": "same object as the final message, compared once under message"
+	},
+	{
+		"scope": "e2",
+		"path": "kind",
+		"action": "drop",
+		"reason": "exception class names are engine-specific (V8 SyntaxError vs a Rust error string); whether the call threw is compared"
+	},
+	{
+		"scope": "e2",
+		"path": "error",
+		"action": "drop",
+		"reason": "exception message text comes from different JSON/regex engines; whether the call threw is compared"
+	},
+	{
+		"scope": "e1",
+		"path": "",
+		"action": "sort-keys",
+		"reason": "JSON object member order is not semantic (RFC 8259 §4); serde preserve_order and V8 insertion order differ"
+	},
+	{
+		"scope": "e2",
+		"path": "",
+		"action": "sort-keys",
+		"reason": "JSON object member order is not semantic (RFC 8259 §4)"
+	}
+]
