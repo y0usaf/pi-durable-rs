@@ -1,0 +1,184 @@
+{
+	"name": "google-generative-ai-0008",
+	"seed": "e2f083a72360e5ec",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.5,
+			"output": 12.25,
+			"cacheRead": 0.75,
+			"cacheWrite": 0.5
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp seven",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "quiet 😀 cloud 👩‍💻",
+						"thinkingSignature": "020b7de55287e65cadef0cd82f116186"
+					},
+					{
+						"type": "text",
+						"text": "field cloud quiet alpha river"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_6036d3680a",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 428,
+					"output": 81,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 509,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_6036d3680a",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-2d361fd6b1e4",
+		"reasoning": "low",
+		"maxTokens": 4096,
+		"headers": {
+			"x-parity-test": "def732"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"seven river cloud north north\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"4b4fc97a44821ef7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_11aa0712451b\",\"name\":\"noop\",\"args\":{}}}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"4b4fc97a44821ef7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"4b4fc97a44821ef7\",\"usageMetadata\":{\"promptTokenCount\":581,\"candidatesTokenCount\":129,\"totalTokenCount\":710}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "seven river cloud north north"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_11aa0712451b",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 581,
+			"output": 129,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "4b4fc97a44821ef7"
+	}
+}

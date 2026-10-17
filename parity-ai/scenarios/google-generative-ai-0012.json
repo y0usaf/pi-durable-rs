@@ -1,0 +1,152 @@
+{
+	"name": "google-generative-ai-0012",
+	"seed": "e874b1a0eeba8663",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-flash-lite",
+		"name": "gemini-2.5-flash-lite",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5,
+			"output": 6,
+			"cacheRead": 0,
+			"cacheWrite": 1.25
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "north stone river river field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "river ñandú Grüße cloud",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "cloud 🇯🇵 alpha quiet seven 👩‍💻",
+						"thinkingSignature": "f18f333328a75e702f4cb93a927c5a15"
+					},
+					{
+						"type": "text",
+						"text": "👩‍💻 🇯🇵"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 510,
+					"output": 212,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 722,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "cloud north river lamp stone river cloud",
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-1f1dd0f14f95",
+		"maxTokens": 256,
+		"temperature": 0.4,
+		"sessionId": "session-d6327315",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"𝄞 \",\"thought\":true,\"thoughtSignature\":\"DJH0DK3KaPZio0P+GiO7LyfoB28=\"}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"aea4cffd30082f7e\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"stone qu\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"aea4cffd30082f7e\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"iet 😀 😀\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"aea4cffd30082f7e\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"𐐷\"}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"aea4cffd30082f7e\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" \"}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"aea4cffd30082f7e\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"\\ud801\"}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"aea4cffd30082f7e\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"\\udc37\"}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"aea4cffd30082f7e\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"MAX_TOKENS\"}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"aea4cffd30082f7e\",\"usageMetadata\":{\"promptTokenCount\":286,\"candidatesTokenCount\":104,\"totalTokenCount\":390}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "𝄞 stone quiet 😀 😀"
+			},
+			{
+				"type": "text",
+				"text": "𐐷 𐐷"
+			}
+		],
+		"usage": {
+			"input": 286,
+			"output": 104,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "aea4cffd30082f7e"
+	}
+}

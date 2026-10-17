@@ -1,0 +1,251 @@
+{
+	"name": "google-generative-ai-0003",
+	"seed": "5c10286dc7ef9a16",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.25,
+			"output": 5.25,
+			"cacheRead": 0.25,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "stone field",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber café Ωmega lamp amber Привет"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven quiet seven seven quiet"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 651,
+					"output": 45,
+					"cacheRead": 0,
+					"cacheWrite": 145,
+					"totalTokens": 841,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "héllo quiet"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "field north quiet alpha"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 888,
+					"output": 146,
+					"cacheRead": 0,
+					"cacheWrite": 142,
+					"totalTokens": 1176,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field field"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "héllo alpha cloud café cloud"
+					},
+					{
+						"type": "text",
+						"text": "café north Grüße naïve stone Grüße 漢字 field"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_f1af683061",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"Привет",
+								"field"
+							]
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 627,
+					"output": 232,
+					"cacheRead": 172,
+					"cacheWrite": 0,
+					"totalTokens": 1031,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_f1af683061",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp north amber cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ccf5531fb30a",
+		"cacheRetention": "none",
+		"maxTokens": 1024,
+		"temperature": 0,
+		"sessionId": "session-62252d21",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"alpha 🇯🇵 🦀 amber 𐐷 seven field\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"2bda165938bc5340\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_9816b53fc35f\",\"name\":\"noop\",\"args\":{}}}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"2bda165938bc5340\"}\n\ndata: {\"can",
+				"didates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"2bda165938bc5340\",\"usageMetadata\":{\"promptTokenCount\":1066,\"candidatesTokenCount\":272,\"totalTokenCount\":1338,\"cachedContentTokenCount\":466}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "alpha 🇯🇵 🦀 amber 𐐷 seven field"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_9816b53fc35f",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 600,
+			"output": 272,
+			"cacheRead": 466,
+			"cacheWrite": 0
+		},
+		"responseId": "2bda165938bc5340"
+	}
+}

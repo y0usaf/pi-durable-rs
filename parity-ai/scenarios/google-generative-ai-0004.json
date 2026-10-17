@@ -1,0 +1,98 @@
+{
+	"name": "google-generative-ai-0004",
+	"seed": "803d5fa752ee728a",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4,
+			"output": 2.25,
+			"cacheRead": 0.125,
+			"cacheWrite": 1
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "north river lamp seven north field field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "north cloud alpha cloud",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-5bb42f55eb56",
+		"reasoning": "low",
+		"maxTokens": 1024,
+		"sessionId": "session-047f64e2",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"漢字 quiet café\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"d553d34217c31270\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" cloud seven a\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"d553d34217c31270\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"lpha 漢字 r\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"d553d34217c31270\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"iver quiet stone\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"d553d34217c31270\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_9d9fc5dc1f8c\",\"name\":\"noop\",\"args\":{}}}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"d553d34217c31270\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_5aa864d98fcb\",\"name\":\"noop\",\"args\":{}}}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"d553d34217c31270\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"d553d34217c31270\",\"usageMetadata\":{\"promptTokenCount\":369,\"candidatesTokenCount\":107,\"totalTokenCount\":476,\"cachedContentTokenCount\":256}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "漢字 quiet café cloud seven alpha 漢字 river quiet stone"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_9d9fc5dc1f8c",
+				"name": "noop",
+				"arguments": {}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_5aa864d98fcb",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 113,
+			"output": 107,
+			"cacheRead": 256,
+			"cacheWrite": 0
+		},
+		"responseId": "d553d34217c31270"
+	}
+}

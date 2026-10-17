@@ -62,6 +62,7 @@ const MODELS = {
 	"azure-openai-responses": { providers: ["azure"], ids: ["gpt-5", "gpt-5-mini", "gpt-4.1", "o4-mini"], path: "/openai/v1" },
 	"mistral-conversations": { providers: ["mistral"], ids: ["mistral-large-latest", "magistral-medium-latest", "devstral-medium-latest", "codestral-latest"], path: "" },
 	"pi-messages": { providers: ["radius"], ids: ["claude-sonnet-4-5", "gpt-5", "gemini-2.5-pro"], path: "/v1" },
+	"google-generative-ai": { providers: ["google"], ids: ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-pro-preview"], path: "/v1beta" },
 };
 const COMPAT = {
 	"anthropic-messages": schemas.AnthropicMessagesCompatSchema,
@@ -437,12 +438,28 @@ ENCODE["pi-messages"] = (c) => {
 	else out.push(ev({ type: "done", reason: c.stop, usage, responseId: c.id }));
 	return out;
 };
+const GOOGLE_STOP = { stop: "STOP", length: "MAX_TOKENS", toolUse: "STOP" };
+function googleEvents(c, model) {
+	const chunk = (candidate, extra = {}) => sse(null, { candidates: [{ index: 0, ...candidate }], modelVersion: model.id, responseId: c.id, ...extra });
+	const out = [];
+	for (const block of c.blocks) {
+		if (block.type === "thinking") block.pieces.forEach((text, i) => out.push(chunk({ content: { role: "model", parts: [{ text, thought: true, ...(i === 0 ? { thoughtSignature: Buffer.from(block.signature, "hex").toString("base64") } : {}) }] } })));
+		if (block.type === "text") for (const text of block.pieces) out.push(chunk({ content: { role: "model", parts: [{ text }] } }));
+		if (block.type === "toolCall") out.push(chunk({ content: { role: "model", parts: [{ functionCall: { id: block.id, name: block.name, args: block.arguments } }] } }));
+	}
+	if (c.tail === "truncated") return out;
+	const u = c.usage;
+	const usageMetadata = { promptTokenCount: u.input + u.cacheRead, candidatesTokenCount: u.output, totalTokenCount: u.input + u.cacheRead + u.output, ...(u.cacheRead ? { cachedContentTokenCount: u.cacheRead } : {}) };
+	out.push(chunk({ content: { role: "model", parts: [] }, finishReason: c.tail === "error" ? "SAFETY" : GOOGLE_STOP[c.stop] }, { usageMetadata }));
+	return out;
+}
+ENCODE["google-generative-ai"] = googleEvents;
 const SANITIZE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 const EXPECT_TEXT = { "mistral-conversations": (block) => block.pieces.map((piece) => piece.replace(SANITIZE, "")).join("") };
-const EXPECT_USAGE = { "mistral-conversations": (u) => ({ ...u, cacheWrite: 0 }) };
+const EXPECT_USAGE = { "mistral-conversations": (u) => ({ ...u, cacheWrite: 0 }), "google-generative-ai": (u) => ({ ...u, cacheWrite: 0 }) };
 
-const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"], "openai-codex-responses": ["thinking", "text", "toolCall"], "azure-openai-responses": ["thinking", "text", "toolCall"], "mistral-conversations": ["thinking", "text", "toolCall"], "pi-messages": ["thinking", "text", "toolCall"] };
-const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_", "openai-codex-responses": "resp_", "azure-openai-responses": "resp_", "mistral-conversations": "", "pi-messages": "" };
+const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"], "openai-codex-responses": ["thinking", "text", "toolCall"], "azure-openai-responses": ["thinking", "text", "toolCall"], "mistral-conversations": ["thinking", "text", "toolCall"], "pi-messages": ["thinking", "text", "toolCall"], "google-generative-ai": ["thinking", "text", "toolCall"] };
+const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_", "openai-codex-responses": "resp_", "azure-openai-responses": "resp_", "mistral-conversations": "", "pi-messages": "", "google-generative-ai": "" };
 const TOOL_ID = { "openai-responses": (id) => id + "|fc_" + id.slice(5), "openai-codex-responses": (id) => id + "|fc_" + id.slice(5), "azure-openai-responses": (id) => id + "|fc_" + id.slice(5) };
 
 function expectOf(c, api, model) {
@@ -474,11 +491,13 @@ function transport(r, events) {
 	});
 }
 
+const GOOGLE = new Set(["google-generative-ai", "google-vertex"]);
+const GOOGLE_STATUS = { 400: "INVALID_ARGUMENT", 401: "UNAUTHENTICATED", 404: "NOT_FOUND", 429: "RESOURCE_EXHAUSTED", 500: "INTERNAL", 529: "UNAVAILABLE" };
 function errorScript(r, api) {
 	const status = r.pick([400, 401, 404, 429, 500, 529]);
 	const message = text(r, "ascii", r.range(2, 6));
 	if (r.chance(0.25)) return { status, headers: { "content-type": "text/plain" }, chunks: [message] };
-	const body = api === "anthropic-messages" ? { type: "error", error: { type: "invalid_request_error", message } } : { error: { message, type: "invalid_request_error", code: null } };
+	const body = api === "anthropic-messages" ? { type: "error", error: { type: "invalid_request_error", message } } : GOOGLE.has(api) ? { error: { code: status, message, status: GOOGLE_STATUS[status] } } : { error: { message, type: "invalid_request_error", code: null } };
 	return { status, headers: { "content-type": "application/json" }, chunks: [JSON.stringify(body)] };
 }
 

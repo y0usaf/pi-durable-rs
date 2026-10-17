@@ -1,0 +1,64 @@
+{
+	"name": "google-generative-ai-0019",
+	"seed": "d50ef646997e2016",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-flash-lite",
+		"name": "gemini-2.5-flash-lite",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2,
+			"output": 11.75,
+			"cacheRead": 0.125,
+			"cacheWrite": 0.5
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "amber alpha stone cloud quiet field quiet quiet quiet field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "amber lamp lamp river",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-d4e67894c1ea",
+		"cacheRetention": "none",
+		"temperature": 0,
+		"toolChoice": "none",
+		"headers": {
+			"x-parity-test": "2b0627"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"river north s\",\"thought\":true,\"thoughtSignature\":\"N6Eqhwl4EEigWxX2WzMjXrJPzQQ=\"}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"a42e215cb2795e8f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"tone \",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"a42e215cb2795e8f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"seven 🇯🇵\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"a42e215cb2795e8f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"SAFETY\"}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"a42e215cb2795e8f\",\"usageMetadata\":{\"promptTokenCount\":796,\"candidatesTokenCount\":125,\"totalTokenCount\":921}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

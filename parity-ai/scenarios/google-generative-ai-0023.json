@@ -1,0 +1,120 @@
+{
+	"name": "google-generative-ai-0023",
+	"seed": "7e912058bf465ffd",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-flash",
+		"name": "gemini-2.5-flash",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3.75,
+			"output": 1.75,
+			"cacheRead": 0.375,
+			"cacheWrite": 3.25
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "héllo Ωmega Ωmega",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "ñandú"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-f4b5fdaef764",
+		"sessionId": "session-ac195118",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"river north amber field\",\"thought\":true,\"thoughtSignature\":\"S7z6oSLG1spIgYRkTrFd1vPcwyg=\"}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"10d86d2a05a33eb0\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"10d86d2a05a33eb0\",\"usageMetadata\":{\"promptTokenCount\":757,\"candidatesTokenCount\":157,\"totalTokenCount\":914}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "river north amber field"
+			}
+		],
+		"usage": {
+			"input": 757,
+			"output": 157,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "10d86d2a05a33eb0"
+	}
+}

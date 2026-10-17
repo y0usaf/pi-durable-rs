@@ -1,0 +1,194 @@
+{
+	"name": "google-generative-ai-0010",
+	"seed": "a30f00f7d85359f1",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-flash",
+		"name": "gemini-2.5-flash",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.5,
+			"output": 12.25,
+			"cacheRead": 0.625,
+			"cacheWrite": 2
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "lamp field river",
+		"messages": [
+			{
+				"role": "user",
+				"content": "🇯🇵",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "river seven quiet river seven cloud cloud"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 772,
+					"output": 238,
+					"cacheRead": 0,
+					"cacheWrite": 111,
+					"totalTokens": 1121,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "field amber north amber",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "seven ñandú Ωmega naïve alpha lamp",
+						"thinkingSignature": "45eb9e5a167b521877232817e6392f8b"
+					},
+					{
+						"type": "text",
+						"text": "amber naïve café ñandú"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_99539625c7",
+						"name": "count_items",
+						"arguments": {
+							"n": 0,
+							"flag": true
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-flash",
+				"usage": {
+					"input": 268,
+					"output": 111,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 379,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_99539625c7",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha field alpha"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-6a8740dac8e9",
+		"reasoning": "high",
+		"maxTokens": 4096,
+		"sessionId": "session-2878458a",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"quie\"}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"d56f94a26414707a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"t lamp\"}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"d56f94a26414707a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"MAX_TOKENS\"}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"d56f94a26414707a\",\"usageMetadata\":{\"promptTokenCount\":322,\"candidatesTokenCount\":240,\"totalTokenCount\":562,\"cachedContentTokenCount\":37}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "text",
+				"text": "quiet lamp"
+			}
+		],
+		"usage": {
+			"input": 285,
+			"output": 240,
+			"cacheRead": 37,
+			"cacheWrite": 0
+		},
+		"responseId": "d56f94a26414707a"
+	}
+}
