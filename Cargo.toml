@@ -46,3 +46,7 @@ required-features = ["anthropic"]
 [[example]]
 name = "openai_completions_e2e"
 required-features = ["openai"]
+
+[[example]]
+name = "parity_ai"
+required-features = ["providers"]
