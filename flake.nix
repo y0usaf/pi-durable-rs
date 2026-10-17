@@ -20,7 +20,10 @@
       ];
       forAll = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
       manifest = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package;
-      src = nixpkgs.lib.cleanSource ./.;
+      src = nixpkgs.lib.cleanSourceWith {
+        src = nixpkgs.lib.cleanSource ./.;
+        filter = path: _: !(nixpkgs.lib.hasPrefix (toString ./parity-ai) path);
+      };
       build =
         pkgs: features:
         pkgs.rustPlatform.buildRustPackage {
@@ -48,17 +51,23 @@
           url = "https://registry.npmjs.org/${name}/-/${name}-${version}.tgz";
           inherit hash;
         };
+      oracleDeps = pkgs: {
+        typebox = npm pkgs "typebox" "1.3.27" "sha256-WiiLzT1o9EVn3oSxheBNIF731bU2AoRrw9sw/dIZ3aM=";
+        diff = npm pkgs "diff" "8.0.4" "sha256-71EyetWCQ89TMyYhn166pQKSgL0Pr8wR98IxVmOVk9Y=";
+        partial-json =
+          npm pkgs "partial-json" "0.1.7"
+            "sha256-MOr+7W/cJfssok80w3eW2fmPC/XhVkUrmKLDVnYvYyI=";
+      };
+      unpackDeps =
+        pkgs:
+        nixpkgs.lib.concatStrings (
+          nixpkgs.lib.mapAttrsToList (name: tgz: ''
+            mkdir $out/node_modules/${name}
+            tar -xzf ${tgz} --strip-components=1 -C $out/node_modules/${name}
+          '') (oracleDeps pkgs)
+        );
       oracle =
         pkgs:
-        let
-          deps = {
-            typebox = npm pkgs "typebox" "1.3.27" "sha256-WiiLzT1o9EVn3oSxheBNIF731bU2AoRrw9sw/dIZ3aM=";
-            diff = npm pkgs "diff" "8.0.4" "sha256-71EyetWCQ89TMyYhn166pQKSgL0Pr8wR98IxVmOVk9Y=";
-            partial-json =
-              npm pkgs "partial-json" "0.1.7"
-                "sha256-MOr+7W/cJfssok80w3eW2fmPC/XhVkUrmKLDVnYvYyI=";
-          };
-        in
         pkgs.runCommand "pi-ts-oracle" { } ''
           mkdir -p $out/packages $out/node_modules/@earendil-works $out/parity
           for p in ai chord durable; do
@@ -74,13 +83,26 @@
           for f in $(grep -ho 'data/[a-z0-9-]*\.json' $out/packages/ai/src/providers/*.models.ts | sort -u) data/.manifest.json; do
             echo '{}' > $out/packages/ai/src/providers/$f
           done
-          ${nixpkgs.lib.concatStrings (
-            nixpkgs.lib.mapAttrsToList (name: tgz: ''
-              mkdir $out/node_modules/${name}
-              tar -xzf ${tgz} --strip-components=1 -C $out/node_modules/${name}
-            '') deps
-          )}
+          ${unpackDeps pkgs}
           cp ${./parity}/{driver.ts,register.mjs,loader.mjs} $out/parity/
+        '';
+      oracleAi =
+        pkgs:
+        pkgs.runCommand "pi-ts-oracle-ai" { } ''
+          mkdir -p $out/packages/ai $out/node_modules/@earendil-works $out/parity-ai
+          cp -r ${pi}/packages/ai/src ${pi}/packages/ai/package.json $out/packages/ai
+          chmod -R u+w $out
+          sed -i -E 's#\./dist/(.*)\.js"#./src/\1.ts"#' $out/packages/ai/package.json
+          ln -s ../../packages/ai $out/node_modules/@earendil-works/pi-ai
+          mkdir $out/packages/ai/src/providers/data
+          for f in $(grep -ho 'data/[a-z0-9-]*\.json' $out/packages/ai/src/providers/*.models.ts | sort -u) data/.manifest.json; do
+            echo '{}' > $out/packages/ai/src/providers/$f
+          done
+          ${unpackDeps pkgs}
+          cp ${./parity-ai/driver-ai.ts} $out/parity-ai/driver-ai.ts
+          cp ${./parity-ai/register.mjs} $out/parity-ai/register.mjs
+          cp ${./parity-ai/loader.mjs} $out/parity-ai/loader.mjs
+          cp -r ${./parity-ai/stubs} $out/parity-ai/stubs
         '';
     in
     {
@@ -131,6 +153,21 @@
               }
               ''
                 bash ${./parity}/run.sh
+                touch $out
+              '';
+          parity-ai =
+            pkgs.runCommand "${manifest.name}-parity-ai"
+              {
+                nativeBuildInputs = [
+                  pkgs.nodejs_24
+                  pkgs.diffutils
+                ];
+                PARITY_AI_TS = "${oracleAi pkgs}";
+                PARITY_AI_RS = "${self.packages.${system}.default}/bin/parity_ai";
+                passthru.oracle = oracleAi pkgs;
+              }
+              ''
+                bash ${./parity-ai}/run.sh
                 touch $out
               '';
           fmt = pkgs.runCommand "${manifest.name}-fmt" {
