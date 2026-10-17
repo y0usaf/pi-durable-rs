@@ -1,0 +1,231 @@
+{
+	"name": "mistral-conversations-0012",
+	"seed": "d0a608f6cf64ed50",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "magistral-medium-latest",
+		"name": "magistral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 4.75,
+			"output": 4.75,
+			"cacheRead": 1,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsMidConvoSystemMessages": true
+		}
+	},
+	"context": {
+		"systemPrompt": "river amber stone amber seven alpha cloud north lamp",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "seven north stone",
+						"thinkingSignature": "619e0a0b700dff151578536f04ddef47"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_49cb4ddfd4",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "magistral-medium-latest",
+				"usage": {
+					"input": 6,
+					"output": 250,
+					"cacheRead": 0,
+					"cacheWrite": 58,
+					"totalTokens": 314,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_49cb4ddfd4",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone cloud quiet amber field"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "Grüße quiet ñandú quiet lamp alpha"
+					}
+				],
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet river seven quiet"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_6a613411af",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"quiet",
+								"field",
+								"alpha"
+							]
+						}
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "magistral-medium-latest",
+				"usage": {
+					"input": 538,
+					"output": 171,
+					"cacheRead": 373,
+					"cacheWrite": 23,
+					"totalTokens": 1105,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_6a613411af",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha amber stone"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone river field north"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-62af43dc9465",
+		"cacheRetention": "short",
+		"temperature": 0.1,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"a8a82b89895ffdb6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"a8a82b89895ffdb6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"漢字 north field\"}]}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"a8a82b89895ffdb6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"length\"}],\"usage\":{\"prompt_tokens\":746,\"completion_tokens\":213,\"total_tokens\":959,\"prompt_tokens_details\":{\"cached_tokens\":217}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "漢字 north field"
+			}
+		],
+		"usage": {
+			"input": 529,
+			"output": 213,
+			"cacheRead": 217,
+			"cacheWrite": 0
+		},
+		"responseId": "a8a82b89895ffdb6"
+	}
+}

@@ -1,0 +1,311 @@
+{
+	"name": "mistral-conversations-0005",
+	"seed": "9ad48472251f08f4",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "codestral-latest",
+		"name": "codestral-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 0,
+			"output": 15,
+			"cacheRead": 0.625,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsMidConvoSystemMessages": false
+		}
+	},
+	"context": {
+		"systemPrompt": "ñandú Привет Ωmega north stone Grüße north",
+		"messages": [
+			{
+				"role": "user",
+				"content": "north seven north cloud alpha cloud cloud",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field quiet"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_c482bd8f9a",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 8,
+								"h": 1
+							}
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_406018a6a7",
+						"name": "count_items",
+						"arguments": {
+							"n": 86,
+							"flag": true
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 418,
+					"output": 25,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 443,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_c482bd8f9a",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone quiet cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_406018a6a7",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp north cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "fd85d84c88ad99449edc673c",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "Привет cloud lamp héllo héllo seven café"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "codestral-latest",
+				"usage": {
+					"input": 119,
+					"output": 43,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 162,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": "field lamp cloud seven",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "Grüße Ωmega river river amber 漢字",
+						"thinkingSignature": "f6afbee4bc258e3a8a35ec08b800b1b3"
+					},
+					{
+						"type": "text",
+						"text": "seven héllo héllo"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_8aac43de0d",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 1,
+								"h": 2
+							}
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 762,
+					"output": 143,
+					"cacheRead": 0,
+					"cacheWrite": 136,
+					"totalTokens": 1041,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_8aac43de0d",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud 𐐷"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ebccbdc6480b",
+		"reasoning": "medium",
+		"cacheRetention": "long",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"d1636f42b1013b59\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"d1636f42b1013b59\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"quiet amber héllo stone cloud\"}]}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"d1636f42b1013b59\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"café stone héllo héllo river seven naïve Grüße\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"d1636f42b1013b59\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":58,\"completion_tokens\":268,\"total_tokens\":326,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "quiet amber héllo stone cloud"
+			},
+			{
+				"type": "text",
+				"text": "café stone héllo héllo river seven naïve Grüße"
+			}
+		],
+		"usage": {
+			"input": 58,
+			"output": 268,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "d1636f42b1013b59"
+	}
+}

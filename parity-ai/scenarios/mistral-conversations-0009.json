@@ -1,0 +1,153 @@
+{
+	"name": "mistral-conversations-0009",
+	"seed": "4f80be81a05d5c47",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "codestral-latest",
+		"name": "codestral-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0,
+			"output": 3.25,
+			"cacheRead": 0.875,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsMidConvoSystemMessages": false
+		}
+	},
+	"context": {
+		"systemPrompt": "stone seven Привет ñandú Привет seven Grüße quiet",
+		"messages": [
+			{
+				"role": "user",
+				"content": "seven lamp lamp river river lamp",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp cloud"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 664,
+					"output": 205,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 869,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "river 🦀 north 𝄞 𝄞 🦀 river 👩‍💻",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "d7a54562699959868e8f3c00",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "river"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "codestral-latest",
+				"usage": {
+					"input": 261,
+					"output": 98,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 359,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "seven river amber north 𝄞 lamp amber",
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-bc4c2bc24ff2",
+		"cacheRetention": "long",
+		"maxTokens": 256,
+		"headers": {
+			"x-parity-test": "940b55"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"c38fe35eadd8697c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"c38fe35eadd8697c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"stone 𐐷 seven st\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"c38fe35eadd8697c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"on\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"c38fe35eadd8697c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"e 👩‍💻 river seven\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"c38fe35eadd8697c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":453,\"completion_tokens\":96,\"total_tokens\":549,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "stone 𐐷 seven stone 👩‍💻 river seven"
+			}
+		],
+		"usage": {
+			"input": 453,
+			"output": 96,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "c38fe35eadd8697c"
+	}
+}

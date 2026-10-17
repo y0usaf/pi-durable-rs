@@ -1,0 +1,182 @@
+{
+	"name": "mistral-conversations-0002",
+	"seed": "50307d8cc1569786",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "magistral-medium-latest",
+		"name": "magistral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.5,
+			"output": 11,
+			"cacheRead": 0.25,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "river stone amber river stone north amber river cloud river",
+		"messages": [
+			{
+				"role": "user",
+				"content": "river field amber",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud cloud"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "magistral-medium-latest",
+				"usage": {
+					"input": 351,
+					"output": 278,
+					"cacheRead": 463,
+					"cacheWrite": 142,
+					"totalTokens": 1234,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻 stone 👩‍💻 seven 🇯🇵"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet quiet amber"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "magistral-medium-latest",
+				"usage": {
+					"input": 675,
+					"output": 145,
+					"cacheRead": 173,
+					"cacheWrite": 28,
+					"totalTokens": 1021,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "Grüße ñandú seven naïve lamp",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north 🇯🇵 amber 🦀 amber 🇯🇵"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 397,
+					"output": 128,
+					"cacheRead": 446,
+					"cacheWrite": 100,
+					"totalTokens": 1071,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "field seven seven",
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-8fa825bf3de4",
+		"reasoning": "minimal",
+		"cacheRetention": "none",
+		"temperature": 1,
+		"sessionId": "session-a78bc6e6",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"a589e216a8432d6e\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"a589e216a8432d6e\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"qu\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"a589e216a8432d6e\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"iet river alpha\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"a589e216a8432d6e\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" lamp \"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"a589e216a8432d6e\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"amber\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"a589e216a8432d6e\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":625,\"completion_tokens\":35,\"total_tokens\":660,\"prompt_tokens_details\":{\"cached_tokens\":470}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "quiet river alpha lamp amber"
+			}
+		],
+		"usage": {
+			"input": 155,
+			"output": 35,
+			"cacheRead": 470,
+			"cacheWrite": 0
+		},
+		"responseId": "a589e216a8432d6e"
+	}
+}

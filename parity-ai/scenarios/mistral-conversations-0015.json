@@ -1,0 +1,67 @@
+{
+	"name": "mistral-conversations-0015",
+	"seed": "5b891c6d3fa7e65a",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "codestral-latest",
+		"name": "codestral-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 9.75,
+			"cacheRead": 0.75,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsMidConvoSystemMessages": false
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-96ef82a79625",
+		"toolChoice": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"aba98fc1cd3e79aa\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"aba98fc1cd3e79aa\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":159,\"completion_tokens\":227,\"total_tokens\":386,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 159,
+			"output": 227,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "aba98fc1cd3e79aa"
+	}
+}

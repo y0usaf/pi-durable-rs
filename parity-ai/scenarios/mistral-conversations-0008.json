@@ -1,0 +1,209 @@
+{
+	"name": "mistral-conversations-0008",
+	"seed": "dc0d5f20855ad4ee",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "mistral-large-latest",
+		"name": "mistral-large-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 4.25,
+			"output": 5.25,
+			"cacheRead": 0.625,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsMidConvoSystemMessages": true
+		}
+	},
+	"context": {
+		"systemPrompt": "stone lamp",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp seven river"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "seven amber stone",
+						"thinkingSignature": "87d361c086da6c1108462619ab773381"
+					},
+					{
+						"type": "text",
+						"text": "lamp cloud north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_eca4b0a785",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "mistral-large-latest",
+				"usage": {
+					"input": 170,
+					"output": 59,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 229,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_eca4b0a785",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "𝄞 alpha lamp cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "alpha north quiet",
+						"thinkingSignature": "f9865e1e9f364715880916b61cc1a005"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_12778198dd",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "mistral-large-latest",
+				"usage": {
+					"input": 129,
+					"output": 295,
+					"cacheRead": 114,
+					"cacheWrite": 0,
+					"totalTokens": 538,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_12778198dd",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "north field stone amber field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": "north alpha",
+				"timestamp": 1700000006000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-7455ad7b47f2",
+		"cacheRetention": "none",
+		"headers": {
+			"x-parity-test": "4232bd"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"600cfb3223fd768d\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"600cfb3223fd768d\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"stone alpha field\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"600cfb3223fd768d\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_72d1205ede04\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"noop\",\"arguments\":\"{\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"600cfb3223fd768d\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_72d1205ede04\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"noop\",\"arguments\":\"}\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"600cfb3223fd768d\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"tool_calls\"}],\"usage\":{\"prompt_tokens\":587,\"completion_tokens\":154,\"total_tokens\":741,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "stone alpha field"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_72d1205ede04",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 587,
+			"output": 154,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "600cfb3223fd768d"
+	}
+}

@@ -1,0 +1,141 @@
+{
+	"name": "mistral-conversations-0019",
+	"seed": "9c51b10e376c7244",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "mistral-large-latest",
+		"name": "mistral-large-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 3.25,
+			"output": 3.75,
+			"cacheRead": 0.375,
+			"cacheWrite": 1
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsMidConvoSystemMessages": false
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "naïve lamp",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven 🦀 alpha river"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 722,
+					"output": 4,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 726,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "quiet",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "stone north stone field quiet north"
+					},
+					{
+						"type": "text",
+						"text": "amber field river stone alpha north"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "mistral-large-latest",
+				"usage": {
+					"input": 303,
+					"output": 204,
+					"cacheRead": 356,
+					"cacheWrite": 0,
+					"totalTokens": 863,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "north river north lamp cloud stone amber",
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-35119bb1c6b2",
+		"reasoning": "high",
+		"maxTokens": 4096,
+		"headers": {
+			"x-parity-test": "234dbd"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"689da96e48e206d2\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"689da96e48e206d2\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":529,\"completion_tokens\":226,\"total_tokens\":755,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 529,
+			"output": 226,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "689da96e48e206d2"
+	}
+}

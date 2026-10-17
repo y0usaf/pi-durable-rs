@@ -1,0 +1,177 @@
+{
+	"name": "mistral-conversations-0022",
+	"seed": "5a86495506b7e085",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "codestral-latest",
+		"name": "codestral-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2.5,
+			"output": 6,
+			"cacheRead": 0.75,
+			"cacheWrite": 2
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsMidConvoSystemMessages": true
+		}
+	},
+	"context": {
+		"systemPrompt": "seven seven seven",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field lamp alpha field lamp"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "field Ωmega héllo alpha héllo amber",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_f7134d9152c80092\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"field Ωmega héllo alpha héllo amber\"}],\"encrypted_content\":\"f7134d9152c800922f614058f12ef1a6\"}"
+					},
+					{
+						"type": "text",
+						"text": "Grüße quiet river field quiet"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_80c8f78762",
+						"name": "count_items",
+						"arguments": {
+							"n": 81,
+							"flag": false
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 749,
+					"output": 61,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 810,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_80c8f78762",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud quiet"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven north alpha"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "codestral-latest",
+				"usage": {
+					"input": 701,
+					"output": 25,
+					"cacheRead": 352,
+					"cacheWrite": 0,
+					"totalTokens": 1078,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "cloud alpha field lamp river north stone quiet alpha river",
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-d18cb331301e",
+		"reasoning": "low",
+		"cacheRetention": "short",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"561a3bbebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"561a3bbebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"q\"}]}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"561a3bbebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"uiet qu\"}]}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"561a3bbebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"iet cloud n\"}]}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"561a3bbebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"orth\"}]}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"561a3bbebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"Gr\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"561a3bb",
+				"ebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"üße café quiet héllo\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"561a3bbebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" fiel\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"561a3bbebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"d\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"561a3bbebde8db32\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_f31e28384318\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"count_items\",\"arguments\":\"{\\\"n\\\":75,\\\"flag\\\":false}\"}}]},\"finish_reason\":null}]}\n\ndata: {\"object\":\"error\",\"message\":\"Upstream overloaded\",\"type\":\"server_error\",\"code\":3000}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

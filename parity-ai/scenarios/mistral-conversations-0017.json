@@ -1,0 +1,85 @@
+{
+	"name": "mistral-conversations-0017",
+	"seed": "156e5ddecdc29c46",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "codestral-latest",
+		"name": "codestral-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 1.5,
+			"output": 12.5,
+			"cacheRead": 0.25,
+			"cacheWrite": 3
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "alpha cloud alpha stone amber amber cloud cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber amber cloud stone lamp seven"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-01f247a87ea9",
+		"cacheRetention": "long",
+		"maxTokens": 256,
+		"temperature": 0.9,
+		"toolChoice": "none",
+		"headers": {
+			"x-parity-test": "c3f156"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"8aab8cdcc11608c5\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"8aab8cdcc11608c5\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"naïv\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"8aab8cdcc11608c5\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"e ña\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"8aab8cdcc11608c5\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ndú a\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"8aab8cdcc11608c5\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"mber river\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"8aab8cdcc11608c5\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":658,\"completion_tokens\":121,\"total_tokens\":779,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "naïve ñandú amber river"
+			}
+		],
+		"usage": {
+			"input": 658,
+			"output": 121,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "8aab8cdcc11608c5"
+	}
+}

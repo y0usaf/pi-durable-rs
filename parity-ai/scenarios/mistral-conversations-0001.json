@@ -1,0 +1,114 @@
+{
+	"name": "mistral-conversations-0001",
+	"seed": "3f8af0add187ac90",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "devstral-medium-latest",
+		"name": "devstral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.5,
+			"output": 6.25,
+			"cacheRead": 0.625,
+			"cacheWrite": 1
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "seven alpha cloud lamp seven lamp stone quiet north alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": "alpha 🇯🇵 𐐷 quiet alpha 😀 river quiet north",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-2fce5c8a42b9",
+		"reasoning": "high",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"eebbeb45afa9e2e1\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"eebbeb45afa9e2e1\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ñandú café Привет quiet field Grüße\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"object\":\"error\",\"message\":\"Upstream overloaded\",\"type\":\"server_error\",\"code\":3000}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

@@ -1,0 +1,199 @@
+{
+	"name": "mistral-conversations-0004",
+	"seed": "76a8bf293d41eea5",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "mistral-large-latest",
+		"name": "mistral-large-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3.25,
+			"output": 3.75,
+			"cacheRead": 0.875,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "field Ωmega Grüße quiet stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp amber alpha stone north seven cloud cloud lamp cloud",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻 𐐷 𐐷 👩‍💻 lamp river 𐐷"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_78900a3029",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"river"
+							]
+						}
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "mistral-large-latest",
+				"usage": {
+					"input": 227,
+					"output": 160,
+					"cacheRead": 125,
+					"cacheWrite": 191,
+					"totalTokens": 703,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_78900a3029",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north alpha stone north quiet amber seven cloud"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 110,
+					"output": 178,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 288,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "stone amber amber field amber",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "𝄞 lamp 😀 👩‍💻"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 608,
+					"output": 206,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 814,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "seven",
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-64844224ec56",
+		"cacheRetention": "short",
+		"maxTokens": 1024,
+		"sessionId": "session-f202f234",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"5f2e2a5507456a99\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"5f2e2a5507456a99\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"cloud alpha seven field alpha field\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"5f2e2a5507456a99\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_73edca2ad709\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"tag_list\",\"arguments\":\"{\\\"ite\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"5f2e2a5507456a99\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_73edca2ad709\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"tag_list\",\"arguments\":\"m\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"5f2e2a5507456a99\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_73edca2ad709\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"tag_list\",\"arguments\":\"s\\\":[\\\"lamp\\\",\\\"alpha fie\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"5f2e2a5507456a99\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_73edca2ad709\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"tag_list\",\"arguments\":\"ld\\\"]}\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"object\":\"error\",\"message\":\"Upstream overloaded\",\"type\":\"server_error\",\"code\":3000}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

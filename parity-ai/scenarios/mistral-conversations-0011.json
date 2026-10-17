@@ -1,0 +1,146 @@
+{
+	"name": "mistral-conversations-0011",
+	"seed": "83c547e63ef95b3b",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "devstral-medium-latest",
+		"name": "devstral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 0.5,
+			"output": 2.75,
+			"cacheRead": 0.125,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsMidConvoSystemMessages": false
+		}
+	},
+	"context": {
+		"systemPrompt": "river alpha seven cloud cloud seven amber amber north cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "river"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud cloud"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "devstral-medium-latest",
+				"usage": {
+					"input": 122,
+					"output": 18,
+					"cacheRead": 0,
+					"cacheWrite": 65,
+					"totalTokens": 205,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "𝄞",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field cloud 🦀 🦀 🦀"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 122,
+					"output": 156,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 278,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "cloud cloud",
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-f0832af5aec1",
+		"cacheRetention": "short",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"ba877b929b3c15a0\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medi",
+				"um-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"ba877b929b3c15a0\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstra",
+				"l-medium-latest\",\"choices\"",
+				":[{\"index\":0,\"delta\":{\"content\":\"quiet cloud seven\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"ba877b929b3c15a0\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":538,\"completion_tokens\":103,",
+				"\"total_tokens\":641,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\ndata: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "quiet cloud seven"
+			}
+		],
+		"usage": {
+			"input": 538,
+			"output": 103,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "ba877b929b3c15a0"
+	}
+}

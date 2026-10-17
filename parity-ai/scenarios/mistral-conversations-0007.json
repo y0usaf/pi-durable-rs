@@ -1,0 +1,302 @@
+{
+	"name": "mistral-conversations-0007",
+	"seed": "3b46d17d515332d3",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "devstral-medium-latest",
+		"name": "devstral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.75,
+			"output": 15,
+			"cacheRead": 0.25,
+			"cacheWrite": 3
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsMidConvoSystemMessages": true
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field 漢字 漢字 Привет"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_02daa97929",
+						"name": "lookup",
+						"arguments": {
+							"q": "🇯🇵 🇯🇵"
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_0459c55f32",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 1,
+								"h": 2.5
+							}
+						}
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "devstral-medium-latest",
+				"usage": {
+					"input": 794,
+					"output": 160,
+					"cacheRead": 0,
+					"cacheWrite": 131,
+					"totalTokens": 1085,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_02daa97929",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "river cloud alpha field field"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_0459c55f32",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha river amber seven"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone alpha north"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet seven"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "devstral-medium-latest",
+				"usage": {
+					"input": 745,
+					"output": 164,
+					"cacheRead": 0,
+					"cacheWrite": 78,
+					"totalTokens": 987,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "river quiet lamp seven field river field stone 🦀 👩‍💻",
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet field field river quiet lamp cloud"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 742,
+					"output": 15,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 757,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000008000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "Ωmega"
+					}
+				],
+				"timestamp": 1700000009000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-5a2524e8a4e8",
+		"cacheRetention": "none",
+		"temperature": 0.4,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"l\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-",
+				"medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"amp 𝄞 alph\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"a north 🇯🇵 north\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_90c65a305f2f\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"lookup\",\"arguments\":\"{\\\"\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_90c65a305f2f\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"lookup\",\"arguments\":\"q\\\"\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_90c65a305f2f\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"lookup\",\"arguments\":\":\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_90c65a305f2f\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"lookup\",\"arguments\":\"\\\"😀\\\"}\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_82fed3dd1a83\",\"type\":\"function\",\"index\":1,\"function\":{\"name\":\"nested_shape\",\"arguments\":\"{\\\"box\\\":{\\\"w\\\":8,\\\"h\\\":3.5}}\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"6e3af6b8e045010c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"tool_calls\"}],\"usage\":{\"prompt_tokens\":121,\"completion_tokens\":145,\"total_tokens\":266,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\ndata: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "lamp 𝄞 alpha north 🇯🇵 north"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_90c65a305f2f",
+				"name": "lookup",
+				"arguments": {
+					"q": "😀"
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_82fed3dd1a83",
+				"name": "nested_shape",
+				"arguments": {
+					"box": {
+						"w": 8,
+						"h": 3.5
+					}
+				}
+			}
+		],
+		"usage": {
+			"input": 121,
+			"output": 145,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "6e3af6b8e045010c"
+	}
+}
