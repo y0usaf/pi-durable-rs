@@ -1,0 +1,113 @@
+{
+	"name": "pi-messages-0006",
+	"seed": "4a17ff594407d594",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gpt-5",
+		"name": "gpt-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 2.75,
+			"output": 9,
+			"cacheRead": 0.875,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "river field field amber",
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp river quiet cloud field",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-12540564524a",
+		"maxTokens": 256,
+		"toolChoice": "auto",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"done\",\"reason\":\"stop\",\"usage\":{\"input\":794,\"output\":162,\"cacheRead\":86,\"cacheWrite\":0,\"totalTokens\":1042,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"5562be685c187d4f\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 794,
+			"output": 162,
+			"cacheRead": 86,
+			"cacheWrite": 0
+		},
+		"responseId": "5562be685c187d4f"
+	}
+}

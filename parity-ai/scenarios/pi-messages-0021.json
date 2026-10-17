@@ -1,0 +1,126 @@
+{
+	"name": "pi-messages-0021",
+	"seed": "bb995ee165b5189b",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1,
+			"output": 3.75,
+			"cacheRead": 0.25,
+			"cacheWrite": 4
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "amber stone quiet field stone cloud field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone amber stone",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber seven north"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 559,
+					"output": 202,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 761,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-423825553c33",
+		"reasoning": "xhigh",
+		"maxTokens": 256,
+		"temperature": 0.8,
+		"toolChoice": "auto",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data",
+				": {\"type\":\"start\"}\n\ndata: {\"type\":\"thinking_start\",\"contentIndex\":0}\n\ndata: {\"ty",
+				"pe\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"l\"}\n\nda",
+				"ta: {\"type\":\"thinking",
+				"_delta\",\"contentIndex\":0,\"delta\":\"a\"}\n\ndata: {\"type\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"m\"}\n\ndata: {\"type\":\"thinking_d",
+				"elta\",\"contentIndex\":0,\"delta",
+				"\":\"p\"}\n\ndata: {\"type\":\"thinking_end\",\"contentIndex\":0,\"content\":\"lamp\",\"contentSignature\":\"43c99f614054ed670e1bef0822edc9f362cc38f8\"}\n\ndata: {\"type\":\"text_start\",\"contentIndex\":1}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"lamp 👩‍💻 \"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"no\"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"rth lamp amber 🇯🇵\"}\n\ndata: {\"type\":\"text_end\",\"contentIndex\":1,\"content\":\"lamp 👩‍💻 north lamp amber 🇯🇵\"}\n\ndata: {\"type\":\"done\",\"reason\":\"stop\",\"usage\":{\"input\":235,\"output\":283,\"cacheRead\":130,\"cacheWrite\":0,\"totalTokens\":648,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"tota",
+				"l\":0}},\"responseId\":\"95fcea89180c26d6\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "lamp"
+			},
+			{
+				"type": "text",
+				"text": "lamp 👩‍💻 north lamp amber 🇯🇵"
+			}
+		],
+		"usage": {
+			"input": 235,
+			"output": 283,
+			"cacheRead": 130,
+			"cacheWrite": 0
+		},
+		"responseId": "95fcea89180c26d6"
+	}
+}

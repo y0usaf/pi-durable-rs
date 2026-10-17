@@ -1,0 +1,189 @@
+{
+	"name": "pi-messages-0014",
+	"seed": "9dc37b05dd2694d4",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.75,
+			"output": 14.25,
+			"cacheRead": 0.875,
+			"cacheWrite": 2
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "amber seven",
+		"messages": [
+			{
+				"role": "user",
+				"content": "field seven amber quiet alpha lamp north",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "cloud stone seven field",
+						"thinkingSignature": "1915fb0ceb7a66c132ea4fa375fa4bef"
+					},
+					{
+						"type": "text",
+						"text": "quiet lamp"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_d6715e9559",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 71,
+					"output": 35,
+					"cacheRead": 26,
+					"cacheWrite": 0,
+					"totalTokens": 132,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_d6715e9559",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone stone quiet"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet amber stone amber lamp amber alpha"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_8afe16a981",
+						"name": "lookup",
+						"arguments": {
+							"q": "river"
+						}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 131,
+					"output": 263,
+					"cacheRead": 283,
+					"cacheWrite": 79,
+					"totalTokens": 756,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_8afe16a981",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "river river cloud seven"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-b7e84e8003bb",
+		"reasoning": "high",
+		"cacheRetention": "none",
+		"sessionId": "session-3caab7ac",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\ndata: {\"type\":\"text_start\",\"contentIndex\":0}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"cloud 𐐷 🦀\"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\" seven\"}\n\ndata: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"cloud 𐐷 🦀 seven\"}\n\ndata: {\"type\":\"error\",\"reaso",
+				"n\":\"error\",\"usage\":{\"input\":553,\"output\":229,\"cacheRead\":0,\"cacheWrite\":0,\"totalTokens\":782,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"errorMessage\":\"Upstream overloaded\",\"responseId\":\"c7ad0e9a97ce520f\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

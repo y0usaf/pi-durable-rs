@@ -1,0 +1,248 @@
+{
+	"name": "pi-messages-0017",
+	"seed": "1a7ac7b78dc48e52",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 4,
+			"output": 7.5,
+			"cacheRead": 0,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 32000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone amber stone lamp amber alpha seven quiet field",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone héllo alpha lamp quiet"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 535,
+					"output": 146,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 681,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet quiet stone cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha lamp"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 161,
+					"output": 276,
+					"cacheRead": 299,
+					"cacheWrite": 61,
+					"totalTokens": 797,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "north river 𝄞",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "field stone stone seven",
+						"thinkingSignature": ""
+					},
+					{
+						"type": "text",
+						"text": "alpha amber north"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 782,
+					"output": 150,
+					"cacheRead": 116,
+					"cacheWrite": 0,
+					"totalTokens": 1048,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "𐐷 𝄞"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-7fd860cfbeb6",
+		"reasoning": "medium",
+		"cacheRetention": "none",
+		"temperature": 0.7,
+		"toolChoice": "auto",
+		"sessionId": "session-2091786d",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"thinking_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"north amber quiet cloud\"}\n\n",
+				"data: {\"type\":\"thinking_end\",\"contentIndex\":0,\"content\":\"north amber quiet cloud\",\"contentSignature\":\"c20f7c8363e8324e8ecef9c1c555ee9a9f85d7f6\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":1}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"quiet quiet alpha seven cloud river stone amber cloud\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":1,\"content\":\"quiet quiet alpha seven cloud river stone amber cloud\"}\n\n",
+				"data: {\"type\":\"done\",\"reason\":\"stop\",\"usage\":{\"input\":27,\"output\":181,\"cacheRead\":0,\"cacheWrite\":0,\"totalTokens\":208,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"e45504403fd15007\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "north amber quiet cloud"
+			},
+			{
+				"type": "text",
+				"text": "quiet quiet alpha seven cloud river stone amber cloud"
+			}
+		],
+		"usage": {
+			"input": 27,
+			"output": 181,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "e45504403fd15007"
+	}
+}

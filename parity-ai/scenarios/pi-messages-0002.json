@@ -1,0 +1,200 @@
+{
+	"name": "pi-messages-0002",
+	"seed": "d7f8fe390075fcfa",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5.25,
+			"output": 1.5,
+			"cacheRead": 0.875,
+			"cacheWrite": 1.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "quiet lamp river quiet cloud field alpha field river river",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "lamp stone quiet river field north",
+						"thinkingSignature": "8b977d1b4d6e63ba740a5bf643bd2733"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_7faec0a54b",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 6,
+								"h": 2
+							}
+						}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 444,
+					"output": 77,
+					"cacheRead": 0,
+					"cacheWrite": 192,
+					"totalTokens": 713,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_7faec0a54b",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_26414dbc04",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 3,
+								"h": 2
+							}
+						}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 308,
+					"output": 126,
+					"cacheRead": 180,
+					"cacheWrite": 0,
+					"totalTokens": 614,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_26414dbc04",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud quiet river north"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-57235413dd8a",
+		"reasoning": "minimal",
+		"cacheRetention": "long",
+		"temperature": 0,
+		"sessionId": "session-70bff48c",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 500,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"field north\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

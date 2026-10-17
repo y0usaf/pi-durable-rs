@@ -61,6 +61,7 @@ const MODELS = {
 	"openai-codex-responses": { providers: ["openai-codex"], ids: ["gpt-5.1-codex", "gpt-5-codex", "gpt-5.2", "gpt-5.1-codex-mini"], path: "" },
 	"azure-openai-responses": { providers: ["azure"], ids: ["gpt-5", "gpt-5-mini", "gpt-4.1", "o4-mini"], path: "/openai/v1" },
 	"mistral-conversations": { providers: ["mistral"], ids: ["mistral-large-latest", "magistral-medium-latest", "devstral-medium-latest", "codestral-latest"], path: "" },
+	"pi-messages": { providers: ["radius"], ids: ["claude-sonnet-4-5", "gpt-5", "gemini-2.5-pro"], path: "/v1" },
 };
 const COMPAT = {
 	"anthropic-messages": schemas.AnthropicMessagesCompatSchema,
@@ -409,12 +410,39 @@ ENCODE["mistral-conversations"] = (c, model) => {
 	out.push("data: [DONE]\n\n");
 	return out;
 };
+ENCODE["pi-messages"] = (c) => {
+	const ev = (data) => sse(null, data);
+	const out = [ev({ type: "start" })];
+	c.blocks.forEach((block, contentIndex) => {
+		if (block.type === "thinking") {
+			out.push(ev({ type: "thinking_start", contentIndex }));
+			for (const delta of block.pieces) out.push(ev({ type: "thinking_delta", contentIndex, delta }));
+			out.push(ev({ type: "thinking_end", contentIndex, content: block.thinking, contentSignature: block.signature }));
+		}
+		if (block.type === "text") {
+			out.push(ev({ type: "text_start", contentIndex }));
+			for (const delta of block.pieces) out.push(ev({ type: "text_delta", contentIndex, delta }));
+			out.push(ev({ type: "text_end", contentIndex, content: block.text }));
+		}
+		if (block.type === "toolCall") {
+			out.push(ev({ type: "toolcall_start", contentIndex, id: block.id, toolName: block.name }));
+			for (const delta of block.pieces) out.push(ev({ type: "toolcall_delta", contentIndex, delta }));
+			out.push(ev({ type: "toolcall_end", contentIndex, toolCall: { type: "toolCall", id: block.id, name: block.name, arguments: block.arguments } }));
+		}
+	});
+	if (c.tail === "truncated") return out;
+	const u = c.usage;
+	const usage = { ...u, totalTokens: u.input + u.output + u.cacheRead + u.cacheWrite, cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 } };
+	if (c.tail === "error") out.push(ev({ type: "error", reason: "error", usage, errorMessage: "Upstream overloaded", responseId: c.id }));
+	else out.push(ev({ type: "done", reason: c.stop, usage, responseId: c.id }));
+	return out;
+};
 const SANITIZE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 const EXPECT_TEXT = { "mistral-conversations": (block) => block.pieces.map((piece) => piece.replace(SANITIZE, "")).join("") };
 const EXPECT_USAGE = { "mistral-conversations": (u) => ({ ...u, cacheWrite: 0 }) };
 
-const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"], "openai-codex-responses": ["thinking", "text", "toolCall"], "azure-openai-responses": ["thinking", "text", "toolCall"], "mistral-conversations": ["thinking", "text", "toolCall"] };
-const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_", "openai-codex-responses": "resp_", "azure-openai-responses": "resp_", "mistral-conversations": "" };
+const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"], "openai-codex-responses": ["thinking", "text", "toolCall"], "azure-openai-responses": ["thinking", "text", "toolCall"], "mistral-conversations": ["thinking", "text", "toolCall"], "pi-messages": ["thinking", "text", "toolCall"] };
+const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_", "openai-codex-responses": "resp_", "azure-openai-responses": "resp_", "mistral-conversations": "", "pi-messages": "" };
 const TOOL_ID = { "openai-responses": (id) => id + "|fc_" + id.slice(5), "openai-codex-responses": (id) => id + "|fc_" + id.slice(5), "azure-openai-responses": (id) => id + "|fc_" + id.slice(5) };
 
 function expectOf(c, api, model) {

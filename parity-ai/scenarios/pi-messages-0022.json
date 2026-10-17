@@ -1,0 +1,244 @@
+{
+	"name": "pi-messages-0022",
+	"seed": "76be25127941c6dd",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 2.25,
+			"cacheRead": 0.375,
+			"cacheWrite": 1.5
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "lamp seven amber alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": "Grüße Grüße river café seven seven 漢字 Grüße river field",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "漢字 café lamp",
+						"thinkingSignature": "bd4a06e07f9eb205e060c3590d075ee5"
+					},
+					{
+						"type": "text",
+						"text": "Привет river"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_d8ff4f73cb",
+						"name": "lookup",
+						"arguments": {
+							"q": "seven cloud amber"
+						}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 811,
+					"output": 256,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 1067,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_d8ff4f73cb",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone river field cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber seven river alpha"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_1c65b9b560",
+						"name": "lookup",
+						"arguments": {
+							"q": "lamp seven"
+						}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 548,
+					"output": 275,
+					"cacheRead": 207,
+					"cacheWrite": 0,
+					"totalTokens": 1030,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_1c65b9b560",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "north field amber"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone cloud"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 340,
+					"output": 102,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 442,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "😀 cloud 🦀 river stone river"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-2f274781518c",
+		"reasoning": "xhigh",
+		"headers": {
+			"x-parity-test": "02d2ab"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"cloud stone\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"cloud stone\"}\n\n",
+				"data: {\"type\":\"done\",\"reason\":\"stop\",\"usage\":{\"input\":729,\"output\":217,\"cacheRead\":0,\"cacheWrite\":0,\"totalTokens\":946,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"b9a193921f2436ee\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "cloud stone"
+			}
+		],
+		"usage": {
+			"input": 729,
+			"output": 217,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "b9a193921f2436ee"
+	}
+}

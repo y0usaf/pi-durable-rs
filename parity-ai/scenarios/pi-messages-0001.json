@@ -1,0 +1,102 @@
+{
+	"name": "pi-messages-0001",
+	"seed": "cb524e3bd7b2ccd5",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1,
+			"output": 11.75,
+			"cacheRead": 0.25,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "Ωmega ñandú stone Ωmega amber north seven cloud cloud ñandú cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "north field cloud amber alpha",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-5667b0fbf1ce",
+		"sessionId": "session-17e235bb",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"stone seven north seven \"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"river seven lamp field\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"stone seven north seven river seven lamp field\"}\n\n",
+				"data: {\"type\":\"error\",\"reason\":\"error\",\"usage\":{\"input\":590,\"output\":140,\"cacheRead\":0,\"cacheWrite\":0,\"totalTokens\":730,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"errorMessage\":\"Upstream overloaded\",\"responseId\":\"0af302d3b705efdb\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

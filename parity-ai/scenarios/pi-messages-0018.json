@@ -1,0 +1,263 @@
+{
+	"name": "pi-messages-0018",
+	"seed": "df897f593c9fbb5d",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.75,
+			"output": 1,
+			"cacheRead": 1,
+			"cacheWrite": 3
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "north stone cloud",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 10,
+					"output": 202,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 212,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "north 𐐷 amber quiet alpha 🦀",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "north stone cloud cloud field stone",
+						"thinkingSignature": "bd5e0cffbffe83b6fffdebd1d3ffdadd"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 167,
+					"output": 113,
+					"cacheRead": 381,
+					"cacheWrite": 0,
+					"totalTokens": 661,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "field river stone cloud lamp quiet"
+					},
+					{
+						"type": "text",
+						"text": "quiet"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_34d1cd8a69",
+						"name": "count_items",
+						"arguments": {
+							"n": 76,
+							"flag": false
+						}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 118,
+					"output": 114,
+					"cacheRead": 133,
+					"cacheWrite": 0,
+					"totalTokens": 365,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_34d1cd8a69",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "🦀 quiet quiet alpha lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha"
+					}
+				],
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-116958772b18",
+		"reasoning": "minimal",
+		"cacheRetention": "long",
+		"maxTokens": 32000,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\ndata: {\"type\":\"te",
+				"xt_start\",",
+				"\"contentIndex\":0}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"f\"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"ield north stone 漢字 Grüße Ωmega héllo Grüße field\"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\" quiet\"}\n\ndata: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"field north stone 漢字 Grüße Ωmega héllo Grüße field quiet\"}\n\ndata: {\"ty",
+				"pe\":\"toolcall_start\",\"contentIndex\":1,\"id\":\"call_cb3dd69e5f30\",\"toolName\":\"nested_shape\"}\n\ndata: {\"type\":\"toolcall_delta\",\"contentIndex\":1,\"delta\":\"{\"}\n\ndata: {\"type\":\"toolcall_delta\",\"contentIndex\":1,\"delta\":\"\\\"box\\\":{\\\"w\\\":7,\"}\n\ndata: {\"type\":\"toolcall_delta",
+				"\",\"contentIndex\":1,\"delta\":\"\\\"h\\\":2}}\"}\n\ndata: {\"type\":\"toolcall_end\",\"contentIndex\":1,\"toolCall\":{\"type\":\"toolCall\",\"id\":\"call_cb3dd69e5f30\",\"name\":\"nested_shape\",\"arguments\":{\"box\":{\"w\":7,\"h\":2}}}}\n\ndata: {\"type\":\"done\",\"reason\":\"toolUse\",\"usage\":{\"input\":761,\"output\":71,\"cacheRead\":300,\"cacheWrite\":0,\"totalTokens\":1132,\"cost\":{\"i",
+				"nput\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"f384e841c1cc7778\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "field north stone 漢字 Grüße Ωmega héllo Grüße field quiet"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_cb3dd69e5f30",
+				"name": "nested_shape",
+				"arguments": {
+					"box": {
+						"w": 7,
+						"h": 2
+					}
+				}
+			}
+		],
+		"usage": {
+			"input": 761,
+			"output": 71,
+			"cacheRead": 300,
+			"cacheWrite": 0
+		},
+		"responseId": "f384e841c1cc7778"
+	}
+}

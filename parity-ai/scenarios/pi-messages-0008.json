@@ -1,0 +1,250 @@
+{
+	"name": "pi-messages-0008",
+	"seed": "c92357071b340a45",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gpt-5",
+		"name": "gpt-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7,
+			"output": 12.25,
+			"cacheRead": 0.375,
+			"cacheWrite": 1
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "quiet 漢字 naïve",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "lamp cloud river",
+						"thinkingSignature": ""
+					},
+					{
+						"type": "text",
+						"text": "north river river river"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gpt-5",
+				"usage": {
+					"input": 258,
+					"output": 174,
+					"cacheRead": 335,
+					"cacheWrite": 0,
+					"totalTokens": 767,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "stone stone héllo field field",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "😀 🇯🇵 😀 seven north cloud"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 376,
+					"output": 144,
+					"cacheRead": 489,
+					"cacheWrite": 174,
+					"totalTokens": 1183,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "𐐷 north"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp field quiet"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gpt-5",
+				"usage": {
+					"input": 110,
+					"output": 13,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 123,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "𝄞 𝄞 👩‍💻 river field north",
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-f530e8f4b291",
+		"reasoning": "xhigh",
+		"cacheRetention": "none",
+		"maxTokens": 32000,
+		"sessionId": "session-6c3d5cc4",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\ndata: {\"type\":\"thinking_start\",\"contentIndex\":0}\n\ndata: {\"type\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"qui\"}\n\ndata: {\"type\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"et lamp north \"}\n\ndata: {\"type\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"cloud\"}\n\ndata: {\"type\":\"thinking_end\",\"contentIndex\":0,\"content\":\"quiet lamp north cloud\",\"contentSignature\":\"257796bc2369429a1aaf2df1558ee5654b14c5d0\"}\n\ndata: {\"type\":\"text_start\",\"contentIndex\":1}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"stone\"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\" lam\"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"p\"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\" cloud north\"}\n\ndata: {\"type\":\"text_",
+				"end\",\"contentIndex\":1,\"content\":\"stone lamp cloud north\"}\n\ndata: {\"type\":\"done\",\"reason\":\"stop\",\"usage\":{\"input\":658,\"output\":175,\"cacheRead\":0,\"cacheWrite\":182,\"totalTokens\":1015,\"cost\":{\"in",
+				"put\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"respo",
+				"nseId\":\"20bfc2f27308d53f\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "quiet lamp north cloud"
+			},
+			{
+				"type": "text",
+				"text": "stone lamp cloud north"
+			}
+		],
+		"usage": {
+			"input": 658,
+			"output": 175,
+			"cacheRead": 0,
+			"cacheWrite": 182
+		},
+		"responseId": "20bfc2f27308d53f"
+	}
+}

@@ -1,0 +1,157 @@
+{
+	"name": "pi-messages-0005",
+	"seed": "768bc5c498497888",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4,
+			"output": 5.5,
+			"cacheRead": 0.375,
+			"cacheWrite": 2
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "amber seven stone river field quiet north",
+		"messages": [
+			{
+				"role": "user",
+				"content": "field",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "漢字"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 702,
+					"output": 211,
+					"cacheRead": 97,
+					"cacheWrite": 0,
+					"totalTokens": 1010,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "😀 seven"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 637,
+					"output": 169,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 806,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "river ñandú héllo river naïve amber Ωmega",
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-b91f9f56abc9",
+		"reasoning": "medium",
+		"cacheRetention": "long",
+		"temperature": 0.4,
+		"sessionId": "session-1a3942a1",
+		"headers": {
+			"x-parity-test": "3a088e"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"thinking_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"field stone lamp amber river north\"}\n\n",
+				"data: {\"type\":\"thinking_end\",\"contentIndex\":0,\"content\":\"field stone lamp amber river north\",\"contentSignature\":\"47905fea5c4ae6617014591a03bb0a2f287269b5\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":1}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"Ωmega amber héllo north\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":1,\"content\":\"Ωmega amber héllo north\"}\n\n",
+				"data: {\"type\":\"done\",\"reason\":\"length\",\"usage\":{\"input\":816,\"output\":76,\"cacheRead\":163,\"cacheWrite\":8,\"totalTokens\":1063,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"a7ae99102eaadcc1\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "field stone lamp amber river north"
+			},
+			{
+				"type": "text",
+				"text": "Ωmega amber héllo north"
+			}
+		],
+		"usage": {
+			"input": 816,
+			"output": 76,
+			"cacheRead": 163,
+			"cacheWrite": 8
+		},
+		"responseId": "a7ae99102eaadcc1"
+	}
+}
