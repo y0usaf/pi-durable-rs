@@ -1,0 +1,144 @@
+{
+	"name": "google-vertex-0018",
+	"seed": "e2cfbaae26c08c96",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7.5,
+			"output": 6,
+			"cacheRead": 0.5,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "north Привет river",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber 🦀 alpha 𐐷"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "cloud field lamp",
+						"thinkingSignature": "082da5f96cef9d06d23e438ba6cbe3b4"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-3-pro-preview",
+				"usage": {
+					"input": 688,
+					"output": 140,
+					"cacheRead": 75,
+					"cacheWrite": 0,
+					"totalTokens": 903,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "amber river river",
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ec89179dc68d",
+		"reasoning": "medium",
+		"sessionId": "session-67ecb8b5",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"river ri\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"7ad9780022616657\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ver quiet\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"7ad9780022616657\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" sto\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"7ad9780022616657\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ne seven\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"7ad9780022616657\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_c830aff0a33b\",\"name\":\"count_items\",\"args\":{\"n\":27,\"flag\":true}}}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"7ad9780022616657\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":",
+				"\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"7ad97",
+				"80022616657\",\"usageMetadata\":{\"promptTokenCount\":910,\"candidatesTokenCount\":134,\"totalTokenCount\"",
+				":1044,\"cachedContentTokenCount\":313}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "river river quiet stone seven"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_c830aff0a33b",
+				"name": "count_items",
+				"arguments": {
+					"n": 27,
+					"flag": true
+				}
+			}
+		],
+		"usage": {
+			"input": 597,
+			"output": 134,
+			"cacheRead": 313,
+			"cacheWrite": 0
+		},
+		"responseId": "7ad9780022616657"
+	}
+}

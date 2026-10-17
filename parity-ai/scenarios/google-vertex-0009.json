@@ -1,0 +1,210 @@
+{
+	"name": "google-vertex-0009",
+	"seed": "3d9255d6f643b717",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4,
+			"output": 13,
+			"cacheRead": 0.5,
+			"cacheWrite": 3
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "field quiet héllo seven 漢字 naïve café héllo héllo Привет ñandú Ωmega",
+		"messages": [
+			{
+				"role": "user",
+				"content": "river alpha amber quiet cloud seven seven cloud stone seven",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "lamp 𝄞"
+					},
+					{
+						"type": "text",
+						"text": "north 🇯🇵 alpha lamp amber 𝄞"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-3-pro-preview",
+				"usage": {
+					"input": 34,
+					"output": 95,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 129,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "seven alpha quiet stone cloud lamp lamp alpha stone alpha",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone stone field amber amber alpha stone seven"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-3-pro-preview",
+				"usage": {
+					"input": 14,
+					"output": 128,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 142,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "Grüße lamp river seven Grüße field Ωmega héllo Ωmega river",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp amber lamp héllo stone cloud quiet"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_d071d8b692",
+						"name": "count_items",
+						"arguments": {
+							"n": 55,
+							"flag": true
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 400,
+					"output": 192,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 592,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_d071d8b692",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-8fe04161e987",
+		"reasoning": "low",
+		"temperature": 1,
+		"sessionId": "session-1ed3cf54",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"lamp cloud field 𐐷\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"95d639bb4515b446\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"95d639bb4515b446\",\"usageMetadata\":{\"promptTokenCount\":477,\"candidatesTokenCount\":112,\"totalTokenCount\":589}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "lamp cloud field 𐐷"
+			}
+		],
+		"usage": {
+			"input": 477,
+			"output": 112,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "95d639bb4515b446"
+	}
+}

@@ -1,0 +1,106 @@
+{
+	"name": "google-vertex-0007",
+	"seed": "395e9ef129215904",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.0-flash-001",
+		"name": "gemini-2.0-flash-001",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3,
+			"output": 5,
+			"cacheRead": 0.125,
+			"cacheWrite": 0.5
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "alpha river stone north north cloud lamp stone amber alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud alpha"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber héllo Привет ñandú seven"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.0-flash-001",
+				"usage": {
+					"input": 6,
+					"output": 140,
+					"cacheRead": 361,
+					"cacheWrite": 66,
+					"totalTokens": 573,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "lamp seven",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-b57ff3fbe6f7",
+		"reasoning": "low",
+		"cacheRetention": "none",
+		"maxTokens": 32000,
+		"temperature": 0.1,
+		"toolChoice": "auto",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"👩‍💻 𐐷 river seven amber\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"973c597ef8191ee7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" 𝄞 cloud 👩‍💻 a\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"973c597ef8191ee7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"mber 𐐷\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"973c597ef8191ee7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"SAFETY\"}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"973c597ef8191ee7\",\"usageMetadata\":{\"promptTokenCount\":1122,\"candidatesTokenCount\":289,\"totalTokenCount\":1411,\"cachedContentTokenCount\":494}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

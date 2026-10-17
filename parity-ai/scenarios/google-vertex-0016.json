@@ -1,0 +1,184 @@
+{
+	"name": "google-vertex-0016",
+	"seed": "8f60c369d1a14f3a",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.0-flash-001",
+		"name": "gemini-2.0-flash-001",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.25,
+			"output": 15,
+			"cacheRead": 0.75,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 32000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "stone field stone Привет seven quiet amber amber field 漢字 amber",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber cloud stone quiet amber amber"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.0-flash-001",
+				"usage": {
+					"input": 274,
+					"output": 91,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 365,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "lamp field seven north alpha quiet seven stone",
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-e71d33472a0c",
+		"reasoning": "high",
+		"sessionId": "session-bbbde0ff",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"amber Ωmega \"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9dadc259f69b5ab7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"stone quiet river alpha ñ\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9dadc259f69b5ab7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"and\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9dadc259f69b5ab7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ú\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9dadc259f69b5ab7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_cba72ba6990e\",\"name\":\"tag_list\",\"args\":{\"items\":[\"field amber 漢字\"]}}}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9dadc259f69b5ab7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_381ed56a5214\",\"name\":\"tag_list\",\"args\":{\"items\":[\"héllo\",\"漢字\",\"amber seven\"]}}}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9dadc259f69b5ab7\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9dadc259f69b5ab7\",\"usageMetadata\":{\"promptTokenCount\":20,\"candidatesTokenCount\":159,\"totalTokenCount\":179}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "amber Ωmega stone quiet river alpha ñandú"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_cba72ba6990e",
+				"name": "tag_list",
+				"arguments": {
+					"items": [
+						"field amber 漢字"
+					]
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_381ed56a5214",
+				"name": "tag_list",
+				"arguments": {
+					"items": [
+						"héllo",
+						"漢字",
+						"amber seven"
+					]
+				}
+			}
+		],
+		"usage": {
+			"input": 20,
+			"output": 159,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "9dadc259f69b5ab7"
+	}
+}

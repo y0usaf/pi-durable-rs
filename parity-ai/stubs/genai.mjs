@@ -23,19 +23,26 @@ function copy(from, keys, to = {}) {
 	for (const key of keys) if (from[key] != null) to[key] = from[key];
 	return to;
 }
-function forbid(from, keys, mode) {
-	for (const key of keys) if (from[key] !== undefined) throw new Error(key + " parameter is only supported in " + mode + ", not in Gemini Developer API mode.");
+function forbid(from, keys, [only, not]) {
+	for (const key of keys) if (from[key] !== undefined) throw new Error(key + " parameter is only supported in " + only + ", not in " + not + ".");
 }
 function guard(from, keys) {
 	for (const key of keys) if (from[key] != null) unmodelled(key);
 }
 
-const ENTERPRISE = "Gemini Enterprise Agent Platform mode";
+const ENTERPRISE = ["Gemini Enterprise Agent Platform mode", "Gemini Developer API mode"];
+const DEVELOPER = [ENTERPRISE[1], ENTERPRISE[0]];
 
-function tModel(model) {
+function tModel(model, vertex) {
 	if (!model || typeof model !== "string") throw new Error("model is required and must be a string");
 	if (model.includes("..") || model.includes("?") || model.includes("&")) throw new Error("invalid model parameter");
-	return model.startsWith("models/") || model.startsWith("tunedModels/") ? model : "models/" + model;
+	if (!vertex) return model.startsWith("models/") || model.startsWith("tunedModels/") ? model : "models/" + model;
+	if (["publishers/", "projects/", "models/"].some((prefix) => model.startsWith(prefix))) return model;
+	if (model.includes("/")) {
+		const [publisher, id] = model.split("/", 2);
+		return "publishers/" + publisher + "/models/" + id;
+	}
+	return "publishers/google/models/" + model;
 }
 function tPart(origin) {
 	if (origin === null || origin === undefined) throw new Error("PartUnion is required");
@@ -142,11 +149,54 @@ function configToMldev(from, parent) {
 	forbid(from, ["modelArmorConfig"], ENTERPRISE);
 	return to;
 }
-function paramsToMldev(params) {
+function partToVertex(from) {
+	forbid(from, ["toolCall", "toolResponse"], DEVELOPER);
+	const to = copy(from, ["mediaResolution", "audioTranscription", "codeExecutionResult", "executableCode", "fileData", "functionCall", "functionResponse", "inlineData", "text", "thought", "thoughtSignature", "videoMetadata"]);
+	forbid(from, ["partMetadata"], DEVELOPER);
+	return copy(from, ["mediaProcessing"], to);
+}
+function contentToVertex(from) {
+	const to = {};
+	if (from.parts != null) to.parts = Array.isArray(from.parts) ? from.parts.map(partToVertex) : from.parts;
+	return copy(from, ["role"], to);
+}
+function toolToVertex(from) {
+	guard(from, ["mcpServers", "computerUse"]);
+	const to = copy(from, ["retrieval", "googleMaps", "codeExecution", "enterpriseWebSearch", "exaAiSearch", "functionDeclarations", "googleSearch", "googleSearchRetrieval", "parallelAiSearch", "urlContext"]);
+	forbid(from, ["fileSearch"], DEVELOPER);
+	return to;
+}
+function toolConfigToVertex(from) {
+	const to = copy(from, ["functionCallingConfig", "retrievalConfig"]);
+	forbid(from, ["includeServerSideToolInvocations"], DEVELOPER);
+	return to;
+}
+function configToVertex(from, parent) {
+	guard(from, ["responseSchema", "responseJsonSchema", "cachedContent", "speechConfig", "imageConfig"]);
+	copy(from, ["serviceTier"], parent);
+	if (from.systemInstruction != null) parent.systemInstruction = contentToVertex(tContent(from.systemInstruction));
+	const to = copy(from, ["temperature", "topP", "topK", "candidateCount", "maxOutputTokens", "stopSequences", "responseLogprobs", "logprobs", "presencePenalty", "frequencyPenalty", "seed", "responseMimeType", "routingConfig"]);
+	if (from.modelSelectionConfig != null) to.modelConfig = from.modelSelectionConfig;
+	copy(from, ["safetySettings"], parent);
+	if (from.tools != null) {
+		if (!Array.isArray(from.tools)) throw new Error("tools is required and must be an array of Tools");
+		parent.tools = [...from.tools].map((tool) => toolToVertex(tTool(tool)));
+	}
+	if (from.toolConfig != null) parent.toolConfig = toolConfigToVertex(from.toolConfig);
+	copy(from, ["labels"], parent);
+	copy(from, ["responseModalities", "mediaResolution", "audioTimestamp", "thinkingConfig", "audioTranscriptionConfig"], to);
+	forbid(from, ["enableEnhancedCivicAnswers"], DEVELOPER);
+	copy(from, ["modelArmorConfig"], parent);
+	return to;
+}
+function responseFromVertex(from) {
+	return copy(from, ["candidates", "createTime", "modelVersion", "promptFeedback", "responseId", "usageMetadata"]);
+}
+function toWire(params, vertex) {
 	const body = {};
-	const model = params.model != null ? tModel(params.model) : undefined;
-	if (params.contents != null) body.contents = tContents(params.contents).map(contentToMldev);
-	if (params.config != null) body.generationConfig = configToMldev(params.config, body);
+	const model = params.model != null ? tModel(params.model, vertex) : undefined;
+	if (params.contents != null) body.contents = tContents(params.contents).map(vertex ? contentToVertex : contentToMldev);
+	if (params.config != null) body.generationConfig = (vertex ? configToVertex : configToMldev)(params.config, body);
 	return { model, body };
 }
 function candidateFromMldev(from) {
@@ -222,22 +272,52 @@ function patchHttpOptions(base, patch) {
 	return out;
 }
 
+function vertexFlag(options) {
+	if (options.enterprise !== undefined || options.vertexai !== undefined) {
+		if (options.enterprise !== undefined && options.vertexai !== undefined && options.enterprise !== options.vertexai) throw new Error("enterprise and vertexAI flags have conflicting values, please set enterprise value only.");
+		return options.enterprise ?? options.vertexai;
+	}
+	if (env("GOOGLE_GENAI_USE_ENTERPRISE") !== undefined || env("GOOGLE_GENAI_USE_VERTEXAI") !== undefined) unmodelled("GOOGLE_GENAI_USE_ENTERPRISE/GOOGLE_GENAI_USE_VERTEXAI");
+	return false;
+}
+function vertexCredentials(options, envApiKey) {
+	const envProject = env("GOOGLE_CLOUD_PROJECT");
+	const envLocation = env("GOOGLE_CLOUD_LOCATION");
+	let apiKey = options.apiKey ?? envApiKey;
+	let project = options.project ?? envProject;
+	let location = options.location ?? envLocation;
+	if (options.googleAuthOptions?.credentials) apiKey = undefined;
+	if (!options.project && !options.location && (envProject || envLocation) && options.apiKey) {
+		project = undefined;
+		location = undefined;
+	} else if ((options.project || options.location) && !options.apiKey && envApiKey) apiKey = undefined;
+	else if (!options.project && !options.location && !options.apiKey && (envProject || envLocation) && envApiKey) apiKey = undefined;
+	if (!location && !apiKey) location = "global";
+	if (apiKey === undefined) unmodelled("GoogleAuth credentials");
+	if (project !== undefined) unmodelled("Vertex project/location with an API key");
+	return apiKey;
+}
+
 export class GoogleGenAI {
 	constructor(options = {}) {
-		if (options.vertexai || options.enterprise || env("GOOGLE_GENAI_USE_VERTEXAI")?.toLowerCase() === "true") unmodelled("Vertex AI mode");
-		if (options.project || options.location) throw new Error("Project and location are not supported for Gemini API backend.");
-		const apiKey = options.apiKey ?? (env("GOOGLE_API_KEY") || env("GEMINI_API_KEY"));
+		const vertex = vertexFlag(options);
+		if ((options.project || options.location) && !vertex) throw new Error("Project and location are not supported for Gemini API backend.");
+		const envApiKey = env("GOOGLE_API_KEY") || env("GEMINI_API_KEY");
+		const apiKey = vertex ? vertexCredentials(options, envApiKey) : (options.apiKey ?? envApiKey);
 		if (apiKey === undefined) unmodelled("GoogleAuth credentials");
 		if (apiKey.startsWith("auth_tokens/")) throw new Error("Ephemeral tokens are only supported by the live API.");
-		const baseUrl = options.httpOptions?.baseUrl || env("GOOGLE_GEMINI_BASE_URL");
+		const baseUrl = options.httpOptions?.baseUrl || env(vertex ? "GOOGLE_VERTEX_BASE_URL" : "GOOGLE_GEMINI_BASE_URL");
 		const httpOptions = baseUrl ? { ...options.httpOptions, baseUrl } : options.httpOptions;
-		const init = { apiVersion: options.apiVersion ?? "v1beta", baseUrl: "https://generativelanguage.googleapis.com/", headers: { "User-Agent": LABEL, "x-goog-api-client": LABEL, "Content-Type": "application/json" } };
+		const init = vertex
+			? { baseUrl: "https://aiplatform.googleapis.com/", apiVersion: options.apiVersion ?? "v1beta1" }
+			: { apiVersion: options.apiVersion ?? "v1beta", baseUrl: "https://generativelanguage.googleapis.com/" };
+		init.headers = { "User-Agent": LABEL, "x-goog-api-client": LABEL, "Content-Type": "application/json" };
 		const clientOptions = httpOptions ? patchHttpOptions(init, httpOptions) : init;
 		this.models = {
 			generateContentStream: async (params) => {
 				if (params.config?.automaticFunctionCalling) unmodelled("automaticFunctionCalling");
 				if ((params.config?.tools ?? []).some((tool) => typeof tool.callTool === "function")) unmodelled("CallableTool");
-				const { model, body } = paramsToMldev(params);
+				const { model, body } = toWire(params, vertex);
 				const http = params.config?.httpOptions ? patchHttpOptions(clientOptions, params.config.httpOptions) : clientOptions;
 				if (http.timeout || http.retryOptions || http.extraBody) unmodelled("httpOptions.timeout/retryOptions/extraBody");
 				const root = [http.baseUrl.endsWith("/") ? http.baseUrl.slice(0, -1) : http.baseUrl, ...(http.apiVersion ? [http.apiVersion] : [])].join("/");
@@ -248,7 +328,7 @@ export class GoogleGenAI {
 				const response = await fetch(url.toString(), { body: JSON.stringify(body), headers, method: "POST", signal: params.config?.abortSignal });
 				await throwErrorIfNotOK(response);
 				return (async function* () {
-					for await (const data of readStream(response)) yield { ...responseFromMldev(JSON.parse(data)), sdkHttpResponse: { headers: response.headers } };
+					for await (const data of readStream(response)) yield { ...(vertex ? responseFromVertex : responseFromMldev)(JSON.parse(data)), sdkHttpResponse: { headers: response.headers } };
 				})();
 			},
 		};

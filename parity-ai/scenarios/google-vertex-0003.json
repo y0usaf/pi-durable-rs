@@ -1,0 +1,158 @@
+{
+	"name": "google-vertex-0003",
+	"seed": "239c7ba7a8aaffda",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.75,
+			"output": 14.25,
+			"cacheRead": 0.75,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "quiet amber cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field alpha amber quiet"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "Привет 漢字 Grüße quiet Привет stone north amber"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_601f0abd6e",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 8,
+								"h": 4.5
+							}
+						}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 814,
+					"output": 124,
+					"cacheRead": 395,
+					"cacheWrite": 171,
+					"totalTokens": 1504,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_601f0abd6e",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ea18064651b0",
+		"cacheRetention": "long",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ri\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"3b8547c930f82bfe\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ver\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"3b8547c930f82bfe\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"3b8547c930f82bfe\",\"usageMetadata\":{\"promptTokenCount\":763,\"candidatesTokenCount\":134,\"totalTokenCount\":897}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "river"
+			}
+		],
+		"usage": {
+			"input": 763,
+			"output": 134,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "3b8547c930f82bfe"
+	}
+}

@@ -1,0 +1,184 @@
+{
+	"name": "google-vertex-0022",
+	"seed": "89ec4ec030fdb379",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.0-flash-001",
+		"name": "gemini-2.0-flash-001",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1,
+			"output": 1,
+			"cacheRead": 0.375,
+			"cacheWrite": 1
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "seven river stone quiet",
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone stone north quiet field river seven",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "358ffa61bca13792722eb148",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "héllo Ωmega héllo field seven north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_5f78a39563",
+						"name": "tag_list",
+						"arguments": {
+							"items": []
+						}
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.0-flash-001",
+				"usage": {
+					"input": 260,
+					"output": 250,
+					"cacheRead": 275,
+					"cacheWrite": 0,
+					"totalTokens": 785,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_5f78a39563",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-efdc83163f1a",
+		"cacheRetention": "long",
+		"temperature": 0.4,
+		"sessionId": "session-8233b3e4",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"Ωmega ñandú\",\"thought\":true,\"thoughtSignature\":\"rjoOEMsn0YN1bJ8/su8k2wmqLEM=\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"26ae50227873aa1a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" field Grüße cloud nor\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"26ae50227873aa1a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"t\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"26ae50227873aa1a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"h\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"26ae50227873aa1a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"Прив\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"26ae50227873aa1a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ет stone Grüße ambe\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"26ae50227873aa1a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"r field north stone alpha seven\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"26ae50227873aa1a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_17c797412611\",\"name\":\"noop\",\"args\":{}}}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"26ae50227873aa1a\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"26ae50227873aa1a\",\"usageMetadata\":{\"promptTokenCount\":1133,\"candidatesTokenCount\":272,\"totalTokenCount\":1405,\"cachedContentTokenCount\":413}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "Ωmega ñandú field Grüße cloud north"
+			},
+			{
+				"type": "text",
+				"text": "Привет stone Grüße amber field north stone alpha seven"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_17c797412611",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 720,
+			"output": 272,
+			"cacheRead": 413,
+			"cacheWrite": 0
+		},
+		"responseId": "26ae50227873aa1a"
+	}
+}

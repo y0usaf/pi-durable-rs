@@ -1,0 +1,162 @@
+{
+	"name": "google-vertex-0013",
+	"seed": "ecdae6fd2d76173c",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.0-flash-001",
+		"name": "gemini-2.0-flash-001",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 0.75,
+			"output": 0.75,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "field seven",
+		"messages": [
+			{
+				"role": "user",
+				"content": "seven stone seven river seven field",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven field ñandú café"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.0-flash-001",
+				"usage": {
+					"input": 20,
+					"output": 275,
+					"cacheRead": 474,
+					"cacheWrite": 0,
+					"totalTokens": 769,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "Привет",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "quiet north cloud north",
+						"thinkingSignature": "ac389815468187f2f8326e7a6904be0c"
+					},
+					{
+						"type": "text",
+						"text": "stone seven river"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.0-flash-001",
+				"usage": {
+					"input": 154,
+					"output": 135,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 289,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "seven cloud 😀 north 👩‍💻 alpha 🦀",
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-b36c20b50194",
+		"reasoning": "medium",
+		"temperature": 0.5,
+		"sessionId": "session-05c004a9",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"c\",\"thought\":true,\"thoughtSignature\":\"gY94f1um30DlSlY06RG5SHXFvJ4=\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"b9c1bc187fee0061\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"loud st\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"b9c1bc187fee0061\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"one stone\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"b9c1bc187fee0061\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"b9c1bc187fee0061\",\"usageMetadata\":{\"promptTokenCount\":823,\"candidatesTokenCount\":121,\"totalTokenCount\":944}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "cloud stone stone"
+			}
+		],
+		"usage": {
+			"input": 823,
+			"output": 121,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "b9c1bc187fee0061"
+	}
+}

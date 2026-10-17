@@ -1,0 +1,146 @@
+{
+	"name": "google-vertex-0012",
+	"seed": "172caed2bf586448",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.5-flash",
+		"name": "gemini-2.5-flash",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3.5,
+			"output": 8.75,
+			"cacheRead": 0.625,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone river north quiet amber"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp lamp"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.5-flash",
+				"usage": {
+					"input": 635,
+					"output": 33,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 668,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field river north seven alpha"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha river north cloud north 𐐷"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.5-flash",
+				"usage": {
+					"input": 175,
+					"output": 4,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 179,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "north 🇯🇵 river quiet stone alpha alpha",
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-8d1953d5de90",
+		"reasoning": "minimal",
+		"maxTokens": 32000,
+		"temperature": 0.7,
+		"headers": {
+			"x-parity-test": "e9ce2e"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 400,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"code\":400,\"message\":\"stone amber quiet north stone quiet\",\"status\":\"INVALID_ARGUMENT\"}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

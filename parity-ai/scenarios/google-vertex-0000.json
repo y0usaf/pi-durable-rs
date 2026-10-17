@@ -1,0 +1,259 @@
+{
+	"name": "google-vertex-0000",
+	"seed": "72edc1acf3226db6",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.0-flash-001",
+		"name": "gemini-2.0-flash-001",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 2.75,
+			"output": 4,
+			"cacheRead": 1,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet quiet"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven cloud north Ωmega"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 111,
+					"output": 89,
+					"cacheRead": 0,
+					"cacheWrite": 78,
+					"totalTokens": 278,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "naïve amber"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 807,
+					"output": 80,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 887,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha héllo lamp cloud café"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_20ae82beb9",
+						"name": "count_items",
+						"arguments": {
+							"n": 67,
+							"flag": false
+						}
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.0-flash-001",
+				"usage": {
+					"input": 187,
+					"output": 16,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 203,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_20ae82beb9",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud cloud 𝄞"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "user",
+				"content": "lamp river",
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-13a9551f1191",
+		"cacheRetention": "none",
+		"toolChoice": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"f\",\"thought\":true,\"th",
+				"oughtSignature\":",
+				"\"XvO4lbRx2XQreGgWfJY4HEOUwxs=\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"ff7cb4116c011bda\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ield \",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"ff7cb4116c011bda\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"f\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"ff7cb4116c011bda\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ield\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"ff7cb4116c011bda\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"alpha\"}]}}],\"modelVersion\":",
+				"\"gemini-2.0-flash-001\",\"responseId\":\"ff7cb4116c011bda\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_ef64b8a5c222\",\"name\":\"count_items\",\"args\":{\"n\":99,\"flag\":true}}}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"ff7cb4116c011bda\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"ff7cb4116c011bda\",\"usageMetadata\":{\"promptTokenCount\":765,\"candidatesTokenCount\":137,\"totalTokenCount\":902}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "field field"
+			},
+			{
+				"type": "text",
+				"text": "alpha"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_ef64b8a5c222",
+				"name": "count_items",
+				"arguments": {
+					"n": 99,
+					"flag": true
+				}
+			}
+		],
+		"usage": {
+			"input": 765,
+			"output": 137,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "ff7cb4116c011bda"
+	}
+}

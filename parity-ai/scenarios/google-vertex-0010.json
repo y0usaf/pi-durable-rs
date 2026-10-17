@@ -1,0 +1,194 @@
+{
+	"name": "google-vertex-0010",
+	"seed": "c755922f06d46346",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 4,
+			"output": 6,
+			"cacheRead": 0.875,
+			"cacheWrite": 1
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "stone quiet stone cloud river river alpha lamp north seven field lamp",
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone quiet alpha seven field field",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "amber amber quiet",
+						"thinkingSignature": "d04363ad34b50a41250f026e8a7934c5"
+					},
+					{
+						"type": "text",
+						"text": "alpha lamp seven river seven"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 552,
+					"output": 74,
+					"cacheRead": 42,
+					"cacheWrite": 0,
+					"totalTokens": 668,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "amber lamp amber cloud",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha quiet"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 229,
+					"output": 228,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 457,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet lamp cloud lamp north"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone stone river"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-3-pro-preview",
+				"usage": {
+					"input": 656,
+					"output": 166,
+					"cacheRead": 104,
+					"cacheWrite": 0,
+					"totalTokens": 926,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud Привет north héllo stone"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-edca8b497100",
+		"reasoning": "low",
+		"sessionId": "session-9e06e663",
+		"headers": {
+			"x-parity-test": "5893cc"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"lamp cloud q\",\"thought\":true,\"thoughtSignature\":\"yr9DDAU2HCaEKNbuVTRsovNzXdU=\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d26e34415fb512b\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"uiet\",\"thought\":true}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d26e34415fb512b\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"river alpha river seven clo\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d26e34415fb512b\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ud\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d26e34415fb512b\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"MAX_TOKENS\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d26e34415fb512b\",\"usageMetadata\":{\"promptTokenCount\":683,\"candidatesTokenCount\":288,\"totalTokenCount\":971}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "lamp cloud quiet"
+			},
+			{
+				"type": "text",
+				"text": "river alpha river seven cloud"
+			}
+		],
+		"usage": {
+			"input": 683,
+			"output": 288,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "9d26e34415fb512b"
+	}
+}

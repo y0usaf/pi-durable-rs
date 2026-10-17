@@ -1,0 +1,109 @@
+{
+	"name": "google-vertex-0014",
+	"seed": "4af0b8314db4c5d3",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3.25,
+			"output": 8.25,
+			"cacheRead": 1,
+			"cacheWrite": 2.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "river 漢字 north naïve north héllo field lamp naïve",
+		"messages": [
+			{
+				"role": "user",
+				"content": "quiet cloud field cloud seven river north",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field river cloud alpha cloud seven north"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 713,
+					"output": 104,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 817,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "Grüße north amber Grüße quiet cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-2df827ea7f7d",
+		"reasoning": "xhigh",
+		"cacheRetention": "none",
+		"sessionId": "session-6bc691c0",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"a\",\"thought\":true,\"thoughtSignature\":\"ZU7E6dsZYbjz/PwRRzjHi05qpqY=\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"8dccce8b82194aff\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"lp\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"8dccce8b82194aff\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ha c\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"8dccce8b82194aff\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"loud\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"8dccce8b82194aff\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"se\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"8dccce8b82194aff\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ven amb\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"8dccce8b82194aff\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"e\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"8dccce8b82194aff\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"r\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"8dccce8b82194aff\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_5caf4c50e2ba\",\"name\":\"lookup\",\"args\":{\"q\":\"north alpha\"}}}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"8dccce8b82194aff\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

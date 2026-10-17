@@ -1,0 +1,101 @@
+{
+	"name": "google-vertex-0017",
+	"seed": "be99cc517d3237a3",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.5-flash",
+		"name": "gemini-2.5-flash",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 5.25,
+			"output": 11,
+			"cacheRead": 0,
+			"cacheWrite": 3.25
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "stone Grüße naïve river river",
+		"messages": [
+			{
+				"role": "user",
+				"content": "field north stone alpha river quiet",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone cloud alpha field seven cloud lamp"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 632,
+					"output": 33,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 665,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha field north north quiet"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-63450368ce38",
+		"cacheRetention": "long",
+		"headers": {
+			"x-parity-test": "f13179"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 429,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"code\":429,\"message\":\"alpha alpha north amber cloud north\",\"status\":\"RESOURCE_EXHAUSTED\"}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

@@ -1,0 +1,253 @@
+{
+	"name": "google-vertex-0002",
+	"seed": "e17fe342f12e3535",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.5-flash",
+		"name": "gemini-2.5-flash",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.25,
+			"output": 14.5,
+			"cacheRead": 0.75,
+			"cacheWrite": 1
+		},
+		"contextWindow": 32000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "seven cloud north alpha alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": "river north river cloud field alpha",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north river"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_61938f8d10",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"field river héllo"
+							]
+						}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 189,
+					"output": 95,
+					"cacheRead": 0,
+					"cacheWrite": 182,
+					"totalTokens": 466,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_61938f8d10",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone amber amber cloud seven"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "café héllo seven"
+					}
+				],
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.5-flash",
+				"usage": {
+					"input": 620,
+					"output": 147,
+					"cacheRead": 239,
+					"cacheWrite": 0,
+					"totalTokens": 1006,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone alpha north quiet field café"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "漢字 Привет"
+					},
+					{
+						"type": "text",
+						"text": "naïve Привет héllo stone Grüße héllo"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 252,
+					"output": 158,
+					"cacheRead": 0,
+					"cacheWrite": 109,
+					"totalTokens": 519,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven field field amber field amber"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-2903e787720e",
+		"cacheRetention": "long",
+		"maxTokens": 4096,
+		"toolChoice": "auto",
+		"headers": {
+			"x-parity-test": "67ff4e"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 400,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"code\":400,\"message\":\"stone river amber field field cloud\",\"status\":\"INVALID_ARGUMENT\"}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

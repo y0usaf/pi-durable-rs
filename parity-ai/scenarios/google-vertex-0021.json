@@ -1,0 +1,68 @@
+{
+	"name": "google-vertex-0021",
+	"seed": "3891439610c18c1c",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.25,
+			"output": 1.5,
+			"cacheRead": 0.125,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 32000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "cloud field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "quiet stone seven amber alpha river river river seven lamp",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-6ff973916538",
+		"temperature": 0.4,
+		"headers": {
+			"x-parity-test": "f83f5d"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 500,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"code\":500,\"message\":\"seven amber\",\"status\":\"INTERNAL\"}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

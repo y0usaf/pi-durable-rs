@@ -1,0 +1,99 @@
+{
+	"name": "google-vertex-0015",
+	"seed": "fde08ad088709857",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5.5,
+			"output": 0.25,
+			"cacheRead": 0.375,
+			"cacheWrite": 2.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "seven cloud field river field north stone field north quiet cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "quiet stone stone",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-3d774894faf2",
+		"reasoning": "xhigh",
+		"cacheRetention": "long",
+		"temperature": 0.1,
+		"sessionId": "session-13de3d76",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"clou\",\"thought\":true,\"thoughtSignature\":\"fY99neoIOw94kf9jH/6LNorBnBM=\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"0af58f931363a84c\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"d \\ud83e\",\"thought\":true}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"0af58f931363a84c\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"\\udd80\",\"thought\":true}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"0af58f931363a84c\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"field 😀 𝄞 alpha quiet q\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"0af58f931363a84c\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"uiet\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"0af58f931363a84c\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_813fb81d6a83\",\"name\":\"lookup\",\"args\":{\"q\":\"seven river alpha\"}}}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"0af58f931363a84c\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_a6be6a810c17\",\"name\":\"lookup\",\"args\":{\"q\":\"seven 👩‍💻\"}}}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"0af58f931363a84c\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"0af58f931363a84c\",\"usageMetadata\":{\"promptTokenCount\":359,\"candidatesTokenCount\":94,\"totalTokenCount\":453,\"cachedContentTokenCount\":45}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "cloud 🦀"
+			},
+			{
+				"type": "text",
+				"text": "field 😀 𝄞 alpha quiet quiet"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_813fb81d6a83",
+				"name": "lookup",
+				"arguments": {
+					"q": "seven river alpha"
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_a6be6a810c17",
+				"name": "lookup",
+				"arguments": {
+					"q": "seven 👩‍💻"
+				}
+			}
+		],
+		"usage": {
+			"input": 314,
+			"output": 94,
+			"cacheRead": 45,
+			"cacheWrite": 0
+		},
+		"responseId": "0af58f931363a84c"
+	}
+}
