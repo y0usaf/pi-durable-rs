@@ -63,6 +63,7 @@ const MODELS = {
 	"mistral-conversations": { providers: ["mistral"], ids: ["mistral-large-latest", "magistral-medium-latest", "devstral-medium-latest", "codestral-latest"], path: "" },
 	"pi-messages": { providers: ["radius"], ids: ["claude-sonnet-4-5", "gpt-5", "gemini-2.5-pro"], path: "/v1" },
 	"google-generative-ai": { providers: ["google"], ids: ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-pro-preview"], path: "/v1beta" },
+	"google-vertex": { providers: ["google-vertex"], ids: ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-3-pro-preview", "gemini-2.0-flash-001"], path: "/v1" },
 };
 const COMPAT = {
 	"anthropic-messages": schemas.AnthropicMessagesCompatSchema,
@@ -454,12 +455,13 @@ function googleEvents(c, model) {
 	return out;
 }
 ENCODE["google-generative-ai"] = googleEvents;
+ENCODE["google-vertex"] = googleEvents;
 const SANITIZE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 const EXPECT_TEXT = { "mistral-conversations": (block) => block.pieces.map((piece) => piece.replace(SANITIZE, "")).join("") };
-const EXPECT_USAGE = { "mistral-conversations": (u) => ({ ...u, cacheWrite: 0 }), "google-generative-ai": (u) => ({ ...u, cacheWrite: 0 }) };
+const EXPECT_USAGE = { "mistral-conversations": (u) => ({ ...u, cacheWrite: 0 }), "google-generative-ai": (u) => ({ ...u, cacheWrite: 0 }), "google-vertex": (u) => ({ ...u, cacheWrite: 0 }) };
 
-const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"], "openai-codex-responses": ["thinking", "text", "toolCall"], "azure-openai-responses": ["thinking", "text", "toolCall"], "mistral-conversations": ["thinking", "text", "toolCall"], "pi-messages": ["thinking", "text", "toolCall"], "google-generative-ai": ["thinking", "text", "toolCall"] };
-const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_", "openai-codex-responses": "resp_", "azure-openai-responses": "resp_", "mistral-conversations": "", "pi-messages": "", "google-generative-ai": "" };
+const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"], "openai-codex-responses": ["thinking", "text", "toolCall"], "azure-openai-responses": ["thinking", "text", "toolCall"], "mistral-conversations": ["thinking", "text", "toolCall"], "pi-messages": ["thinking", "text", "toolCall"], "google-generative-ai": ["thinking", "text", "toolCall"], "google-vertex": ["thinking", "text", "toolCall"] };
+const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_", "openai-codex-responses": "resp_", "azure-openai-responses": "resp_", "mistral-conversations": "", "pi-messages": "", "google-generative-ai": "", "google-vertex": "" };
 const TOOL_ID = { "openai-responses": (id) => id + "|fc_" + id.slice(5), "openai-codex-responses": (id) => id + "|fc_" + id.slice(5), "azure-openai-responses": (id) => id + "|fc_" + id.slice(5) };
 
 function expectOf(c, api, model) {

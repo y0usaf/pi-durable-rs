@@ -1,0 +1,93 @@
+{
+	"name": "google-vertex-0006",
+	"seed": "1924d7263eeb6f9a",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2.5,
+			"output": 7.75,
+			"cacheRead": 0.125,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "café north",
+		"messages": [
+			{
+				"role": "user",
+				"content": "cloud 👩‍💻 𝄞 stone field cloud stone 🇯🇵",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "river amber"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 421,
+					"output": 81,
+					"cacheRead": 474,
+					"cacheWrite": 0,
+					"totalTokens": 976,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "quiet ñandú",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-fdfed3e1f877",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidate",
+				"s\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"alpha cloud amber cloud\",\"thought\":true,\"thoughtSignature\":\"Jv4JGAM4coaseTS+FAP7fGAaZ/k=\"}]}}],\"mode",
+				"lVersion\":\"gemini-3-pro-preview\",\"responseId\":\"1ed04ead318408ae\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"amber se\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"1ed04ead318408ae\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"ven lamp\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"1ed04ead318408ae\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_548f810df423\",\"name\":\"lookup\",\"args\":{\"q\":\"seven stone stone\"}}}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"1ed04ead318408ae\"}\n\ndata:",
+				" {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_51690df8df17\",\"name\":\"lookup\",\"args\":{\"q\":\"north seven\"}}}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"1ed04ead318408ae\"}\n\ndata: {\"candida",
+				"tes\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"SAFETY\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"1ed04ead318408ae\",\"usageMetadata\"",
+				":{\"promptTokenCount\":501,\"candidatesTokenCount\":115,\"totalTokenCount\":616,\"cachedContentTokenCount\":299}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

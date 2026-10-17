@@ -1,0 +1,235 @@
+{
+	"name": "google-vertex-0023",
+	"seed": "c9bafccfd2083fb4",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4,
+			"output": 5,
+			"cacheRead": 0.25,
+			"cacheWrite": 0
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "quiet Grüße lamp quiet river",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "75e423e75f605cdbbb42f8f0",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "stone alpha lamp seven"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_d8786e9a0f",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 4,
+								"h": 3
+							}
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_eb8439a439",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 450,
+					"output": 197,
+					"cacheRead": 403,
+					"cacheWrite": 0,
+					"totalTokens": 1050,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_d8786e9a0f",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone cloud north lamp"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_eb8439a439",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "river lamp amber field field amber"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ccce6ac23925",
+		"reasoning": "minimal",
+		"sessionId": "session-2f6606bd",
+		"headers": {
+			"x-parity-test": "a65e77"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"漢字 héllo Ωmega Привет \",\"thought\":true,\"thoughtSignature\":\"D5hKzA39diH3NsizgOnhJ1oXZ5s=\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"f87efbe93ee2aea8\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"clou\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"f87efbe93ee2aea8\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"d river\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"f87efbe93ee2aea8\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"north lamp quiet héllo naïve seven cloud alpha stone Grüße\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"f87efbe93ee2aea8\"}\n\ndata: {\"candidates\":[{\"index\":",
+				"0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_10e3353bbce7\",\"name\":\"noop\",\"args\":{}}}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"f87efbe93ee2aea8\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\"",
+				",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"f87efbe93ee2aea8\",\"usageMetadata\":{\"promptTokenCount\":366,\"candidatesTokenCount\":57,\"totalTokenCount\":423,\"cachedContentTokenCount\":280}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "漢字 héllo Ωmega Привет cloud river"
+			},
+			{
+				"type": "text",
+				"text": "north lamp quiet héllo naïve seven cloud alpha stone Grüße"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_10e3353bbce7",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 86,
+			"output": 57,
+			"cacheRead": 280,
+			"cacheWrite": 0
+		},
+		"responseId": "f87efbe93ee2aea8"
+	}
+}

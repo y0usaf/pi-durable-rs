@@ -1,0 +1,202 @@
+{
+	"name": "google-vertex-0004",
+	"seed": "facd6a39e1052a61",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.0-flash-001",
+		"name": "gemini-2.0-flash-001",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 5,
+			"output": 1.25,
+			"cacheRead": 0.375,
+			"cacheWrite": 1.5
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "seven alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "𐐷 alpha field river stone amber amber stone"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 801,
+					"output": 48,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 849,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "naïve héllo"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "river seven alpha field alpha alpha alpha"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-2.0-flash-001",
+				"usage": {
+					"input": 102,
+					"output": 225,
+					"cacheRead": 148,
+					"cacheWrite": 0,
+					"totalTokens": 475,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-23dda09ee6f7",
+		"maxTokens": 32000,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"rive\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9fb7165eacee960f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"r\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9fb7165eacee960f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" 𐐷\"}]}}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9fb7165eacee960f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.0-flash-001\",\"responseId\":\"9fb7165eacee960f\",\"usageMetadata\":{\"promptTokenCount\":759,\"candidatesTokenCount\":274,\"totalTokenCount\":1033}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "river 𐐷"
+			}
+		],
+		"usage": {
+			"input": 759,
+			"output": 274,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "9fb7165eacee960f"
+	}
+}

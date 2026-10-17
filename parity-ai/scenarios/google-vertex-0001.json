@@ -1,0 +1,164 @@
+{
+	"name": "google-vertex-0001",
+	"seed": "d6a1d345d99b9c57",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.5,
+			"output": 9.75,
+			"cacheRead": 0.5,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "amber Grüße naïve héllo Привет field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "cloud amber quiet north",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "stone seven",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_e20775a947c640c2\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"stone seven\"}],\"encrypted_content\":\"e20775a947c640c2c1162bbabf327b99\"}"
+					},
+					{
+						"type": "text",
+						"text": "field amber"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 533,
+					"output": 234,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 767,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "stone field cloud amber 𝄞 𝄞 seven lamp",
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-04618b6e2d20",
+		"reasoning": "high",
+		"temperature": 0.5,
+		"headers": {
+			"x-parity-test": "3c7f12"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"sev\",\"thought\":true,\"thoughtSignature\":\"F7kX8wcQoVsP1RyNFyXbD3HwvJw=\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d400bd99b485db9\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"e\",\"thought\":true}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d400bd99b485db9\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"n\",\"thought\":true}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9",
+				"d400bd99b485db9\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"field ambe\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d400bd99b485db9\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"r stone\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d400bd99b485db9\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" alpha seven seven field\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d400bd99b485db9\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"9d400bd99b485db9\",\"usageMetadata\":{\"promptTokenCount\":757,\"candidatesTokenCount\":300,\"totalTokenCount\":1057}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "seven"
+			},
+			{
+				"type": "text",
+				"text": "field amber stone alpha seven seven field"
+			}
+		],
+		"usage": {
+			"input": 757,
+			"output": 300,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "9d400bd99b485db9"
+	}
+}

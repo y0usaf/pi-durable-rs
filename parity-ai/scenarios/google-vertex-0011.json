@@ -1,0 +1,256 @@
+{
+	"name": "google-vertex-0011",
+	"seed": "beeb0a5748d4078b",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3,
+			"output": 5,
+			"cacheRead": 0.625,
+			"cacheWrite": 2.5
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp lamp amber",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone seven seven river field alpha"
+					}
+				],
+				"api": "google-vertex",
+				"provider": "google-vertex",
+				"model": "gemini-3-pro-preview",
+				"usage": {
+					"input": 672,
+					"output": 115,
+					"cacheRead": 148,
+					"cacheWrite": 0,
+					"totalTokens": 935,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻 north north 👩‍💻"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "Привет cloud amber café héllo amber",
+						"thinkingSignature": "54b0e1e8484b54722621f8b1221ee988"
+					},
+					{
+						"type": "text",
+						"text": "Привет Grüße alpha stone héllo 漢字 amber"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_f3c00cf97e",
+						"name": "lookup",
+						"arguments": {
+							"q": "café cloud"
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_4a0bdf3a80",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 7,
+								"h": 3.5
+							}
+						}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 510,
+					"output": 288,
+					"cacheRead": 474,
+					"cacheWrite": 0,
+					"totalTokens": 1272,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_f3c00cf97e",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "river amber stone field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_4a0bdf3a80",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp cloud lamp alpha alpha stone"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-f81f6fb221bc",
+		"temperature": 0.9,
+		"toolChoice": "auto",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"alpha quiet \",\"thought\":true,\"thoughtSignature\":\"mmHil3CkhA9gaeMDIXT0L0sEQYY=\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"3efb88ea2b45df0b\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"seven\",\"thought\":true}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"3efb88ea2b45df0b\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"seven alpha alpha a\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"3efb88ea2b45df0b\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"mod",
+				"el\",\"parts\":[{\"text\":\"lpha field\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"3efb88ea2b45df0b\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" lamp\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"3efb88ea2b45df0b\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"3efb88ea2b45df0b\",\"usageMetadata\":{\"promptTokenCount\":254,\"candidatesTokenCount\":176,\"totalTokenCount\":430}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "alpha quiet seven"
+			},
+			{
+				"type": "text",
+				"text": "seven alpha alpha alpha field lamp"
+			}
+		],
+		"usage": {
+			"input": 254,
+			"output": 176,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "3efb88ea2b45df0b"
+	}
+}

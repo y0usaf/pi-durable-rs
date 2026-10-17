@@ -1,0 +1,60 @@
+{
+	"name": "google-vertex-0020",
+	"seed": "49508bbd7b3a488a",
+	"api": "google-vertex",
+	"provider": "google-vertex",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "google-vertex",
+		"provider": "google-vertex",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3.5,
+			"output": 13.25,
+			"cacheRead": 0.5,
+			"cacheWrite": 4
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "north café naïve north field river alpha Ωmega",
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp cloud field quiet",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-a63c51d9d8bc",
+		"toolChoice": "none",
+		"sessionId": "session-d2259076",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"s\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"1d63765e5c2094e2\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"to\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"1d63765e5c2094e2\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"n\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId",
+				"\":\"1d63765e5c2094e2\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":",
+				"[{\"text\":\"e\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"1d63765e5c2094e2\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_332e34619d94\",\"name\":\"lookup\",\"args\":{\"q\":\"Ωmega",
+				"\"}}}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"1d63765e5c2094e2\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}
