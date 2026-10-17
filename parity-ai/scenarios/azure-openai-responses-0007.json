@@ -1,0 +1,288 @@
+{
+	"name": "azure-openai-responses-0007",
+	"seed": "131d40af896cffc9",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-5",
+		"name": "gpt-5",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.25,
+			"output": 9.5,
+			"cacheRead": 0,
+			"cacheWrite": 1.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsMaxOutputTokens": false
+		}
+	},
+	"context": {
+		"systemPrompt": "seven field cloud quiet alpha stone field north stone amber cloud alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": "Grüße Grüße Ωmega Привет",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone seven stone lamp lamp"
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "gpt-5",
+				"usage": {
+					"input": 205,
+					"output": 28,
+					"cacheRead": 221,
+					"cacheWrite": 0,
+					"totalTokens": 454,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "stone river",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_51f1d38f11",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"river lamp amber",
+								"river north"
+							]
+						}
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "gpt-5",
+				"usage": {
+					"input": 622,
+					"output": 177,
+					"cacheRead": 217,
+					"cacheWrite": 0,
+					"totalTokens": 1016,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_51f1d38f11",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone amber field river"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field field field cloud seven north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_c3354cdca2",
+						"name": "count_items",
+						"arguments": {
+							"n": 13,
+							"flag": false
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_8d4f48c757",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"seven",
+								"seven quiet"
+							]
+						}
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "gpt-5",
+				"usage": {
+					"input": 180,
+					"output": 111,
+					"cacheRead": 0,
+					"cacheWrite": 22,
+					"totalTokens": 313,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_c3354cdca2",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud north 😀 seven cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_8d4f48c757",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "𐐷 cloud north stone"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-6e5650a377f8",
+		"cacheRetention": "short",
+		"temperature": 0.6,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_94bf29020de55588\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_94bf29020de555880\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_94bf29020de555880\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.outpu",
+				"t_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_94bf29020de555880\",\"output_index\":0,\"con",
+				"tent_index\":0,\"delta\":\"fiel\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_94bf29020de555880\",\"output_index\":0,\"content_index\":0,\"delta\":\"d cloud field lamp quiet field \"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_94bf29020de555880\",\"output_index\":0,\"content_index\":0,\"delta\":\"river\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_94bf29020de555880\",\"output_index\":0,\"content_index\":0,\"text\":\"field cloud field lamp quiet field river\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_94bf29020de555880\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"field cloud field lamp quiet field river\",\"annotations\":[]}]}}\n\nevent: response.incomplete\ndata: {\"type\":\"response.incomplete\",\"sequence_number\":8,\"response\":{\"id\":\"resp_94bf29020de55588\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[{\"type\":\"message\",\"id\":\"msg_94bf29020de555880\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"field cloud field lamp quiet field river\",\"annotations\":[]}]}],\"status\":\"incomplete\",\"incomplete_details\":{\"reason\":\"max_output_tokens\"},\"usage\":{\"input_tokens\":651,\"output_tokens\":207,\"total_tokens\":858,\"input_tokens_details\":{\"cached_tokens\":0},\"o",
+				"utput_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "text",
+				"text": "field cloud field lamp quiet field river"
+			}
+		],
+		"usage": {
+			"input": 651,
+			"output": 207,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_94bf29020de55588"
+	}
+}

@@ -1,0 +1,226 @@
+{
+	"name": "azure-openai-responses-0020",
+	"seed": "60c03e6230a08360",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-4.1",
+		"name": "gpt-4.1",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.75,
+			"output": 8.5,
+			"cacheRead": 0,
+			"cacheWrite": 3
+		},
+		"contextWindow": 200000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsAdditionalTools": false,
+			"supportsDeveloperRole": false,
+			"supportsOpenAIGrammarTools": true
+		}
+	},
+	"context": {
+		"systemPrompt": "Привет north amber café cloud amber Ωmega Привет",
+		"messages": [
+			{
+				"role": "user",
+				"content": "quiet seven seven 🦀",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud seven amber river quiet field stone"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 816,
+					"output": 65,
+					"cacheRead": 215,
+					"cacheWrite": 0,
+					"totalTokens": 1096,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field Grüße ñandú héllo ñandú"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_7dd1e5ff02",
+						"name": "count_items",
+						"arguments": {
+							"n": 46,
+							"flag": false
+						}
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "gpt-4.1",
+				"usage": {
+					"input": 863,
+					"output": 296,
+					"cacheRead": 373,
+					"cacheWrite": 0,
+					"totalTokens": 1532,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_7dd1e5ff02",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "north field lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "north cloud cloud north 𝄞",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_5747040b8cfa0b8d\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"north cloud cloud north 𝄞\"}],\"encrypted_content\":\"5747040b8cfa0b8de6a9c0a4c3050eb4\"}"
+					},
+					{
+						"type": "text",
+						"text": "river stone"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 669,
+					"output": 157,
+					"cacheRead": 171,
+					"cacheWrite": 56,
+					"totalTokens": 1053,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "alpha river seven alpha seven quiet north north stone",
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ce04580b0f7b",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_298f44a181e7c61d\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-4.1\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_",
+				"number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_298f44a181e7c61d0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_298f44a181e7c61d0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_298f44a181e7c61d0\",\"output_index\":0,\"content_index\":0,\"delta\":\"stone field no\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_298f44a181e7c61d0\",\"output_index\":0,\"con",
+				"tent_index\":0,\"delta\":\"rth field 👩‍💻 👩‍💻 riv\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_298f44a181e7c61d0\",\"output_index\":0,\"content_index\":0,\"delta\":\"er 🦀\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_298f44a181e7c61d0\",\"output_index\":0,\"content_index\":0,\"text\":\"stone field north field 👩‍💻 👩‍💻 river 🦀\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_298f44a181e7c61d0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"stone field north field 👩‍💻 👩‍💻 river 🦀\",\"annotations\":[]}]}}\n",
+				"\nevent: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":8,\"response\":{\"id\":\"resp_298f44a181e7c61d\",\"object\":\"response\",",
+				"\"created_at\":0,\"model\":\"gpt-4.1\",\"output\":[{\"type\":\"message\",\"id\":\"msg_298f44a181e7c61d0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"stone field north field 👩‍💻 👩‍💻 river 🦀\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":882,\"output_tokens\":126,\"total_tokens\":1008,\"input_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":18},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "stone field north field 👩‍💻 👩‍💻 river 🦀"
+			}
+		],
+		"usage": {
+			"input": 864,
+			"output": 126,
+			"cacheRead": 0,
+			"cacheWrite": 18
+		},
+		"responseId": "resp_298f44a181e7c61d"
+	}
+}

@@ -1,0 +1,181 @@
+{
+	"name": "azure-openai-responses-0001",
+	"seed": "986dc82ed4785949",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.5,
+			"output": 6.75,
+			"cacheRead": 0.75,
+			"cacheWrite": 1.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "漢字 lamp Ωmega field café lamp quiet amber alpha Grüße",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber stone"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone quiet amber seven river field river river"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_aef314ae12",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"cloud lamp",
+								"river",
+								"field seven"
+							]
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 215,
+					"output": 61,
+					"cacheRead": 0,
+					"cacheWrite": 108,
+					"totalTokens": 384,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_aef314ae12",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp cloud field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north north"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 269,
+					"output": 255,
+					"cacheRead": 0,
+					"cacheWrite": 187,
+					"totalTokens": 711,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "🦀 alpha river 𐐷 👩‍💻 quiet 🇯🇵",
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-3366d6ab9a3a",
+		"cacheRetention": "short",
+		"maxTokens": 256,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_8a003f11ab390272\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_8a003f11ab3902720\",\"summary\":[]}}\n\n",
+				"event: response.reasoning_summary_part.added\ndata: {\"type\":\"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_8a003f11ab3902720\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_8a003f11ab3902720\",\"output_index\":0,\"summary_index\":0,\"delta\":\"st\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":4,\"item_id\":\"rs_8a003f11ab3902720\",\"output_index\":0,\"summary_index\":0,\"delta\":\"one st\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":5,\"item_id\":\"rs_8a003f11ab3902720\",\"output_index\":0,\"summary_index\":0,\"delta\":\"o\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":6,\"item_id\":\"rs_8a003f11ab3902720\",\"output_index\":0,\"summary_index\":0,\"delta\":\"ne\"}\n\n",
+				"event: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":7,\"item_id\":\"rs_8a003f11ab3902720\",\"output_index\":0,\"summary_index\":0,\"text\":\"stone stone\"}\n\n",
+				"event: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":8,\"item_id\":\"rs_8a003f11ab3902720\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"stone stone\"}}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":9,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_8a003f11ab3902720\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"stone stone\"}],\"encrypted_content\":\"86e181965a34f46e8aca1b0bdb493c02b39cb150\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":10,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_8a003f11ab3902721\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":11,\"item_id\":\"msg_8a003f11ab3902721\",\"output_index\":1,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":12,\"item_id\":\"msg_8a003f11ab3902721\",\"output_index\":1,\"content_index\":0,\"delta\":\"quiet\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":13,\"item_id\":\"msg_8a003f11ab3902721\",\"output_index\":1,\"content_index\":0,\"delta\":\" stone\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":14,\"item_id\":\"msg_8a003f11ab3902721\",\"output_index\":1,\"content_index\":0,\"text\":\"quiet stone\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":15,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_8a003f11ab3902721\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"quiet stone\",\"annotations\":[]}]}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

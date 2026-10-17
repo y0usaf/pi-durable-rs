@@ -1,0 +1,167 @@
+{
+	"name": "azure-openai-responses-0013",
+	"seed": "43c56d7127b81ec9",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.5,
+			"output": 4.5,
+			"cacheRead": 0.875,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsOpenAIGrammarTools": true
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone amber north quiet stone amber",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "north river seven lamp",
+						"thinkingSignature": ""
+					},
+					{
+						"type": "text",
+						"text": "seven quiet river stone field cloud quiet amber"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_85dc102863",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 6,
+								"h": 4
+							}
+						}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 773,
+					"output": 179,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 952,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_85dc102863",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-4993a103f2fa",
+		"reasoning": "xhigh",
+		"maxTokens": 256,
+		"temperature": 0.6,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_1f906017cbe430b3\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_1f906017cbe430b30\",\"summary\":[]}}\n\nevent: response.reasoning_summary_part.added\ndata: {\"type\":\"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_1f906017cbe430b30\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.re",
+				"asoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_1f906017cbe430b30\",\"output_index\":0,\"summary_index\":0,\"delta\":\"😀\"}\n\nevent: response.reasoni",
+				"ng_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":4,\"item_id\":\"rs_1f906017cbe430b30\",\"output_index\":0,\"summary_index\":0,\"delta\":\" 𝄞\"}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":5,\"item_id\":\"rs_1f906017cbe430b30\",\"output_index\":0,\"summary_index\":0,\"delta\":\" ston\"}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":6,\"item_id\":\"rs_1f906017cbe430b30\",\"output_index\":0,\"summary_index\":0,\"delta\":\"e\"}\n\nevent: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":7,\"item_id\":\"rs_1f906017cbe430b30\",\"output_index\":0,\"summary_index\":0,\"text\":\"😀 𝄞 stone\"}\n\nevent: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":8,\"item_id\":\"rs_1f906017cbe430b30\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"😀 𝄞 stone\"}}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":9,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_1f906017cbe430b30\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"😀 𝄞 stone\"}],\"encrypted_content\":\"5c97a81184d3f04fe6e29de4d4fd3d8aece601be\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":10,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_1f906017cbe430b31\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":11,\"item_id\":\"msg_1f906017cbe430b31\",\"output_index\":1,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":12,\"item_id\":\"msg_1f906017cbe430b31\",\"output_index\":1,\"content_index\":0,\"delta\":\"q\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":13,\"item_id\":\"msg_1f906017cbe430b31\",\"output_index\":1,\"content_index\":0,\"delta\":\"u\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":14,\"item_id\":\"msg_1f906017cbe430b31\",\"output_index\":1,\"content_index\":0,\"delta\":\"iet quie\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"r",
+				"esponse.output_text.delta\",\"sequence_number\":15,\"item_id\":\"msg_1f906017cbe430b31\",\"output_index\":1,\"content_index\":0,\"delta\":\"t\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.outpu",
+				"t_text.done\",\"sequence_number\":16,\"item_id\":\"msg_1f906017cbe430b31\",\"output_index\":1,\"content_index\":0,\"text\":\"quiet quiet\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":17,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_1f906017cbe430b31\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"quiet quiet\",\"annotations\":[]}]}}\n\nevent: error\ndata: {\"type\":\"error\",\"sequence_number\":18,\"code\":\"server_error\",\"message\":\"Upstream overloaded\",\"param\":null}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

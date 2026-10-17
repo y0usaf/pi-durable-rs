@@ -1,0 +1,119 @@
+{
+	"name": "azure-openai-responses-0014",
+	"seed": "57219111176d0b95",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-5",
+		"name": "gpt-5",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.25,
+			"output": 2.75,
+			"cacheRead": 0.125,
+			"cacheWrite": 4
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsLongCacheRetention": false
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "🇯🇵 𝄞 😀 cloud"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone north north seven quiet lamp north quiet"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 151,
+					"output": 81,
+					"cacheRead": 0,
+					"cacheWrite": 40,
+					"totalTokens": 272,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "north cloud amber cloud alpha",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-0e88fbddf3d5",
+		"reasoning": "minimal",
+		"temperature": 0.2,
+		"sessionId": "session-a0379f11",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_a5e3d4464c1b132b\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_a5e3d4464c1b132b0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_a5e3d4464c1b132b0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_a5e3d4464c1b132b0\",\"output_index\":0,\"content_index\":0,\"delta\":\"la\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_a5e3d4464c1b132b0\",\"output_index\":0,\"content_index\":0,\"delta\":\"m\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_a5e3d4464c1b132b0\",\"output_index\":0,\"content_index\":0,\"delta\":\"p\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_a5e3d4464c1b132b0\",\"output_index\":0,\"content_index\":0,\"text\":\"lamp\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_a5e3d4464c1b132b0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"lamp\",\"annotations\":[]}]}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":8,\"response\":{\"id\":\"resp_a5e3d4464c1b132b\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[{\"type\":\"message\",\"id\":\"msg_a5e3d4464c1b132b0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"lamp\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":745,\"output_tokens\":77,\"total_tokens\":822,\"input_tokens_details\":{\"cached_tokens\":179},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "lamp"
+			}
+		],
+		"usage": {
+			"input": 566,
+			"output": 77,
+			"cacheRead": 179,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_a5e3d4464c1b132b"
+	}
+}

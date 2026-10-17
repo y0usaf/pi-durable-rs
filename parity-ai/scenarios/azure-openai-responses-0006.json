@@ -1,0 +1,196 @@
+{
+	"name": "azure-openai-responses-0006",
+	"seed": "8e8b38bc249032ab",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6,
+			"output": 7,
+			"cacheRead": 0.75,
+			"cacheWrite": 1.5
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsLongCacheRetention": false
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "river field"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp café Привет café"
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "o4-mini",
+				"usage": {
+					"input": 643,
+					"output": 217,
+					"cacheRead": 180,
+					"cacheWrite": 17,
+					"totalTokens": 1057,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "stone lamp field stone north",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field river quiet alpha lamp field 𝄞"
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "o4-mini",
+				"usage": {
+					"input": 810,
+					"output": 36,
+					"cacheRead": 17,
+					"cacheWrite": 0,
+					"totalTokens": 863,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "amber lamp cloud lamp alpha",
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-a968f2d493bd",
+		"reasoning": "xhigh",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_d5bd200d20d7be59\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"function_call\",\"id\":\"fc_c00fd5599f50\",\"call_id\":\"call_c00fd5599f50\",\"name\":\"nested_shape\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":2,\"item_id\":\"fc_c00fd5599f50\",\"output_index\":0,\"delta\":\"{\\\"box\\\":{\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":3,\"item_id\":\"fc_c00fd5599f50\",\"output_index\":0,\"delta\":\"\\\"w\\\":7,\\\"h\\\":2}}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":4,\"item_id\":\"fc_c00fd5599f50\",\"output_index\":0,\"arguments\":\"{\\\"box\\\":{\\\"w\\\":7,\\\"h\\\":2}}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":5,\"output_index\":0,\"item\":{\"type\":\"function_call\",\"id\":\"fc_c00fd5599f50\",\"call_id\":\"call_c00fd5599f50\",\"name\":\"nested_shape\",\"arguments\":\"{\\\"box\\\":{\\\"w\\\":7,\\\"h\\\":2}}\",\"status\":\"completed\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":6,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_c9ff5d13dfe3\",\"call_id\":\"call_c9ff5d13dfe3\",\"name\":\"nested_shape\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":7,\"item_id\":\"fc_c9ff5d13dfe3\",\"output_index\":1,\"delta\":\"{\\\"box\\\":{\\\"w\\\":1,\\\"h\\\":3\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":8,\"item_id\":\"fc_c9ff5d13dfe3\",\"output_index\":1,\"delta\":\"}}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":9,\"item_id\":\"fc_c9ff5d13dfe3\",\"output_index\":1,\"arguments\":\"{\\\"box\\\":{\\\"w\\\":1,\\\"h\\\":3}}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":10,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_c9ff5d13dfe3\",\"call_id\":\"call_c9ff5d13dfe3\",\"name\":\"nested_shape\",\"arguments\":\"{\\\"box\\\":{\\\"w\\\":1,\\\"h\\\":3}}\",\"status\":\"completed\"}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":11,\"response\":{\"id\":\"resp_d5bd200d20d7be59\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[{\"type\":\"function_call\",\"id\":\"fc_c00fd5599f50\",\"call_id\":\"call_c00fd5599f50\",\"name\":\"nested_shape\",\"arguments\":\"{\\\"box\\\":{\\\"w\\\":7,\\\"h\\\":2}}\",\"status\":\"completed\"},{\"type\":\"function_call\",\"id\":\"fc_c9ff5d13dfe3\",\"call_id\":\"call_c9ff5d13dfe3\",\"name\":\"nested_shape\",\"arguments\":\"{\\\"box\\\":{\\\"w\\\":1,\\\"h\\\":3}}\",\"status\":\"completed\"}],\"status\":\"completed\",\"usage\":{\"input_tokens\":210,\"output_tokens\":118,\"total_tokens\":328,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "toolCall",
+				"id": "call_c00fd5599f50|fc_c00fd5599f50",
+				"name": "nested_shape",
+				"arguments": {
+					"box": {
+						"w": 7,
+						"h": 2
+					}
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_c9ff5d13dfe3|fc_c9ff5d13dfe3",
+				"name": "nested_shape",
+				"arguments": {
+					"box": {
+						"w": 1,
+						"h": 3
+					}
+				}
+			}
+		],
+		"usage": {
+			"input": 210,
+			"output": 118,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_d5bd200d20d7be59"
+	}
+}

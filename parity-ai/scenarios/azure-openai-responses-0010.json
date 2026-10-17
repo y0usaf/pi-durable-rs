@@ -1,0 +1,207 @@
+{
+	"name": "azure-openai-responses-0010",
+	"seed": "a2e8cefd3bd8757a",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-4.1",
+		"name": "gpt-4.1",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7,
+			"output": 12.5,
+			"cacheRead": 0.625,
+			"cacheWrite": 4
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsAdditionalTools": false,
+			"supportsDeveloperRole": true,
+			"supportsOpenAIGrammarTools": false
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north cloud"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber north"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 315,
+					"output": 147,
+					"cacheRead": 0,
+					"cacheWrite": 53,
+					"totalTokens": 515,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "seven cloud quiet quiet field cloud alpha river field cloud",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet seven"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 131,
+					"output": 284,
+					"cacheRead": 305,
+					"cacheWrite": 0,
+					"totalTokens": 720,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "stone",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "amber stone lamp quiet river",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_fffc5bf5b3584069\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"amber stone lamp quiet river\"}],\"encrypted_content\":\"fffc5bf5b3584069bb7521803def06ef\"}"
+					},
+					{
+						"type": "text",
+						"text": "amber"
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "gpt-4.1",
+				"usage": {
+					"input": 316,
+					"output": 152,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 468,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "café amber Ωmega héllo"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-070d027b68ea",
+		"maxTokens": 4096,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_c40f626801b7bc2d\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-4.1\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_c40f626801b7bc2d0\",\"summary\":[]}}\n\n",
+				"event: response.reasoning_summary_part.added\ndata: {\"type\":\"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_c40f626801b7bc2d0\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_c40f626801b7bc2d0\",\"output_index\":0,\"summary_index\":0,\"delta\":\"stone seven qu\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":4,\"item_id\":\"rs_c40f626801b7bc2d0\",\"output_index\":0,\"summary_index\":0,\"delta\":\"iet north\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":5,\"item_id\":\"rs_c40f626801b7bc2d0\",\"output_index\":0,\"summary_index\":0,\"delta\":\" river a\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":6,\"item_id\":\"rs_c40f626801b7bc2d0\",\"output_index\":0,\"summary_index\":0,\"delta\":\"mber\"}\n\n",
+				"event: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":7,\"item_id\":\"rs_c40f626801b7bc2d0\",\"output_index\":0,\"summary_index\":0,\"text\":\"stone seven quiet north river amber\"}\n\n",
+				"event: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":8,\"item_id\":\"rs_c40f626801b7bc2d0\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"stone seven quiet north river amber\"}}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":9,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_c40f626801b7bc2d0\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"stone seven quiet north river amber\"}],\"encrypted_content\":\"36bb6b2c6e1c594c3f701e3b51e9cdeff2faeaf1\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":10,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_c40f626801b7bc2d1\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":11,\"item_id\":\"msg_c40f626801b7bc2d1\",\"output_index\":1,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":12,\"item_id\":\"msg_c40f626801b7bc2d1\",\"output_index\":1,\"content_index\":0,\"delta\":\"seven amber quiet stone\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":13,\"item_id\":\"msg_c40f626801b7bc2d1\",\"output_index\":1,\"content_index\":0,\"delta\":\" lamp seven alpha river\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":14,\"item_id\":\"msg_c40f626801b7bc2d1\",\"output_index\":1,\"content_index\":0,\"text\":\"seven amber quiet stone lamp seven alpha river\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":15,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_c40f626801b7bc2d1\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven amber quiet stone lamp seven alpha river\",\"annotations\":[]}]}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":16,\"response\":{\"id\":\"resp_c40f626801b7bc2d\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-4.1\",\"output\":[{\"type\":\"reasoning\",\"id\":\"rs_c40f626801b7bc2d0\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"stone seven quiet north river amber\"}],\"encrypted_content\":\"36bb6b2c6e1c594c3f701e3b51e9cdeff2faeaf1\"},{\"type\":\"message\",\"id\":\"msg_c40f626801b7bc2d1\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven amber quiet stone lamp seven alpha river\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":878,\"output_tokens\":97,\"total_tokens\":975,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "stone seven quiet north river amber"
+			},
+			{
+				"type": "text",
+				"text": "seven amber quiet stone lamp seven alpha river"
+			}
+		],
+		"usage": {
+			"input": 878,
+			"output": 97,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_c40f626801b7bc2d"
+	}
+}
