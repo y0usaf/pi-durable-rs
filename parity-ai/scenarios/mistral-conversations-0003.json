@@ -1,0 +1,134 @@
+{
+	"name": "mistral-conversations-0003",
+	"seed": "89a1f988c99fb209",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "magistral-medium-latest",
+		"name": "magistral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3.5,
+			"output": 1,
+			"cacheRead": 0,
+			"cacheWrite": 2
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsMidConvoSystemMessages": true
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp lamp seven river",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp river"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "magistral-medium-latest",
+				"usage": {
+					"input": 40,
+					"output": 74,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 114,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north north lamp alpha alpha"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "river river amber cloud"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 801,
+					"output": 97,
+					"cacheRead": 0,
+					"cacheWrite": 121,
+					"totalTokens": 1019,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven"
+					}
+				],
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-83e2f6078372",
+		"reasoning": "minimal",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 500,
+			"headers": {
+				"content-type": "text/plain"
+			},
+			"chunks": [
+				"north north river amber"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

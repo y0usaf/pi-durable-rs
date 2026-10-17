@@ -60,6 +60,7 @@ const MODELS = {
 	"openai-responses": { providers: ["openai", "openrouter", "xai"], ids: ["gpt-5", "gpt-5-mini", "o4-mini", "gpt-4.1", "grok-4"], path: "/v1" },
 	"openai-codex-responses": { providers: ["openai-codex"], ids: ["gpt-5.1-codex", "gpt-5-codex", "gpt-5.2", "gpt-5.1-codex-mini"], path: "" },
 	"azure-openai-responses": { providers: ["azure"], ids: ["gpt-5", "gpt-5-mini", "gpt-4.1", "o4-mini"], path: "/openai/v1" },
+	"mistral-conversations": { providers: ["mistral"], ids: ["mistral-large-latest", "magistral-medium-latest", "devstral-medium-latest", "codestral-latest"], path: "" },
 };
 const COMPAT = {
 	"anthropic-messages": schemas.AnthropicMessagesCompatSchema,
@@ -67,6 +68,7 @@ const COMPAT = {
 	"openai-responses": schemas.OpenAIResponsesCompatSchema,
 	"openai-codex-responses": schemas.OpenAIResponsesCompatSchema,
 	"azure-openai-responses": schemas.OpenAIResponsesCompatSchema,
+	"mistral-conversations": schemas.MistralConversationsCompatSchema,
 };
 const RESPONSES = new Set(["openai-responses", "openai-codex-responses", "azure-openai-responses"]);
 const FOREIGN = [
@@ -386,9 +388,33 @@ function responsesEvents(c, model, terminal) {
 ENCODE["openai-responses"] = (c, model) => responsesEvents(c, model);
 ENCODE["openai-codex-responses"] = (c, model) => responsesEvents(c, model);
 ENCODE["azure-openai-responses"] = (c, model) => responsesEvents(c, model);
+ENCODE["mistral-conversations"] = (c, model) => {
+	const chunk = (delta, finish = null, extra = {}) => sse(null, { id: c.id, object: "chat.completion.chunk", created: 0, model: model.id, choices: [{ index: 0, delta, finish_reason: finish }], ...extra });
+	const out = [chunk({ role: "assistant", content: "" })];
+	let toolIndex = 0;
+	for (const block of c.blocks) {
+		if (block.type === "thinking") for (const piece of block.pieces) out.push(chunk({ content: [{ type: "thinking", thinking: [{ type: "text", text: piece }] }] }));
+		if (block.type === "text") for (const piece of block.pieces) out.push(chunk({ content: piece }));
+		if (block.type === "toolCall") {
+			const index = toolIndex++;
+			for (const piece of block.pieces) out.push(chunk({ tool_calls: [{ id: block.id, type: "function", index, function: { name: block.name, arguments: piece } }] }));
+		}
+	}
+	if (c.tail === "error") {
+		out.push(sse(null, { object: "error", message: "Upstream overloaded", type: "server_error", code: 3000 }));
+		return out;
+	}
+	const usage = { prompt_tokens: c.usage.input + c.usage.cacheRead, completion_tokens: c.usage.output, total_tokens: c.usage.input + c.usage.cacheRead + c.usage.output, prompt_tokens_details: { cached_tokens: c.usage.cacheRead } };
+	if (c.tail !== "truncated") out.push(chunk({ content: "" }, OPENAI_STOP[c.stop], { usage }));
+	out.push("data: [DONE]\n\n");
+	return out;
+};
+const SANITIZE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+const EXPECT_TEXT = { "mistral-conversations": (block) => block.pieces.map((piece) => piece.replace(SANITIZE, "")).join("") };
+const EXPECT_USAGE = { "mistral-conversations": (u) => ({ ...u, cacheWrite: 0 }) };
 
-const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"], "openai-codex-responses": ["thinking", "text", "toolCall"], "azure-openai-responses": ["thinking", "text", "toolCall"] };
-const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_", "openai-codex-responses": "resp_", "azure-openai-responses": "resp_" };
+const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"], "openai-codex-responses": ["thinking", "text", "toolCall"], "azure-openai-responses": ["thinking", "text", "toolCall"], "mistral-conversations": ["thinking", "text", "toolCall"] };
+const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_", "openai-codex-responses": "resp_", "azure-openai-responses": "resp_", "mistral-conversations": "" };
 const TOOL_ID = { "openai-responses": (id) => id + "|fc_" + id.slice(5), "openai-codex-responses": (id) => id + "|fc_" + id.slice(5), "azure-openai-responses": (id) => id + "|fc_" + id.slice(5) };
 
 function expectOf(c, api, model) {
@@ -397,11 +423,11 @@ function expectOf(c, api, model) {
 	const order = ORDER[api];
 	const content = [...c.blocks]
 		.sort((a, b) => order.indexOf(a.type) - order.indexOf(b.type))
-		.map((b) => (b.type === "text" ? { type: "text", text: b.text } : b.type === "thinking" ? { type: "thinking", thinking: b.thinking } : { type: "toolCall", id: (TOOL_ID[api] ?? ((id) => id))(b.id), name: b.name, arguments: b.arguments }));
+		.map((b) => (b.type === "text" ? { type: "text", text: EXPECT_TEXT[api]?.(b) ?? b.text } : b.type === "thinking" ? { type: "thinking", thinking: EXPECT_TEXT[api]?.(b) ?? b.thinking } : { type: "toolCall", id: (TOOL_ID[api] ?? ((id) => id))(b.id), name: b.name, arguments: b.arguments }));
 	return {
 		stopReason: lenient ? (c.blocks.some((b) => b.type === "toolCall") ? "toolUse" : "stop") : c.stop,
 		content,
-		usage: c.usage,
+		usage: (EXPECT_USAGE[api] ?? ((u) => u))(c.usage),
 		responseId: RESPONSE_ID[api] + c.id,
 	};
 }

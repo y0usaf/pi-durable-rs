@@ -1,0 +1,118 @@
+{
+	"name": "mistral-conversations-0023",
+	"seed": "93af52e41464ad5f",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "devstral-medium-latest",
+		"name": "devstral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.5,
+			"output": 14.25,
+			"cacheRead": 0.375,
+			"cacheWrite": 3
+		},
+		"contextWindow": 200000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsMidConvoSystemMessages": false
+		}
+	},
+	"context": {
+		"systemPrompt": "stone river field cloud river",
+		"messages": [
+			{
+				"role": "user",
+				"content": "héllo seven alpha",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud stone stone lamp"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "devstral-medium-latest",
+				"usage": {
+					"input": 471,
+					"output": 108,
+					"cacheRead": 250,
+					"cacheWrite": 0,
+					"totalTokens": 829,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "alpha",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-3229313e6aaf",
+		"reasoning": "xhigh",
+		"cacheRetention": "long",
+		"toolChoice": "none",
+		"sessionId": "session-17cc6004",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"81250e952c4c6631\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"81250e952c4c6631\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"quiet cloud seven cloud\"}]}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"81250e952c4c6631\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"field \"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"81250e952c4c6631\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"nor\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"81250e952c4c6631\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"th\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"81250e952c4c6631\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"length\"}],\"usage\":{\"prompt_tokens\":378,\"completion_tokens\":174,\"total_tokens\":552,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "quiet cloud seven cloud"
+			},
+			{
+				"type": "text",
+				"text": "field north"
+			}
+		],
+		"usage": {
+			"input": 378,
+			"output": 174,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "81250e952c4c6631"
+	}
+}

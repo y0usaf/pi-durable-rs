@@ -1,0 +1,174 @@
+{
+	"name": "mistral-conversations-0006",
+	"seed": "87be9249aafd2aa3",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "mistral-large-latest",
+		"name": "mistral-large-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 0.5,
+			"output": 4.25,
+			"cacheRead": 0.125,
+			"cacheWrite": 1
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsMidConvoSystemMessages": true
+		}
+	},
+	"context": {
+		"systemPrompt": "alpha lamp north seven lamp river seven stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "🦀 stone quiet"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud cloud quiet"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 461,
+					"output": 175,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 636,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "river field stone field stone cloud",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone seven seven amber"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "mistral-large-latest",
+				"usage": {
+					"input": 504,
+					"output": 167,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 671,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "field amber lamp alpha cloud cloud seven field",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "quiet cloud field amber seven"
+					},
+					{
+						"type": "text",
+						"text": "field seven cloud quiet"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 3,
+					"output": 84,
+					"cacheRead": 108,
+					"cacheWrite": 140,
+					"totalTokens": 335,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "héllo seven Grüße",
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-548d15bcb4d8",
+		"cacheRetention": "short",
+		"toolChoice": "auto",
+		"sessionId": "session-9e0195c7",
+		"headers": {
+			"x-parity-test": "3251b8"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"8632d6a32f0ce984\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"8632d6a32f0ce984\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"fie\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"8632d6a32f0ce984\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ld river north lamp north\"},\"finish_reason\":null}]}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

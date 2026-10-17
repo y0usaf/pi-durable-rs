@@ -1,0 +1,77 @@
+{
+	"name": "mistral-conversations-0020",
+	"seed": "4b995bca00ca58e9",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "magistral-medium-latest",
+		"name": "magistral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5.75,
+			"output": 7.25,
+			"cacheRead": 0,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "field seven quiet amber alpha lamp north lamp river lamp",
+		"messages": [
+			{
+				"role": "user",
+				"content": "seven north north north quiet quiet river",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-f38bc6b59201",
+		"reasoning": "xhigh",
+		"temperature": 0.8,
+		"headers": {
+			"x-parity-test": "c7467f"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 500,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"amber quiet quiet\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

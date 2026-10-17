@@ -1,0 +1,241 @@
+{
+	"name": "mistral-conversations-0010",
+	"seed": "1ca98497b585b0da",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "codestral-latest",
+		"name": "codestral-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 2.25,
+			"output": 11.75,
+			"cacheRead": 0.25,
+			"cacheWrite": 1.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsMidConvoSystemMessages": true
+		}
+	},
+	"context": {
+		"systemPrompt": "amber alpha cloud cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "field quiet lamp",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_57fec484ac",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "codestral-latest",
+				"usage": {
+					"input": 732,
+					"output": 42,
+					"cacheRead": 155,
+					"cacheWrite": 199,
+					"totalTokens": 1128,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_57fec484ac",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "north quiet"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet alpha"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 588,
+					"output": 217,
+					"cacheRead": 0,
+					"cacheWrite": 160,
+					"totalTokens": 965,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "north north stone alpha",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha Ωmega"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 898,
+					"output": 198,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 1096,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "Привет 漢字"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-abec4bd1fdd3",
+		"reasoning": "xhigh",
+		"maxTokens": 4096,
+		"sessionId": "session-91ac8720",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"dedd1ee339e4daa3\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"dedd1ee339e4daa3\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"clo\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"dedd1ee339e4daa3\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ud al\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"dedd1ee339e4daa3\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ph\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"dedd1ee339e4daa3\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"a seven\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"dedd1ee339e4daa3\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"codestral-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":590,\"completion_tokens\":213,\"total_tokens\":803,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "cloud alpha seven"
+			}
+		],
+		"usage": {
+			"input": 590,
+			"output": 213,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "dedd1ee339e4daa3"
+	}
+}

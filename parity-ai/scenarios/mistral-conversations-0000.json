@@ -1,0 +1,143 @@
+{
+	"name": "mistral-conversations-0000",
+	"seed": "13e259eca8ef11bb",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "mistral-large-latest",
+		"name": "mistral-large-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 6.75,
+			"output": 9,
+			"cacheRead": 1,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "field river alpha field north",
+		"messages": [
+			{
+				"role": "user",
+				"content": "alpha stone lamp alpha",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone stone"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "mistral-large-latest",
+				"usage": {
+					"input": 780,
+					"output": 78,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 858,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "seven stone seven amber field 🦀 🇯🇵 field",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field"
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "mistral-large-latest",
+				"usage": {
+					"input": 651,
+					"output": 91,
+					"cacheRead": 0,
+					"cacheWrite": 71,
+					"totalTokens": 813,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven alpha"
+					}
+				],
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-10c49d375691",
+		"reasoning": "high",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"6586945a0892086a\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"6586945a0892086a\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"riv\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"6586945a0892086a\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"er field amber\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"6586945a0892086a\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":664,\"completion_tokens\":212,\"total_tokens\":876,\"prompt_tokens_details\":{\"cached_tokens\":215}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "river field amber"
+			}
+		],
+		"usage": {
+			"input": 449,
+			"output": 212,
+			"cacheRead": 215,
+			"cacheWrite": 0
+		},
+		"responseId": "6586945a0892086a"
+	}
+}

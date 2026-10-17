@@ -1,0 +1,142 @@
+{
+	"name": "mistral-conversations-0021",
+	"seed": "32f5226ccee3494a",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "mistral-large-latest",
+		"name": "mistral-large-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4,
+			"output": 5.25,
+			"cacheRead": 0,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "north field quiet north alpha field quiet amber alpha cloud",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "e7e66d8ba02d5cc672a72a5a",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "river field 𐐷"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_b8518b6cec",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"seven seven 🦀",
+								"😀",
+								"amber"
+							]
+						}
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "mistral-large-latest",
+				"usage": {
+					"input": 517,
+					"output": 186,
+					"cacheRead": 86,
+					"cacheWrite": 165,
+					"totalTokens": 954,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_b8518b6cec",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven river alpha cloud north field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-50f55f8be829",
+		"reasoning": "xhigh",
+		"cacheRetention": "short",
+		"sessionId": "session-e8350713",
+		"headers": {
+			"x-parity-test": "64c80b"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"7a9d1e51de71a9dc\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"7a9d1e51de71a9dc\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"café ston\"}]}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"7a9d1e51de71a9dc\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"e lamp Grüße river stone\"}]}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"7a9d1e51de71a9dc\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"q\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"7a9d1e51de71a9dc\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"uiet\"},\"finish_reason\":null}]}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

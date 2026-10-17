@@ -1,0 +1,235 @@
+{
+	"name": "mistral-conversations-0016",
+	"seed": "b6c790dc1ac03fb6",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "mistral-large-latest",
+		"name": "mistral-large-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 1,
+			"output": 3,
+			"cacheRead": 0.125,
+			"cacheWrite": 3.25
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "river 🇯🇵 😀 alpha 🦀 alpha",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north seven cloud field lamp"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_081da5e559",
+						"name": "count_items",
+						"arguments": {
+							"n": 36,
+							"flag": false
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 763,
+					"output": 160,
+					"cacheRead": 153,
+					"cacheWrite": 0,
+					"totalTokens": 1076,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_081da5e559",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "north amber seven café amber"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "naïve field"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "cloud stone north seven lamp amber",
+						"thinkingSignature": "e726a0090a7f10e64f7eed7911b729ed"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_4176374e13",
+						"name": "count_items",
+						"arguments": {
+							"n": 37,
+							"flag": true
+						}
+					}
+				],
+				"api": "mistral-conversations",
+				"provider": "mistral",
+				"model": "mistral-large-latest",
+				"usage": {
+					"input": 221,
+					"output": 202,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 423,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_4176374e13",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "héllo café lamp café"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "stone seven north quiet 𐐷 stone 🦀 north stone stone",
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-85d26d87c3b7",
+		"reasoning": "minimal",
+		"cacheRetention": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"8cb6f2f121449c0f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"8cb6f2f121449c0f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"id\":\"call_23dde000f21f\",\"type\":\"function\",\"index\":0,\"function\":{\"name\":\"tag_list\",\"arguments\":\"{\\\"items\\\":[]}\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"8cb6f2f121449c0f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"mistral-large-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"tool_calls\"}],\"usage\":{\"prompt_tokens\":345,\"completion_tokens\":180,\"total_tokens\":525,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "toolCall",
+				"id": "call_23dde000f21f",
+				"name": "tag_list",
+				"arguments": {
+					"items": []
+				}
+			}
+		],
+		"usage": {
+			"input": 345,
+			"output": 180,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "8cb6f2f121449c0f"
+	}
+}

@@ -1,0 +1,100 @@
+{
+	"name": "mistral-conversations-0014",
+	"seed": "205e58df1f4bfc46",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "devstral-medium-latest",
+		"name": "devstral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5.75,
+			"output": 4.25,
+			"cacheRead": 1,
+			"cacheWrite": 2
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "stone amber seven north alpha alpha amber river amber cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "ñandú quiet river Grüße héllo ñandú quiet",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field amber 🇯🇵 alpha"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 495,
+					"output": 154,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 649,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet river north river"
+					}
+				],
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ce370a677fb7",
+		"reasoning": "medium",
+		"maxTokens": 1024,
+		"toolChoice": "auto",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"5d854ebd8f18f63d\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"5d854ebd8f18f63d\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"alpha amber st\"}]}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"5d854ebd8f18f63d\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"on\"}]}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"5d854ebd8f18f63d\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"devstral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":[{\"type\":\"thinking\",\"thinking\":[{\"type\":\"text\",\"text\":\"e alpha\"}]}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"object\":\"error\",\"message\":\"Upstream overloaded\",\"type\":\"server_error\",\"code\":3000}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

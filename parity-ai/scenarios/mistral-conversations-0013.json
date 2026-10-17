@@ -1,0 +1,85 @@
+{
+	"name": "mistral-conversations-0013",
+	"seed": "8deaf000ea8158de",
+	"api": "mistral-conversations",
+	"provider": "mistral",
+	"model": {
+		"id": "magistral-medium-latest",
+		"name": "magistral-medium-latest",
+		"api": "mistral-conversations",
+		"provider": "mistral",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.75,
+			"output": 1.25,
+			"cacheRead": 0.25,
+			"cacheWrite": 4
+		},
+		"contextWindow": 32000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsMidConvoSystemMessages": true
+		}
+	},
+	"context": {
+		"systemPrompt": "ñandú alpha quiet 漢字 alpha stone ñandú stone cloud ñandú 漢字 café",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north amber cloud lamp cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ffc7a131caf6",
+		"cacheRetention": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"69b7a2eeb493cdca\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"69b7a2eeb493cdca\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"alpha 🦀 field\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"69b7a2eeb493cdca\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"magistral-medium-latest\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\"},\"finish_reason\":\"stop\"}],\"usage\":{\"prompt_tokens\":372,\"completion_tokens\":235,\"total_tokens\":607,\"prompt_tokens_details\":{\"cached_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "alpha 🦀 field"
+			}
+		],
+		"usage": {
+			"input": 372,
+			"output": 235,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "69b7a2eeb493cdca"
+	}
+}
