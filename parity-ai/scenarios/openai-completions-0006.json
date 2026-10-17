@@ -1,0 +1,87 @@
+{
+	"name": "openai-completions-0006",
+	"seed": "bd7af5b2a0e1a9a6",
+	"api": "openai-completions",
+	"provider": "deepseek",
+	"model": {
+		"id": "deepseek-chat",
+		"name": "deepseek-chat",
+		"api": "openai-completions",
+		"provider": "deepseek",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 7,
+			"output": 10.25,
+			"cacheRead": 0.625,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "cloud stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": "🇯🇵 🦀 😀 seven 𝄞 river",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-1179e35aa5e1",
+		"maxTokens": 256,
+		"temperature": 0.2,
+		"sessionId": "session-565c6a17",
+		"headers": {
+			"x-parity-test": "b9c487"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"reasoning_content\":\"clo\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"reasoning_content\":\"u\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"reasoning_content\":\"d\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"alpha lamp\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" ston\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"e quiet quiet fie\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ld amber cloud lamp\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"length\"}]}\n\n",
+				"data: {\"id\":\"chatcmpl-4c6c3acd5a80c402\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[],\"usage\":{\"prompt_tokens\":576,\"completion_tokens\":226,\"total_tokens\":802,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":117}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "cloud"
+			},
+			{
+				"type": "text",
+				"text": "alpha lamp stone quiet quiet field amber cloud lamp"
+			}
+		],
+		"usage": {
+			"input": 459,
+			"output": 226,
+			"cacheRead": 0,
+			"cacheWrite": 117
+		},
+		"responseId": "chatcmpl-4c6c3acd5a80c402"
+	}
+}

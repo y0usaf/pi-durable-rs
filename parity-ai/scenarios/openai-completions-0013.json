@@ -1,0 +1,97 @@
+{
+	"name": "openai-completions-0013",
+	"seed": "c1ff3cf0de052995",
+	"api": "openai-completions",
+	"provider": "openai",
+	"model": {
+		"id": "deepseek-chat",
+		"name": "deepseek-chat",
+		"api": "openai-completions",
+		"provider": "openai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 5,
+			"output": 14.25,
+			"cacheRead": 0.75,
+			"cacheWrite": 2.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "north ñandú Ωmega field quiet Grüße café Ωmega alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": "alpha alpha quiet seven cloud river seven quiet",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-1546813e6f05",
+		"reasoning": "xhigh",
+		"cacheRetention": "none",
+		"maxTokens": 256,
+		"temperature": 1,
+		"toolChoice": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"reasoning\":\"r\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"reasoning\":\"iver riv\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"reasoning\":\"er\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"north nor\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"th\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"call_835484630b8e\",\"type\":\"function\",\"function\":{\"name\":\"lookup\",\"arguments\":\"\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{\\\"q\\\":\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"\\\"f\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"i\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"eld\\\"}\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"tool_calls\"}]}\n\n",
+				"data: {\"id\":\"chatcmpl-564ece5355012615\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[],\"usage\":{\"prompt_tokens\":973,\"completion_tokens\":3,\"total_tokens\":976,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":108}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "river river"
+			},
+			{
+				"type": "text",
+				"text": "north north"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_835484630b8e",
+				"name": "lookup",
+				"arguments": {
+					"q": "field"
+				}
+			}
+		],
+		"usage": {
+			"input": 865,
+			"output": 3,
+			"cacheRead": 0,
+			"cacheWrite": 108
+		},
+		"responseId": "chatcmpl-564ece5355012615"
+	}
+}

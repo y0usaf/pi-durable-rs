@@ -1,0 +1,178 @@
+{
+	"name": "openai-completions-0014",
+	"seed": "36725c4e9141b5b6",
+	"api": "openai-completions",
+	"provider": "cerebras",
+	"model": {
+		"id": "o3-mini",
+		"name": "o3-mini",
+		"api": "openai-completions",
+		"provider": "cerebras",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.5,
+			"output": 0.25,
+			"cacheRead": 0,
+			"cacheWrite": 3.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000,
+		"compat": {
+			"cacheControlFormat": "anthropic"
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp north stone",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "river cloud cloud quiet lamp river",
+						"thinkingSignature": "561bb10055dbf4cf347e0939b427dc41"
+					},
+					{
+						"type": "text",
+						"text": "north lamp north"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "cerebras",
+				"model": "o3-mini",
+				"usage": {
+					"input": 341,
+					"output": 138,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 479,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "stone alpha",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "👩‍💻 stone stone 𐐷",
+						"thinkingSignature": "4691bbaf74f068f8dff73eb3511a8e8d"
+					},
+					{
+						"type": "text",
+						"text": "👩‍💻 😀"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 862,
+					"output": 166,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 1028,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "héllo ñandú stone ñandú héllo Ωmega",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber field"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "cerebras",
+				"model": "o3-mini",
+				"usage": {
+					"input": 707,
+					"output": 129,
+					"cacheRead": 355,
+					"cacheWrite": 0,
+					"totalTokens": 1191,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "river lamp quiet alpha"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-d93af93fe0c0",
+		"maxTokens": 1024,
+		"temperature": 1,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-86c7e745a8743262\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-86c7e745a8743262\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"amber \"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-86c7e745a8743262\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"north cloud cloud qui\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-86c7e745a8743262\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"et Привет 漢字 café\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-86c7e745a8743262\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":322,\"completion_tokens\":106,\"total_tokens\":428,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

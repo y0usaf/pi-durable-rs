@@ -1,0 +1,164 @@
+{
+	"name": "anthropic-messages-0022",
+	"seed": "7799a07572326bd6",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-3-5-haiku-20241022",
+		"name": "claude-3-5-haiku-20241022",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.75,
+			"output": 14.25,
+			"cacheRead": 0,
+			"cacheWrite": 1.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "alpha north field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "north amber cloud lamp amber lamp quiet stone alpha",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud cloud seven cloud stone north alpha quiet"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 24,
+					"output": 207,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 231,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "漢字 field cloud",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north quiet"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 768,
+					"output": 65,
+					"cacheRead": 0,
+					"cacheWrite": 12,
+					"totalTokens": 845,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha north amber 👩‍💻"
+					}
+				],
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ad590400cbc1",
+		"toolChoice": "none",
+		"headers": {
+			"x-parity-test": "4d6732"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_fde292f299eb9625\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-5-haiku-20241022\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":100,\"output_tokens\":1,\"cache_read_input_tokens\":169,\"cache_creation_input_tokens\":0}}}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"thinking\",\"thinking\":\"\",\"signature\":\"\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"north nor\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"th stone amb\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"er lamp stone\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"signature_delta\",\"signature\":\"5144c454888cc08f1a2048718bcc2d9d590a89e4\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":1,\"content_block\":{\"type\":\"tool_use\",\"id\":\"call_c699291f457e\",\"name\":\"lookup\",\"input\":{}}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\"{\\\"q\\\":\\\"amber\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\" \"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\"quiet\\\"}\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":1}\n\n",
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"tool_use\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":112}}\n\n",
+				"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "north north stone amber lamp stone"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_c699291f457e",
+				"name": "lookup",
+				"arguments": {
+					"q": "amber quiet"
+				}
+			}
+		],
+		"usage": {
+			"input": 100,
+			"output": 112,
+			"cacheRead": 169,
+			"cacheWrite": 0
+		},
+		"responseId": "msg_fde292f299eb9625"
+	}
+}

@@ -1,0 +1,245 @@
+{
+	"name": "anthropic-messages-0014",
+	"seed": "09d30aff253e1dd2",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-haiku-4-5",
+		"name": "claude-haiku-4-5",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 2.5,
+			"cacheRead": 0.25,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "cloud river seven amber north",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "cloud quiet Ωmega north",
+						"thinkingSignature": "1af0bdf70422d7cc3f48e46319950e3f"
+					},
+					{
+						"type": "text",
+						"text": "café cloud ñandú river river ñandú Привет"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_86ca6c6294",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-haiku-4-5",
+				"usage": {
+					"input": 764,
+					"output": 253,
+					"cacheRead": 411,
+					"cacheWrite": 0,
+					"totalTokens": 1428,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_86ca6c6294",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone quiet field north north north"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone cloud lamp lamp quiet seven north cloud"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_85cf469efa",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 31,
+					"output": 252,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 283,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_85cf469efa",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet quiet Привет north ñandú café"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_189de978b6",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-haiku-4-5",
+				"usage": {
+					"input": 499,
+					"output": 63,
+					"cacheRead": 159,
+					"cacheWrite": 0,
+					"totalTokens": 721,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_189de978b6",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "漢字 cloud cloud field lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-049ec255bc92",
+		"cacheRetention": "none",
+		"maxTokens": 256,
+		"headers": {
+			"x-parity-test": "014cb1"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_27c0fd0594094082\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-haiku-4-5\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":510,\"output_tokens\":1,\"cache_read_input_tokens\":56,\"cache_creation_input_tokens\":0}}}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"tool_use\",\"id\":\"call_8e629c934a0a\",\"name\":\"noop\",\"input\":{}}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\"{\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\"}\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":1,\"content_block\":{\"type\":\"tool_use\",\"id\":\"call_4579f10706b3\",\"name\":\"noop\",\"input\":{}}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\"{\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\"}\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":1}\n\n",
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"tool_use\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":170}}\n\n",
+				"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "toolCall",
+				"id": "call_8e629c934a0a",
+				"name": "noop",
+				"arguments": {}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_4579f10706b3",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 510,
+			"output": 170,
+			"cacheRead": 56,
+			"cacheWrite": 0
+		},
+		"responseId": "msg_27c0fd0594094082"
+	}
+}

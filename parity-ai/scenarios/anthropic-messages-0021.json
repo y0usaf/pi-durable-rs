@@ -1,0 +1,155 @@
+{
+	"name": "anthropic-messages-0021",
+	"seed": "7e986c3240f2ddaf",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-haiku-4-5",
+		"name": "claude-haiku-4-5",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5,
+			"output": 11.75,
+			"cacheRead": 0.625,
+			"cacheWrite": 4
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "quiet field stone cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "north seven quiet 🇯🇵 🦀 river",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_342974e252",
+						"name": "count_items",
+						"arguments": {
+							"n": 94,
+							"flag": true
+						}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-haiku-4-5",
+				"usage": {
+					"input": 624,
+					"output": 38,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 662,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_342974e252",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp cloud quiet"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": "alpha quiet seven lamp quiet alpha amber quiet",
+				"timestamp": 1700000004000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-969d49725d98",
+		"headers": {
+			"x-parity-test": "83c83a"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 404,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"quiet seven\"}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

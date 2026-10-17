@@ -1,0 +1,203 @@
+{
+	"name": "openai-completions-0017",
+	"seed": "e374ff441d0701d3",
+	"api": "openai-completions",
+	"provider": "deepseek",
+	"model": {
+		"id": "llama-3.3-70b",
+		"name": "llama-3.3-70b",
+		"api": "openai-completions",
+		"provider": "deepseek",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 3.25,
+			"output": 14.75,
+			"cacheRead": 0.625,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsMidConvoToolAdditions": true
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha alpha cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven 🇯🇵 seven amber seven alpha field"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "deepseek",
+				"model": "llama-3.3-70b",
+				"usage": {
+					"input": 288,
+					"output": 56,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 344,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "𝄞 amber 🇯🇵 lamp lamp north cloud north",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "river seven stone alpha quiet lamp"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 284,
+					"output": 224,
+					"cacheRead": 78,
+					"cacheWrite": 97,
+					"totalTokens": 683,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp naïve lamp lamp"
+					}
+				],
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-48e8f485d5e8",
+		"reasoning": "high",
+		"cacheRetention": "long",
+		"temperature": 1,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"north \\ud801\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\\udc37 cl\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ou\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"d\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"call_1224fbb0327f\",\"type\":\"function\",\"function\":{\"name\":\"count_items\",\"arguments\":\"\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{\\\"n\\\":\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"7,\\\"flag\\\":fa\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"lse}\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"id\":\"call_2be1e3434110\",\"type\":\"function\",\"function\":{\"name\":\"count_items\",\"arguments\":\"\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"{\\\"\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"n\\\":38,\\\"flag\\\":false}\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"tool_calls\"}]}\n\n",
+				"data: {\"id\":\"chatcmpl-e2340c01bf395f75\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"llama-3.3-70b\",\"choices\":[],\"usage\":{\"prompt_tokens\":839,\"completion_tokens\":283,\"total_tokens\":1122,\"prompt_tokens_details\":{\"cached_tokens\":492,\"cache_write_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "north 𐐷 cloud"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_1224fbb0327f",
+				"name": "count_items",
+				"arguments": {
+					"n": 7,
+					"flag": false
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_2be1e3434110",
+				"name": "count_items",
+				"arguments": {
+					"n": 38,
+					"flag": false
+				}
+			}
+		],
+		"usage": {
+			"input": 347,
+			"output": 283,
+			"cacheRead": 492,
+			"cacheWrite": 0
+		},
+		"responseId": "chatcmpl-e2340c01bf395f75"
+	}
+}

@@ -1,0 +1,234 @@
+{
+	"name": "anthropic-messages-0016",
+	"seed": "91610bc1e4ccc964",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-haiku-4-5",
+		"name": "claude-haiku-4-5",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3.25,
+			"output": 10.75,
+			"cacheRead": 0.25,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "alpha stone lamp stone amber stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_49e911e108",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"quiet stone alpha",
+								"quiet",
+								"lamp seven river"
+							]
+						}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-haiku-4-5",
+				"usage": {
+					"input": 276,
+					"output": 77,
+					"cacheRead": 0,
+					"cacheWrite": 156,
+					"totalTokens": 509,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_49e911e108",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber north lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "ñandú"
+					}
+				],
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud 漢字 amber river 漢字 alpha Ωmega seven"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_f50f9db99f",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"Привет Grüße",
+								"seven",
+								"quiet river quiet"
+							]
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 764,
+					"output": 5,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 769,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_f50f9db99f",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp field field stone amber"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha seven lamp amber quiet"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-b05f01d2a1b6",
+		"cacheRetention": "short",
+		"sessionId": "session-8835a194",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_7497038913c51850\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-haiku-4-5\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":144,\"output_tokens\":1,\"cache_read_input_tokens\":0,\"cache_creation_input_tokens\":124}}}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"text\",\"text\":\"\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"漢字 héllo Привет alpha Ωmega\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n",
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":9}}\n\n",
+				"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "漢字 héllo Привет alpha Ωmega"
+			}
+		],
+		"usage": {
+			"input": 144,
+			"output": 9,
+			"cacheRead": 0,
+			"cacheWrite": 124
+		},
+		"responseId": "msg_7497038913c51850"
+	}
+}

@@ -1,0 +1,98 @@
+{
+	"name": "openai-completions-0005",
+	"seed": "c623c487eed54fc0",
+	"api": "openai-completions",
+	"provider": "zai",
+	"model": {
+		"id": "deepseek-chat",
+		"name": "deepseek-chat",
+		"api": "openai-completions",
+		"provider": "zai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7.25,
+			"output": 8.25,
+			"cacheRead": 0.75,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "cloud alpha amber north",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ade953f6886b",
+		"reasoning": "medium",
+		"cacheRetention": "long",
+		"headers": {
+			"x-parity-test": "bc4446"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 500,
+			"headers": {
+				"content-type": "text/plain"
+			},
+			"chunks": [
+				"lamp quiet lamp alpha field"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

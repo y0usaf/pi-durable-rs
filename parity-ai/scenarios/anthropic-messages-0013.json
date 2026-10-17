@@ -1,0 +1,217 @@
+{
+	"name": "anthropic-messages-0013",
+	"seed": "6f42be0d3d29e353",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-3-5-haiku-20241022",
+		"name": "claude-3-5-haiku-20241022",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.75,
+			"output": 7,
+			"cacheRead": 0.25,
+			"cacheWrite": 2.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"allowEmptySignature": true,
+			"forceAdaptiveThinking": true,
+			"supportsStrictTools": false
+		}
+	},
+	"context": {
+		"systemPrompt": "north seven",
+		"messages": [
+			{
+				"role": "user",
+				"content": "cloud quiet amber seven cloud river river alpha lamp seven",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone stone stone lamp cloud stone"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_773b4b64c8",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 5,
+								"h": 2.5
+							}
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 365,
+					"output": 62,
+					"cacheRead": 410,
+					"cacheWrite": 0,
+					"totalTokens": 837,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_773b4b64c8",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": "river",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud stone alpha quiet cloud"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_dea2896989",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 4,
+								"h": 1
+							}
+						}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-3-5-haiku-20241022",
+				"usage": {
+					"input": 543,
+					"output": 67,
+					"cacheRead": 28,
+					"cacheWrite": 0,
+					"totalTokens": 638,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_dea2896989",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "Grüße Ωmega lamp stone"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-52d0863dc667",
+		"cacheRetention": "long",
+		"toolChoice": "auto",
+		"headers": {
+			"x-parity-test": "a3520b"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_845632d88bc71e87\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-5-haiku-20241022\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":524,\"output_tokens\":1,\"cache_read_input_tokens\":0,\"cache_creation_input_tokens\":0}}}\n\nevent: ",
+				"message_delta\ndata: {\"type\":\"message_delta\"",
+				",\"delta\":{\"stop_reason\":\"end_",
+				"turn\",\"sto",
+				"p_sequence\":null},\"usage\":{\"output_tokens\":79}}\n\nevent: message_stop\ndata: {\"type\":",
+				"\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 524,
+			"output": 79,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "msg_845632d88bc71e87"
+	}
+}

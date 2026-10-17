@@ -1,0 +1,309 @@
+{
+	"name": "openai-completions-0009",
+	"seed": "bd7f1f1fde6e565a",
+	"api": "openai-completions",
+	"provider": "cerebras",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "openai-completions",
+		"provider": "cerebras",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 1.75,
+			"output": 5.75,
+			"cacheRead": 1,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "alpha Ωmega héllo naïve stone north",
+		"messages": [
+			{
+				"role": "user",
+				"content": "river amber quiet river amber alpha river quiet",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber café ñandú seven Привет"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_c9914a34c4",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"alpha",
+								"cloud Привет cloud"
+							]
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_75fd65817e",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 7,
+								"h": 4.5
+							}
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 58,
+					"output": 195,
+					"cacheRead": 180,
+					"cacheWrite": 0,
+					"totalTokens": 433,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_c9914a34c4",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone north north"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_75fd65817e",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻 🇯🇵 lamp 𐐷 alpha"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_6e4d66ccac",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 9,
+								"h": 1
+							}
+						}
+					}
+				],
+				"api": "openai-completions",
+				"provider": "cerebras",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 255,
+					"output": 2,
+					"cacheRead": 0,
+					"cacheWrite": 144,
+					"totalTokens": 401,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_6e4d66ccac",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "Grüße field seven"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha field cloud cloud quiet seven"
+					}
+				],
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_540c2d5d05",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 6,
+								"h": 1.5
+							}
+						}
+					}
+				],
+				"api": "openai-completions",
+				"provider": "cerebras",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 798,
+					"output": 177,
+					"cacheRead": 414,
+					"cacheWrite": 0,
+					"totalTokens": 1389,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000008000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_540c2d5d05",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "Grüße stone ñandú Привет river 漢字"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000009000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber cloud quiet seven"
+					}
+				],
+				"timestamp": 1700000010000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-a1eec5f564be",
+		"cacheRetention": "short",
+		"temperature": 0.9,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-bc5f6a6e930ad26f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-bc5f6a6e930ad26f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"🇯🇵 👩‍💻 lamp\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-bc5f6a6e930ad26f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" riv\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-bc5f6a6e930ad26f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"e\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-bc5f6a6e930ad26f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"r\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-bc5f6a6e930ad26f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}\n\n",
+				"data: {\"id\":\"chatcmpl-bc5f6a6e930ad26f\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":311,\"completion_tokens\":64,\"total_tokens\":375,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "🇯🇵 👩‍💻 lamp river"
+			}
+		],
+		"usage": {
+			"input": 311,
+			"output": 64,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "chatcmpl-bc5f6a6e930ad26f"
+	}
+}

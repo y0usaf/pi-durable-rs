@@ -1,0 +1,135 @@
+{
+	"name": "openai-completions-0000",
+	"seed": "d4246284c1ae4e16",
+	"api": "openai-completions",
+	"provider": "openrouter",
+	"model": {
+		"id": "o3-mini",
+		"name": "o3-mini",
+		"api": "openai-completions",
+		"provider": "openrouter",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 5.5,
+			"output": 13.25,
+			"cacheRead": 0.625,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "lamp seven cloud stone Ωmega cloud field stone héllo",
+		"messages": [
+			{
+				"role": "user",
+				"content": "cloud cloud quiet",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-b111ca483df6",
+		"cacheRetention": "none",
+		"maxTokens": 4096,
+		"toolChoice": "auto",
+		"sessionId": "session-4463bb2d",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-687810f11e401bec\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-687810f11e401bec\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"north stone cloud stone\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-687810f11e401bec\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" river quiet\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-687810f11e401bec\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" river \"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-687810f11e401bec\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"seven\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-687810f11e401bec\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}\n\n",
+				"data: {\"id\":\"chatcmpl-687810f11e401bec\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":602,\"completion_tokens\":46,\"total_tokens\":648,\"prompt_tokens_details\":{\"cached_tokens\":272,\"cache_write_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "north stone cloud stone river quiet river seven"
+			}
+		],
+		"usage": {
+			"input": 330,
+			"output": 46,
+			"cacheRead": 272,
+			"cacheWrite": 0
+		},
+		"responseId": "chatcmpl-687810f11e401bec"
+	}
+}

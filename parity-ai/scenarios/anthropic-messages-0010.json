@@ -1,0 +1,200 @@
+{
+	"name": "anthropic-messages-0010",
+	"seed": "c54fe936875ac908",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-3-5-haiku-20241022",
+		"name": "claude-3-5-haiku-20241022",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7.5,
+			"output": 10.25,
+			"cacheRead": 0.5,
+			"cacheWrite": 2.5
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsMidConvoToolChanges": false
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "field lamp",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "cloud cloud lamp lamp field",
+						"thinkingSignature": ""
+					},
+					{
+						"type": "text",
+						"text": "stone lamp lamp"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-3-5-haiku-20241022",
+				"usage": {
+					"input": 538,
+					"output": 232,
+					"cacheRead": 167,
+					"cacheWrite": 0,
+					"totalTokens": 937,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "quiet stone seven field quiet",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "5d6c9c8450146bd6698e1bfa",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "seven river seven field lamp"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-3-5-haiku-20241022",
+				"usage": {
+					"input": 454,
+					"output": 11,
+					"cacheRead": 0,
+					"cacheWrite": 85,
+					"totalTokens": 550,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp Grüße café naïve"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north seven cloud quiet lamp north"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 378,
+					"output": 148,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 526,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven cloud seven seven seven"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-e2dffdf1f885",
+		"reasoning": "low",
+		"headers": {
+			"x-parity-test": "4cc3a3"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_de1962810a8b8545\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-5-haiku-20241022\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":365,\"output_tokens\":1,\"cache_read_input_tokens\":0,\"cache_creation_input_tokens\":79}}}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"text\",\"text\":\"\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"amber amber cloud north lamp lamp \"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"stone\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n",
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":213}}\n\n",
+				"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "amber amber cloud north lamp lamp stone"
+			}
+		],
+		"usage": {
+			"input": 365,
+			"output": 213,
+			"cacheRead": 0,
+			"cacheWrite": 79
+		},
+		"responseId": "msg_de1962810a8b8545"
+	}
+}

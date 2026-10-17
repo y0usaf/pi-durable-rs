@@ -1,0 +1,85 @@
+{
+	"name": "anthropic-messages-0012",
+	"seed": "8a7c7830acd31786",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-haiku-4-5",
+		"name": "claude-haiku-4-5",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 12,
+			"cacheRead": 0.875,
+			"cacheWrite": 0
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000,
+		"compat": {
+			"allowEmptySignature": false
+		}
+	},
+	"context": {
+		"systemPrompt": "amber north river amber cloud seven river quiet lamp stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": "north alpha north amber lamp quiet",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-51e4739fee3d",
+		"reasoning": "low",
+		"cacheRetention": "long",
+		"maxTokens": 4096,
+		"sessionId": "session-fd58ae6c",
+		"headers": {
+			"x-parity-test": "7fd8a0"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_bbf7b206e9f04b77\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-haiku-4-5\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":792,\"output_tokens\":1,\"cache_read_input_tokens\":0,\"cache_creation_input_tokens\":0}}}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"thinking\",\"thinking\":\"\",\"signature\":\"\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"𐐷 amber 🇯🇵 𝄞 fiel\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"d lamp\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"signature_delta\",\"signature\":\"50cca6af7917d55f5d059105f2e9d25f3aab6671\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n",
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":110}}\n\n",
+				"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "𐐷 amber 🇯🇵 𝄞 field lamp"
+			}
+		],
+		"usage": {
+			"input": 792,
+			"output": 110,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "msg_bbf7b206e9f04b77"
+	}
+}

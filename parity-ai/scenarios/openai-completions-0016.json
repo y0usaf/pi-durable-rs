@@ -1,0 +1,66 @@
+{
+	"name": "openai-completions-0016",
+	"seed": "91da23628253ab79",
+	"api": "openai-completions",
+	"provider": "xai",
+	"model": {
+		"id": "gpt-4o-mini",
+		"name": "gpt-4o-mini",
+		"api": "openai-completions",
+		"provider": "xai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.25,
+			"output": 13,
+			"cacheRead": 0.75,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000,
+		"compat": {
+			"requiresAssistantAfterToolResult": true
+		}
+	},
+	"context": {
+		"systemPrompt": "alpha lamp river",
+		"messages": [
+			{
+				"role": "user",
+				"content": "Grüße alpha Grüße naïve quiet north quiet Grüße naïve",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-e9047e907efd",
+		"reasoning": "low",
+		"temperature": 0.6,
+		"headers": {
+			"x-parity-test": "3c727c"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-f1ca334781881098\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-f1ca334781881098\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"🦀 👩‍💻 alpha 🇯\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-f1ca334781881098\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,",
+				"\"delta\":{\"content\":\"🇵 north 👩‍💻\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-f1ca334781881098\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":831,\"completio",
+				"n_tokens\":84,\"total_tokens\":915,\"prompt_tokens_details\":{\"cached_tokens\":412,\"cache_write_tokens\":80}}}\n",
+				"\ndata: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

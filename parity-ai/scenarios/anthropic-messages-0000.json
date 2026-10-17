@@ -1,0 +1,124 @@
+{
+	"name": "anthropic-messages-0000",
+	"seed": "cd873594a53baec7",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-opus-4-6",
+		"name": "claude-opus-4-6",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 7.25,
+			"output": 9.75,
+			"cacheRead": 1,
+			"cacheWrite": 3
+		},
+		"contextWindow": 200000,
+		"maxTokens": 64000,
+		"compat": {
+			"allowEmptySignature": false
+		}
+	},
+	"context": {
+		"systemPrompt": "seven lamp field lamp quiet quiet river cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-1a999997a6ac",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_865b07e1d2f8467e\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-opus-4-6\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":523,\"output_tokens\":1,\"cache_read_input_tokens\":345,\"cache_creation_input_tokens\":0}}}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"text\",\"text\":\"\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"river héllo field quiet lamp \"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"stone amber 漢字 Привет river\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":1,\"content_block\":{\"type\":\"tool_use\",\"id\":\"call_ebbb4500f64a\",\"name\":\"tag_list\",\"input\":{}}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":1,\"delta\":{\"type\":\"input_json_delta\",\"partial_json\":\"{\\\"items\\\":[\\\"amber\\\",\\\"ñandú\\\"]}\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":1}\n\n",
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"tool_use\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":137}}\n\n",
+				"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "river héllo field quiet lamp stone amber 漢字 Привет river"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_ebbb4500f64a",
+				"name": "tag_list",
+				"arguments": {
+					"items": [
+						"amber",
+						"ñandú"
+					]
+				}
+			}
+		],
+		"usage": {
+			"input": 523,
+			"output": 137,
+			"cacheRead": 345,
+			"cacheWrite": 0
+		},
+		"responseId": "msg_865b07e1d2f8467e"
+	}
+}
