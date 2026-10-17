@@ -1,0 +1,118 @@
+{
+	"name": "openai-responses-0021",
+	"seed": "e8751b93c005e9bd",
+	"api": "openai-responses",
+	"provider": "openai",
+	"model": {
+		"id": "grok-4",
+		"name": "grok-4",
+		"api": "openai-responses",
+		"provider": "openai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.25,
+			"output": 4.75,
+			"cacheRead": 0.375,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsOpenAIGrammarTools": false
+		}
+	},
+	"context": {
+		"systemPrompt": "seven alpha river seven seven cloud north quiet alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven amber"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ce7faea2a6eb",
+		"maxTokens": 4096,
+		"toolChoice": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 500,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"river quiet stone amber\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

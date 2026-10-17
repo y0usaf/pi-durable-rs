@@ -1,0 +1,236 @@
+{
+	"name": "openai-responses-0008",
+	"seed": "3eaeedf79fb70d43",
+	"api": "openai-responses",
+	"provider": "openrouter",
+	"model": {
+		"id": "gpt-4.1",
+		"name": "gpt-4.1",
+		"api": "openai-responses",
+		"provider": "openrouter",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7,
+			"output": 12,
+			"cacheRead": 0.75,
+			"cacheWrite": 1.5
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "cloud lamp amber cloud field Ωmega",
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp quiet alpha field north stone river river amber",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud lamp 𝄞"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 695,
+					"output": 144,
+					"cacheRead": 142,
+					"cacheWrite": 87,
+					"totalTokens": 1068,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north seven quiet north north"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_e6a2c94389",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 9,
+								"h": 3.5
+							}
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_10a5b4eb6e",
+						"name": "count_items",
+						"arguments": {
+							"n": 80,
+							"flag": false
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "gpt-4.1",
+				"usage": {
+					"input": 229,
+					"output": 89,
+					"cacheRead": 497,
+					"cacheWrite": 0,
+					"totalTokens": 815,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_e6a2c94389",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "north stone seven north alpha"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_10a5b4eb6e",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber river quiet"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-be5a7d000dec",
+		"reasoning": "high",
+		"temperature": 0.6,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\"",
+				":\"resp_026bc44db864f2e4\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-4.1\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.completed\ndata: {\"type\":\"respons",
+				"e.completed\",\"sequence_number\":1,\"res",
+				"ponse\":{\"id\":\"resp_026bc44db864f2e4\",\"object\":\"r",
+				"esponse\",\"created_at\":0,\"model\":\"gpt-4.1\",\"output\":[],\"status",
+				"\":\"completed\",\"usage\":{\"input_tokens\":579,\"output_tokens\":294,\"total_tokens\":873,\"input_tokens_details\":{\"cached_token",
+				"s\":0},\"output_token",
+				"s_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 579,
+			"output": 294,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_026bc44db864f2e4"
+	}
+}

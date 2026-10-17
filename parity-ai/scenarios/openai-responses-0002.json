@@ -1,0 +1,229 @@
+{
+	"name": "openai-responses-0002",
+	"seed": "2edb6f05727cc3a3",
+	"api": "openai-responses",
+	"provider": "openrouter",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "openai-responses",
+		"provider": "openrouter",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4,
+			"output": 1.75,
+			"cacheRead": 0.125,
+			"cacheWrite": 2.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "cloud cloud lamp cloud café café lamp river naïve field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "field 🦀 lamp stone 😀 alpha",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "amber cloud lamp seven seven"
+					},
+					{
+						"type": "text",
+						"text": "cloud north stone quiet stone river"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "o4-mini",
+				"usage": {
+					"input": 590,
+					"output": 89,
+					"cacheRead": 420,
+					"cacheWrite": 0,
+					"totalTokens": 1099,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "field",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha alpha 漢字 seven cloud"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "o4-mini",
+				"usage": {
+					"input": 69,
+					"output": 260,
+					"cacheRead": 0,
+					"cacheWrite": 17,
+					"totalTokens": 346,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp seven seven field north cloud amber"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "o4-mini",
+				"usage": {
+					"input": 739,
+					"output": 27,
+					"cacheRead": 106,
+					"cacheWrite": 0,
+					"totalTokens": 872,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "river 🦀 north lamp"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-da885684d993",
+		"sessionId": "session-6933de33",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"se",
+				"quence_number\":0,\"response\":{\"id\"",
+				":\"resp_5e26421cd91e61",
+				"8c\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"out",
+				"put\":[],\"status\":\"in_progress\"}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

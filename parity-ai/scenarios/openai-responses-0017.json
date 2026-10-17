@@ -1,0 +1,206 @@
+{
+	"name": "openai-responses-0017",
+	"seed": "ed5379d3cc5f6cb5",
+	"api": "openai-responses",
+	"provider": "openai",
+	"model": {
+		"id": "gpt-4.1",
+		"name": "gpt-4.1",
+		"api": "openai-responses",
+		"provider": "openai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 3.25,
+			"output": 2.25,
+			"cacheRead": 0.875,
+			"cacheWrite": 1
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096,
+		"compat": {
+			"sessionAffinityFormat": "openai",
+			"supportsAdditionalTools": false,
+			"supportsDeveloperRole": false
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp stone seven lamp stone quiet field",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud field"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-4.1",
+				"usage": {
+					"input": 95,
+					"output": 139,
+					"cacheRead": 357,
+					"cacheWrite": 0,
+					"totalTokens": 591,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field alpha field"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "stone river seven field",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_6b1d7f93b6fe571a\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"stone river seven field\"}],\"encrypted_content\":\"6b1d7f93b6fe571a3fff9c0c0ee1ca6e\"}"
+					},
+					{
+						"type": "text",
+						"text": "quiet field north lamp stone quiet"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-4.1",
+				"usage": {
+					"input": 565,
+					"output": 90,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 655,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet Ωmega"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber quiet river alpha north stone north"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 583,
+					"output": 208,
+					"cacheRead": 151,
+					"cacheWrite": 0,
+					"totalTokens": 942,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north stone river stone"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-48d681f46f4d",
+		"cacheRetention": "none",
+		"maxTokens": 4096,
+		"toolChoice": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_2d1f1d6e803b0ec8\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-4.1\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_2d1f1d6e803b0ec80\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_2d1f1d6e803b0ec80\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_2d1f1d6e803b0ec80\",\"output_index\":0,\"content_index\":0,\"delta\":\"cloud river 𐐷 alpha 𐐷 alpha 🦀 amber\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":4,\"item_id\":\"msg_2d1f1d6e803b0ec80\",\"output_index\":0,\"content_index\":0,\"text\":\"cloud river 𐐷 alpha 𐐷 alpha 🦀 amber\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":5,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_2d1f1d6e803b0ec80\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"cloud river 𐐷 alpha 𐐷 alpha 🦀 amber\",\"annotations\":[]}]}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":6,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_e78ea6395bd0\",\"call_id\":\"call_e78ea6395bd0\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":7,\"item_id\":\"fc_e78ea6395bd0\",\"output_index\":1,\"delta\":\"{\\\"q\\\":\\\"lamp quiet 👩‍💻\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":8,\"item_id\":\"fc_e78ea6395bd0\",\"output_index\":1,\"delta\":\"\\\"\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":9,\"item_id\":\"fc_e78ea6395bd0\",\"output_index\":1,\"delta\":\"}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":10,\"item_id\":\"fc_e78ea6395bd0\",\"output_index\":1,\"arguments\":\"{\\\"q\\\":\\\"lamp quiet 👩‍💻\\\"}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":11,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_e78ea6395bd0\",\"call_id\":\"call_e78ea6395bd0\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"lamp quiet 👩‍💻\\\"}\",\"status\":\"completed\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":12,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_252e7b35ced3\",\"call_id\":\"call_252e7b35ced3\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":13,\"item_id\":\"fc_252e7b35ced3\",\"output_index\":2,\"delta\":\"{\\\"q\\\":\\\"stone quiet 𐐷\\\"}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":14,\"item_id\":\"fc_252e7b35ced3\",\"output_index\":2,\"arguments\":\"{\\\"q\\\":\\\"stone quiet 𐐷\\\"}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":15,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_252e7b35ced3\",\"call_id\":\"call_252e7b35ced3\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"stone quiet 𐐷\\\"}\",\"status\":\"completed\"}}\n\n",
+				"event: error\ndata: {\"type\":\"error\",\"sequence_number\":16,\"code\":\"server_error\",\"message\":\"Upstream overloaded\",\"param\":null}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

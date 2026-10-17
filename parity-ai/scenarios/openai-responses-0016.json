@@ -1,0 +1,235 @@
+{
+	"name": "openai-responses-0016",
+	"seed": "05617669815c77b6",
+	"api": "openai-responses",
+	"provider": "openrouter",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "openai-responses",
+		"provider": "openrouter",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.75,
+			"output": 1,
+			"cacheRead": 0,
+			"cacheWrite": 1
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsExplicitPromptCacheMode": true,
+			"supportsStrictMode": true
+		}
+	},
+	"context": {
+		"systemPrompt": "alpha field river amber stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud cloud field quiet river"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "amber stone lamp Привет"
+					},
+					{
+						"type": "text",
+						"text": "stone alpha naïve"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "o4-mini",
+				"usage": {
+					"input": 817,
+					"output": 178,
+					"cacheRead": 162,
+					"cacheWrite": 63,
+					"totalTokens": 1220,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north 漢字 漢字"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud stone river"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 438,
+					"output": 166,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 604,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "amber amber quiet amber",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "lamp alpha north quiet",
+						"thinkingSignature": "a58e2f2ddbe95306ffcf3d0ddc148729"
+					},
+					{
+						"type": "text",
+						"text": "quiet lamp field seven north"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 91,
+					"output": 294,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 385,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "river field stone lamp lamp quiet field quiet",
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-7c698a901587",
+		"reasoning": "high",
+		"cacheRetention": "none",
+		"sessionId": "session-e344e07b",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_a658f5a9c017b1fe\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_a658f5a9c017b1fe0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_a658f5a9c017b1fe0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_a658f5a9c017b1fe0\",\"output_index\":0,\"content_index\":0,\"delta\":\"al\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_a658f5a9c017b1fe0\",\"output_index\":0,\"content_index\":0,\"delta\":\"p\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_a658f5a9c017b1fe0\",\"output_index\":0,\"content_index\":0,\"delta\":\"ha\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":6,\"item_id\":\"msg_a658f5a9c017b1fe0\",\"output_index\":0,\"content_index\":0,\"delta\":\" amber lamp stone\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":7,\"item_id\":\"msg_a658f5a9c017b1fe0\",\"output_index\":0,\"content_index\":0,\"text\":\"alpha amber lamp stone\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":8,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_a658f5a9c017b1fe0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"alpha amber lamp stone\",\"annotations\":[]}]}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":9,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_7acf81997476\",\"call_id\":\"call_7acf81997476\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":10,\"item_id\":\"fc_7acf81997476\",\"output_index\":1,\"delta\":\"{\\\"q\\\":\\\"\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":11,\"item_id\":\"fc_7acf81997476\",\"output_index\":1,\"delta\":\"nort\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":12,\"item_id\":\"fc_7acf81997476\",\"output_index\":1,\"delta\":\"h\\\"}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":13,\"item_id\":\"fc_7acf81997476\",\"output_index\":1,\"arguments\":\"{\\\"q\\\":\\\"north\\\"}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":14,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_7acf81997476\",\"call_id\":\"call_7acf81997476\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"north\\\"}\",\"status\":\"completed\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":15,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_8cca3fe343f2\",\"call_id\":\"call_8cca3fe343f2\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":16,\"item_id\":\"fc_8cca3fe343f2\",\"output_index\":2,\"delta\":\"{\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":17,\"item_id\":\"fc_8cca3fe343f2\",\"output_index\":2,\"delta\":\"\\\"q\\\":\\\"a\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":18,\"item_id\":\"fc_8cca3fe343f2\",\"output_index\":2,\"delta\":\"lpha\\\"}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":19,\"item_id\":\"fc_8cca3fe343f2\",\"output_index\":2,\"arguments\":\"{\\\"q\\\":\\\"alpha\\\"}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":20,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_8cca3fe343f2\",\"call_id\":\"call_8cca3fe343f2\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"alpha\\\"}\",\"status\":\"completed\"}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":21,\"response\":{\"id\":\"resp_a658f5a9c017b1fe\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[{\"type\":\"message\",\"id\":\"msg_a658f5a9c017b1fe0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"alpha amber lamp stone\",\"annotations\":[]}]},{\"type\":\"function_call\",\"id\":\"fc_7acf81997476\",\"call_id\":\"call_7acf81997476\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"north\\\"}\",\"status\":\"completed\"},{\"type\":\"function_call\",\"id\":\"fc_8cca3fe343f2\",\"call_id\":\"call_8cca3fe343f2\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"alpha\\\"}\",\"status\":\"completed\"}],\"status\":\"completed\",\"usage\":{\"input_tokens\":552,\"output_tokens\":285,\"total_tokens\":837,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "alpha amber lamp stone"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_7acf81997476|fc_7acf81997476",
+				"name": "lookup",
+				"arguments": {
+					"q": "north"
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_8cca3fe343f2|fc_8cca3fe343f2",
+				"name": "lookup",
+				"arguments": {
+					"q": "alpha"
+				}
+			}
+		],
+		"usage": {
+			"input": 552,
+			"output": 285,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_a658f5a9c017b1fe"
+	}
+}

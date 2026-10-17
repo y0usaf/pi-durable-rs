@@ -1,0 +1,86 @@
+{
+	"name": "openai-responses-0004",
+	"seed": "ca17ed8f53ce1720",
+	"api": "openai-responses",
+	"provider": "xai",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "openai-responses",
+		"provider": "xai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 7.25,
+			"output": 2,
+			"cacheRead": 0.875,
+			"cacheWrite": 2
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsLongCacheRetention": true
+		}
+	},
+	"context": {
+		"systemPrompt": "alpha héllo seven river",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha field field alpha"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-c106fe0cb206",
+		"temperature": 0.6,
+		"toolChoice": "none",
+		"sessionId": "session-582d7531",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_9cd3154020b4733d\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_9cd3154020b4733d0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_9cd3154020b4733d0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_9cd3154020b4733d0\",\"output_index\":0,\"content_index\":0,\"delta\":\"se\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_9cd3154020b4733d0\",\"output_index\":0,\"content_index\":0,\"delta\":\"ven lamp field stone 𐐷 amber 𝄞 river 👩\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_9cd3154020b4733d0\",\"output_index\":0,\"content_index\":0,\"delta\":\"‍💻\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_9cd3154020b4733d0\",\"output_index\":0,\"content_index\":0,\"text\":\"seven lamp field stone 𐐷 amber 𝄞 river 👩‍💻\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_9cd3154020b4733d0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven lamp field stone 𐐷 amber 𝄞 river 👩‍💻\",\"annotations\":[]}]}}\n\n",
+				"event: response.incomplete\ndata: {\"type\":\"response.incomplete\",\"sequence_number\":8,\"response\":{\"id\":\"resp_9cd3154020b4733d\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[{\"type\":\"message\",\"id\":\"msg_9cd3154020b4733d0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven lamp field stone 𐐷 amber 𝄞 river 👩‍💻\",\"annotations\":[]}]}],\"status\":\"incomplete\",\"incomplete_details\":{\"reason\":\"max_output_tokens\"},\"usage\":{\"input_tokens\":389,\"output_tokens\":242,\"total_tokens\":631,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "text",
+				"text": "seven lamp field stone 𐐷 amber 𝄞 river 👩‍💻"
+			}
+		],
+		"usage": {
+			"input": 389,
+			"output": 242,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_9cd3154020b4733d"
+	}
+}

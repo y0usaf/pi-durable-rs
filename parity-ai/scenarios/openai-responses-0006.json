@@ -1,0 +1,117 @@
+{
+	"name": "openai-responses-0006",
+	"seed": "384b39c08d7b2689",
+	"api": "openai-responses",
+	"provider": "openai",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "openai-responses",
+		"provider": "openai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.5,
+			"output": 10.75,
+			"cacheRead": 0.25,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsAdditionalTools": true,
+			"supportsMidConvoSystemMessages": true,
+			"supportsToolSearch": true
+		}
+	},
+	"context": {
+		"systemPrompt": "field stone alpha cloud lamp alpha cloud river lamp cloud field",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven stone seven north alpha"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "o4-mini",
+				"usage": {
+					"input": 740,
+					"output": 271,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 1011,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "lamp café quiet north amber naïve 漢字 漢字 漢字",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-5bfd8fc5316f",
+		"reasoning": "medium",
+		"headers": {
+			"x-parity-test": "a17263"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_d91c15aec0ed38f3\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_d91c15aec0ed38f30\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_d91c15aec0ed38f30\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_d91c15aec0ed38f30\",\"output_index\":0,\"content_index\":0,\"delta\":\"river river naïve ñandú alph\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_d91c15aec0ed38f30\",\"output_index\":0,\"content_index\":0,\"delta\":\"a cloud\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":5,\"item_id\":\"msg_d91c15aec0ed38f30\",\"output_index\":0,\"content_index\":0,\"text\":\"river river naïve ñandú alpha cloud\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":6,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_d91c15aec0ed38f30\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"river river naïve ñandú alpha cloud\",\"annotations\":[]}]}}\n\nevent: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":7,\"response\":{\"id\":\"resp_d91c15aec0ed38f3\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[{\"type\":\"me",
+				"ssage\",\"id\":\"msg_d91c15aec0ed38f30\",\"role\":\"assi",
+				"stant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"river river naïve ñandú alpha cloud\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":380,\"output_tokens\":113,\"total_tokens\":493,\"input_tokens_details\":{\"cached_tokens\":115},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "river river naïve ñandú alpha cloud"
+			}
+		],
+		"usage": {
+			"input": 265,
+			"output": 113,
+			"cacheRead": 115,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_d91c15aec0ed38f3"
+	}
+}
