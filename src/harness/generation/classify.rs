@@ -11,9 +11,10 @@ use crate::errors::{Error, Result};
 use crate::harness::compaction::{create_compaction, select_cut};
 use crate::harness::context::ContextView;
 use crate::harness::generation::{
-    GenerationCheckpoint, PartialHook, Runtime, append_assistant, edit_live, end_run, read_live,
-    write_live,
+    GenerationCheckpoint, PartialHook, Runtime, append_assistant, edit_live, fail_run, queue_modes,
+    read_live, write_live,
 };
+use crate::harness::inbox::prepare_boundary;
 use crate::harness::live::{DeferredStatus, GenerationStatus, RetryStatus};
 use crate::harness::types::{CompactionReason, HookApi, ModelRef};
 use crate::ids::{EntryId, TaskId};
@@ -309,8 +310,11 @@ pub fn classify(
     };
     let attempt = request.attempt;
     let compacted = request.compacted;
+    let modes = queue_modes(&settings);
+    let now = runtime.now();
     runtime.commit(
         Box::new(move |tx, _task| {
+            let mut boundary = prepare_boundary(tx, conversation_id, modes)?;
             append_assistant(tx, conversation_id, &message)?;
             if retry {
                 edit_live(tx, conversation_id, |live| {
@@ -339,14 +343,16 @@ pub fn classify(
                 )
             });
             let mut live = read_live(tx, conversation_id)?;
-            end_run(
+            fail_run(
                 tx,
+                &mut boundary,
                 &mut live,
                 task_id,
                 SubmissionSettlement::Unanswered {
                     reason: "model_error".to_owned(),
                     detail: Some(serde_json::Value::String(text.clone())),
                 },
+                now,
             )?;
             write_live(tx, conversation_id, &live)?;
             Ok(Some(NextTaskState::Terminal {
