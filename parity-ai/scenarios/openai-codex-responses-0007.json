@@ -1,0 +1,237 @@
+{
+	"name": "openai-codex-responses-0007",
+	"seed": "c0219cf1d1068d91",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.1-codex",
+		"name": "gpt-5.1-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 10.5,
+			"cacheRead": 0.5,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "north lamp cloud field cloud cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "👩‍💻",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha quiet amber river field"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 224,
+					"output": 198,
+					"cacheRead": 60,
+					"cacheWrite": 193,
+					"totalTokens": 675,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud cloud alpha field"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_398b8270a397c9f1\",\"summary\":[],\"encrypted_content\":\"398b8270a397c9f122078a27\"}",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "👩‍💻 😀 𐐷"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_aa6d2d3f50",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"𝄞 stone alpha"
+							]
+						}
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5.1-codex",
+				"usage": {
+					"input": 808,
+					"output": 18,
+					"cacheRead": 0,
+					"cacheWrite": 130,
+					"totalTokens": 956,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_aa6d2d3f50",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone north lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field amber cloud"
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5.1-codex",
+				"usage": {
+					"input": 184,
+					"output": 222,
+					"cacheRead": 0,
+					"cacheWrite": 150,
+					"totalTokens": 556,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "🦀 🦀 alpha 𐐷 cloud stone",
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF82M2ZhNmY5YWU1OGUifX0.sig",
+		"reasoning": "minimal",
+		"cacheRetention": "none",
+		"headers": {
+			"x-parity-test": "003ce4"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_1b07b29e8afe55bc\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.1-codex\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_1b07b29e8afe55bc0\",\"summary\":[]}}\n\n",
+				"event: response.reasoning_summary_part.added\ndata: {\"type\":\"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_1b07b29e8afe55bc0\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_1b07b29e8afe55bc0\",\"output_index\":0,\"summary_index\":0,\"delta\":\"north lamp north quiet stone stone\"}\n\n",
+				"event: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":4,\"item_id\":\"rs_1b07b29e8afe55bc0\",\"output_index\":0,\"summary_index\":0,\"text\":\"north lamp north quiet stone stone\"}\n\n",
+				"event: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":5,\"item_id\":\"rs_1b07b29e8afe55bc0\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"north lamp north quiet stone stone\"}}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":6,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_1b07b29e8afe55bc0\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"north lamp north quiet stone stone\"}],\"encrypted_content\":\"6f6fbf7d9e81ee3cb6a1400c9012309b4e05a26a\"}}\n\n",
+				"event: error\ndata: {\"type\":\"error\",\"sequence_number\":7,\"code\":\"server_error\",\"message\":\"Upstream overloaded\",\"param\":null}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

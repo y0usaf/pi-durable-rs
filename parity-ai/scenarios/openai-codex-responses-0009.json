@@ -1,0 +1,311 @@
+{
+	"name": "openai-codex-responses-0009",
+	"seed": "0d8ea580b8b78ecc",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5-codex",
+		"name": "gpt-5-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.75,
+			"output": 4.75,
+			"cacheRead": 0.875,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsOpenAIGrammarTools": false
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north amber"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field north ñandú"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_cfcb95d67d",
+						"name": "noop",
+						"arguments": {}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_9dc3184459",
+						"name": "lookup",
+						"arguments": {
+							"q": "alpha"
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 415,
+					"output": 194,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 609,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_cfcb95d67d",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "field cloud 🇯🇵"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_9dc3184459",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "north 𐐷 seven"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "north Grüße café Ωmega field",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_229cf5b29fa5e8f2\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"north Grüße café Ωmega field\"}],\"encrypted_content\":\"229cf5b29fa5e8f2e6f7fb36fa52d6f1\"}"
+					},
+					{
+						"type": "text",
+						"text": "café ñandú naïve alpha river cloud naïve alpha"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_eeabb77cc9",
+						"name": "lookup",
+						"arguments": {
+							"q": "héllo field"
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_bb4a89e1b2",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5-codex",
+				"usage": {
+					"input": 677,
+					"output": 113,
+					"cacheRead": 0,
+					"cacheWrite": 1,
+					"totalTokens": 791,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_eeabb77cc9",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven quiet river cloud 🇯🇵 alpha"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_bb4a89e1b2",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha stone lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north"
+					}
+				],
+				"timestamp": 1700000008000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet quiet stone lamp alpha north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_f79d4ab49c",
+						"name": "lookup",
+						"arguments": {
+							"q": "stone north"
+						}
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5-codex",
+				"usage": {
+					"input": 436,
+					"output": 293,
+					"cacheRead": 199,
+					"cacheWrite": 0,
+					"totalTokens": 928,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000009000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_f79d4ab49c",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp héllo"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000010000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF8yOWE2Mjk4MDAxMTUifX0.sig",
+		"cacheRetention": "short",
+		"temperature": 0.7,
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_55c4b6253c4adc43\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-codex\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_55c4b6253c4adc430\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_55c4b6253c4adc430\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_55c4b6253c4adc430\",\"output_index\":0,\"content_index\":0,\"delta\":\"café Grüße st\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_55c4b6253c4adc430\",\"output_index\":0,\"content_index\":0,\"delta\":\"one При\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_55c4b6253c4adc430\",\"output_index\":0,\"content_index\":0,\"delta\":\"вет st\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":6,\"item_id\":\"msg_55c4b6253c4adc430\",\"output_index\":0,\"content_index\":0,\"delta\":\"one\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":7,\"item_id\":\"msg_55c4b6253c4adc430\",\"output_index\":0,\"content_index\":0,\"text\":\"café Grüße stone Привет stone\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":8,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_55c4b6253c4adc430\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"café Grüße stone Привет stone\",\"annotations\":[]}]}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":9,\"response\":{\"id\":\"resp_55c4b6253c4adc43\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-codex\",\"output\":[{\"type\":\"message\",\"id\":\"msg_55c4b6253c4adc430\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"café Grüße stone Привет stone\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":643,\"output_tokens\":148,\"total_tokens\":791,\"input_tokens_details\":{\"cached_tokens\":316},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "café Grüße stone Привет stone"
+			}
+		],
+		"usage": {
+			"input": 327,
+			"output": 148,
+			"cacheRead": 316,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_55c4b6253c4adc43"
+	}
+}

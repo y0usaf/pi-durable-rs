@@ -1,0 +1,72 @@
+{
+	"name": "openai-codex-responses-0017",
+	"seed": "d2876a8cdcf31d1f",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.2",
+		"name": "gpt-5.2",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 0.75,
+			"output": 10.5,
+			"cacheRead": 0.25,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsStrictMode": false
+		}
+	},
+	"context": {
+		"systemPrompt": "north lamp stone cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "naïve lamp Ωmega ñandú naïve stone Grüße lamp lamp",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF81MjdhMTZkNGNhZjUifX0.sig",
+		"reasoning": "minimal",
+		"toolChoice": "auto",
+		"headers": {
+			"x-parity-test": "593fb9"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_71792c9bcf06f412\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.2\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":1,\"response\":{\"id\":\"resp_71792c9bcf06f412\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.2\",\"output\":[],\"status\":\"completed\",\"usage\":{\"input_tokens\":149,\"output_tokens\":41,\"total_tokens\":190,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 149,
+			"output": 41,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_71792c9bcf06f412"
+	}
+}

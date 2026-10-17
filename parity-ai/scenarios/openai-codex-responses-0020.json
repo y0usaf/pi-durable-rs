@@ -1,0 +1,227 @@
+{
+	"name": "openai-codex-responses-0020",
+	"seed": "506c69b2f51b3f6e",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.2",
+		"name": "gpt-5.2",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.75,
+			"output": 10.75,
+			"cacheRead": 0,
+			"cacheWrite": 1
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "field field amber stone field field lamp amber",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber lamp lamp"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 600,
+					"output": 27,
+					"cacheRead": 122,
+					"cacheWrite": 75,
+					"totalTokens": 824,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven alpha cloud seven quiet"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "amber lamp cloud north",
+						"thinkingSignature": "85006003456ccf66a3401d8290331e52"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_c1e5cf2b02",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"cloud stone",
+								"north amber"
+							]
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 78,
+					"output": 267,
+					"cacheRead": 61,
+					"cacheWrite": 172,
+					"totalTokens": 578,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_c1e5cf2b02",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven amber river cloud lamp cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone"
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5.2",
+				"usage": {
+					"input": 320,
+					"output": 48,
+					"cacheRead": 211,
+					"cacheWrite": 0,
+					"totalTokens": 579,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha quiet alpha"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF85NTg0NzQ3ZDYxMDMifX0.sig",
+		"cacheRetention": "none",
+		"maxTokens": 1024,
+		"toolChoice": "none",
+		"sessionId": "session-284f385a",
+		"headers": {
+			"x-parity-test": "9a2d5c"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_40539f47bf19bf58\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.2\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_40539f47bf19bf580\",\"summary\":[]}}\n\n",
+				"event: response.reasoning_summary_part.added\ndata: {\"type\":\"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_40539f47bf19bf580\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_40539f47bf19bf580\",\"output_index\":0,\"summary_index\":0,\"delta\":\"al\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":4,\"item_id\":\"rs_40539f47bf19bf580\",\"output_index\":0,\"summary_index\":0,\"delta\":\"pha stone\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":5,\"item_id\":\"rs_40539f47bf19bf580\",\"output_index\":0,\"summary_index\":0,\"delta\":\" field\"}\n\n",
+				"event: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":6,\"item_id\":\"rs_40539f47bf19bf580\",\"output_index\":0,\"summary_index\":0,\"text\":\"alpha stone field\"}\n\n",
+				"event: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":7,\"item_id\":\"rs_40539f47bf19bf580\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"alpha stone field\"}}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":8,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_40539f47bf19bf580\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"alpha stone field\"}],\"encrypted_content\":\"89bd8e30fe1d7f1fadce400d4f5b65524a8373d7\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":9,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_40539f47bf19bf581\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":10,\"item_id\":\"msg_40539f47bf19bf581\",\"output_index\":1,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":11,\"item_id\":\"msg_40539f47bf19bf581\",\"output_index\":1,\"content_index\":0,\"delta\":\"cloud seven cloud stone cloud north amber amber\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":12,\"item_id\":\"msg_40539f47bf19bf581\",\"output_index\":1,\"content_index\":0,\"text\":\"cloud seven cloud stone cloud north amber amber\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":13,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_40539f47bf19bf581\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"cloud seven cloud stone cloud north amber amber\",\"annotations\":[]}]}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

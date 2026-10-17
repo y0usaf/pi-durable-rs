@@ -1,0 +1,196 @@
+{
+	"name": "openai-codex-responses-0022",
+	"seed": "22f5720ce6af778b",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5-codex",
+		"name": "gpt-5-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 1.5,
+			"output": 13.25,
+			"cacheRead": 0.375,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsLongCacheRetention": false,
+			"supportsMaxOutputTokens": false
+		}
+	},
+	"context": {
+		"systemPrompt": "field lamp quiet naïve café 漢字 field alpha naïve naïve",
+		"messages": [
+			{
+				"role": "user",
+				"content": "alpha stone cloud amber river river field stone cloud lamp",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "field 🇯🇵 river 👩‍💻 north cloud",
+						"thinkingSignature": ""
+					},
+					{
+						"type": "text",
+						"text": "lamp 🇯🇵 seven"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_83f092d3ef",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"north cloud 👩‍💻",
+								"quiet seven",
+								"alpha river"
+							]
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_4daed06c52",
+						"name": "lookup",
+						"arguments": {
+							"q": "alpha 🇯🇵 𝄞"
+						}
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5-codex",
+				"usage": {
+					"input": 681,
+					"output": 64,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 745,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_83f092d3ef",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_4daed06c52",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "north lamp north cloud",
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF85Yjc2ZTMzNTMzOTEifX0.sig",
+		"temperature": 0.5,
+		"headers": {
+			"x-parity-test": "79c3cc"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 500,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"quiet alpha field\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

@@ -1,0 +1,112 @@
+{
+	"name": "openai-codex-responses-0013",
+	"seed": "39f9ad59984c3bf3",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.1-codex",
+		"name": "gpt-5.1-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.75,
+			"output": 2.75,
+			"cacheRead": 0.625,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsMaxOutputTokens": false,
+			"supportsToolSearch": true
+		}
+	},
+	"context": {
+		"systemPrompt": "seven river quiet amber amber quiet stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber quiet alpha north"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "🦀 😀"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 794,
+					"output": 239,
+					"cacheRead": 119,
+					"cacheWrite": 110,
+					"totalTokens": 1262,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "river alpha 𐐷 north north alpha",
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF9mODNkZTJiYjNhNTgifX0.sig",
+		"cacheRetention": "none",
+		"maxTokens": 4096,
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_bc58258fc70dfd5b\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.1-codex\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_bc58258fc70dfd5b0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_bc58258fc70dfd5b0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_bc58258fc70dfd5b0\",\"output_index\":0,\"content_index\":0,\"delta\":\"lamp alpha quiet n\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_bc58258fc70dfd5b0\",\"output_index\":0,\"content_index\":0,\"delta\":\"orth cloud stone seven stone\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":5,\"item_id\":\"msg_bc58258fc70dfd5b0\",\"output_index\":0,\"content_index\":0,\"text\":\"lamp alpha quiet north cloud stone seven stone\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":6,\"output",
+				"_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_bc58258fc70dfd5b0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"lamp alpha quiet north cloud stone seven stone\",\"annotations\":[]}]}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":7,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_6c92db9d85a7\",\"call_id\":\"call_6c92db9d85a7\",\"name\":\"noop\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":8,\"item_id\":\"fc_6c92db9d85a7\",\"output_index\":1,\"delta\":\"{\"}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":9,\"item_id\":",
+				"\"fc_6c92db9d85a7\",\"output_index\":1,\"delta\":\"}\"}\n\nevent: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":10,\"item_id\":\"fc_6c92db9d85a7\",\"output_index\":1,\"arguments\":\"{}\"}\n\nevent: response.output_item.done\ndata: {\"",
+				"type\":\"response.output_item.done\",\"sequence_number\":11,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_6c92db9d85a7\",\"call_id\":\"call_6c92db9d85a7\",\"name\":\"noop\",\"arguments\":\"{}\",\"status\":\"completed\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":12,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_7ebdd1251aa0\",\"call_id\":\"call_7ebdd1251aa0\",\"name\":\"noop\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":13,\"item_id\":\"fc_7ebdd1251aa0\",\"output_index\":2,\"delta\":\"{}\"}\n\nevent: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":14,\"item_id\":\"fc_7ebdd1251aa0\",\"output_index\":2,\"arguments\":\"{}\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":15,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_7ebdd1251aa0\",\"call_id\":\"call_7ebdd1251aa0\",\"name\":\"noop\",\"arguments\":\"{}\",\"status\":\"completed\"}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

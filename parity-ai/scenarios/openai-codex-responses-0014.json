@@ -1,0 +1,152 @@
+{
+	"name": "openai-codex-responses-0014",
+	"seed": "f06cf98e27c099ff",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.1-codex",
+		"name": "gpt-5.1-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7.5,
+			"output": 6.75,
+			"cacheRead": 0.875,
+			"cacheWrite": 3
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsAdditionalTools": true
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "river seven seven field stone seven field",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha alpha"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_8ec8b17fa4",
+						"name": "count_items",
+						"arguments": {
+							"n": 2,
+							"flag": false
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 211,
+					"output": 150,
+					"cacheRead": 437,
+					"cacheWrite": 0,
+					"totalTokens": 798,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_8ec8b17fa4",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha lamp river"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF85NWMzMWU2ODBlN2YifX0.sig",
+		"reasoning": "medium",
+		"temperature": 0,
+		"headers": {
+			"x-parity-test": "a04787"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_ce4d90d872374d9f\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.1-codex\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_ce4d90d872374d9f0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_ce4d90d872374d9f0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_ce4d90d872374d9f0\",\"output_index\":0,\"content_index\":0,\"delta\":\"nor\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_ce4d90d872374d9f0\",\"output_index\":0,\"content_index\":0,\"delta\":\"th clo\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_ce4d90d872374d9f0\",\"output_index\":0,\"content_index\":0,\"delta\":\"ud river cloud\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_ce4d90d872374d9f0\",\"output_index\":0,\"content_index\":0,\"text\":\"north cloud river cloud\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_ce4d90d872374d9f0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"north cloud river cloud\",\"annotations\":[]}]}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":8,\"response\":{\"id\":\"resp_ce4d90d872374d9f\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.1-codex\",\"output\":[{\"type\":\"message\",\"id\":\"msg_ce4d90d872374d9f0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"north cloud river cloud\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":150,\"output_tokens\":206,\"total_tokens\":356,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "north cloud river cloud"
+			}
+		],
+		"usage": {
+			"input": 150,
+			"output": 206,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_ce4d90d872374d9f"
+	}
+}

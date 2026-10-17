@@ -1,0 +1,146 @@
+{
+	"name": "openai-codex-responses-0003",
+	"seed": "bb8a88fd485ab0e3",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.1-codex-mini",
+		"name": "gpt-5.1-codex-mini",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.25,
+			"output": 10.25,
+			"cacheRead": 0.25,
+			"cacheWrite": 3
+		},
+		"contextWindow": 32000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "field stone river",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "stone stone alpha field cloud"
+					},
+					{
+						"type": "text",
+						"text": "river"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 232,
+					"output": 229,
+					"cacheRead": 0,
+					"cacheWrite": 38,
+					"totalTokens": 499,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "quiet alpha seven north field",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud lamp seven amber field river alpha river"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 737,
+					"output": 88,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 825,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "alpha north seven seven quiet river alpha quiet lamp amber",
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF9mYWM3MGZlY2U4ZjcifX0.sig",
+		"reasoning": "xhigh",
+		"sessionId": "session-aa0c19d4",
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_77a885191e81f7c3\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.1-codex-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_77a885191e81f7c30\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_77a885191e81f7c30\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_77a885191e81f7c30\",\"output_index\":0,\"content_index\":0,\"delta\":\"amber 🦀\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":4,\"item_id\":\"msg_77a885191e81f7c30\",\"output_index\":0,\"content_index\":0,\"text\":\"amber 🦀\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":5,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_77a885191e81f7c30\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"amber 🦀\",\"annotations\":[]}]}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":6,\"response\":{\"id\":\"resp_77a885191e81f7c3\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.1-codex-mini\",\"output\":[{\"type\":\"message\",\"id\":\"msg_77a885191e81f7c30\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"amber 🦀\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":319,\"output_tokens\":132,\"total_tokens\":451,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "amber 🦀"
+			}
+		],
+		"usage": {
+			"input": 319,
+			"output": 132,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_77a885191e81f7c3"
+	}
+}

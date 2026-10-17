@@ -1,0 +1,288 @@
+{
+	"name": "openai-codex-responses-0006",
+	"seed": "1ebb69b4d09fd816",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5-codex",
+		"name": "gpt-5-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5.25,
+			"output": 11.5,
+			"cacheRead": 0.125,
+			"cacheWrite": 3.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "𐐷 😀 😀"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp Ωmega alpha héllo"
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5-codex",
+				"usage": {
+					"input": 135,
+					"output": 148,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 283,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "🦀 cloud cloud cloud 🇯🇵 seven lamp 👩‍💻",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "lamp river north cloud field",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_6f5bb6252d9d4c14\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"lamp river north cloud field\"}],\"encrypted_content\":\"6f5bb6252d9d4c14dff9cdd40953179c\"}"
+					},
+					{
+						"type": "text",
+						"text": "amber seven"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_9cc5ee2008",
+						"name": "count_items",
+						"arguments": {
+							"n": 91,
+							"flag": false
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_74db1504fc",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 4,
+								"h": 4
+							}
+						}
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5-codex",
+				"usage": {
+					"input": 547,
+					"output": 255,
+					"cacheRead": 355,
+					"cacheWrite": 157,
+					"totalTokens": 1314,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_9cc5ee2008",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha quiet cloud cloud river"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_74db1504fc",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "river lamp amber quiet river lamp"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet seven quiet amber north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_a407a5dc96",
+						"name": "count_items",
+						"arguments": {
+							"n": 5,
+							"flag": false
+						}
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5-codex",
+				"usage": {
+					"input": 620,
+					"output": 206,
+					"cacheRead": 250,
+					"cacheWrite": 0,
+					"totalTokens": 1076,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_a407a5dc96",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber amber"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF83MzRiNWRkNDkzZTIifX0.sig",
+		"maxTokens": 32000,
+		"sessionId": "session-685427ba",
+		"headers": {
+			"x-parity-test": "90e337"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_ad5cf1c7714274ea",
+				"\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-codex\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: respon",
+				"se.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_ad5cf1c7714274ea0\",\"summary\":[]}}\n\nevent: response.reasoning_summary_part.added\ndata: {\"type\":\"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_ad5cf1c7714274ea0\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_ad5cf1c7714274ea0\",\"output_index\":0,\"summary_index\":0,\"delta\":\"𐐷\"}\n\nevent: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":4,\"item_id\":\"rs_ad5cf1c7714274ea0\",\"output_index\":0,\"summary_index\":0,\"text\":\"𐐷\"}\n\nevent: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":5,\"item_id\":\"rs_ad5cf1c7714274ea0\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"𐐷\"}}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":6,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_ad5cf1c7714274ea0\",\"summary\":[{\"type\":\"summa",
+				{
+					"base64": "cnlfdGV4dCIsInRleHQiOiLwkJC3In1dLCJlbmNyeXB0ZWRfY29udGVudCI6IjcyZDg2M2IyODQ2YWVmYzY0OTc0NjYwMDU1OGQ4NDhjYTQ5ZDk3NWEifX0KCmV2ZW50OiByZXNwb25zZS5vdXRwdXRfaXRlbS5hZGRlZApkYXRhOiB7InR5cGUiOiJyZXNwb25zZS5vdXRwdXRfaXRlbS5hZGRlZCIsInNlcXVlbmNlX251bWJlciI6Nywib3V0cHV0X2luZGV4IjoxLCJpdGVtIjp7InR5cGUiOiJtZXNzYWdlIiwiaWQiOiJtc2dfYWQ1Y2YxYzc3MTQyNzRlYTEiLCJyb2xlIjoiYXNzaXN0YW50Iiwic3RhdHVzIjoiaW5fcHJvZ3Jlc3MiLCJjb250ZW50IjpbXX19CgpldmVudDogcmVzcG9uc2UuY29udGVudF9wYXJ0LmFkZGVkCmRhdGE6IHsidHlwZSI6InJlc3BvbnNlLmNvbnRlbnRfcGFydC5hZGRlZCIsInNlcXVlbmNlX251bWJlciI6OCwiaXRlbV9pZCI6Im1zZ19hZDVjZjFjNzcxNDI3NGVhMSIsIm91dHB1dF9pbmRleCI6MSwiY29udGVudF9pbmRleCI6MCwicGFydCI6eyJ0eXBlIjoib3V0cHV0X3RleHQiLCJ0ZXh0IjoiIiwiYW5ub3RhdGlvbnMiOltdfX0KCmV2ZW50OiByZXNwb25zZS5vdXRwdXRfdGV4dC5kZWx0YQpkYXRhOiB7InR5cGUiOiJyZXNwb25zZS5vdXRwdXRfdGV4dC5kZWx0YSIsInNlcXVlbmNlX251bWJlciI6OSwiaXRlbV9pZCI6Im1zZ19hZDVjZjFjNzcxNDI3NGVhMSIsIm91dHB1dF9pbmRleCI6MSwiY29udGVudF9pbmRleCI6MCwiZGVsdGEiOiJhbWJlciBjbG91ZCDwn4c="
+				},
+				{
+					"base64": "r/Cfh7Ugc3RvbmUgc2V2ZW4gbm9ydGgifQoKZXZlbnQ6IHJlc3BvbnNlLm91dHB1dF90ZXh0LmRvbmUKZGF0YTogeyJ0eXBlIjoicmVzcG9uc2Uub3V0cHV0X3RleHQuZG9uZSIsInNlcXVlbmNlX251bWJlciI6MTAsIml0ZW1faWQiOiJtc2dfYWQ1Y2YxYzc3MTQyNzRlYTEiLCJvdXRwdXRfaW5kZXgiOjEsImNvbnRlbnRfaW5kZXgiOjAsInRleHQiOiJhbWJlciBjbG91ZCDwn4ev8J+HtSBzdG9uZSBzZXZlbiBub3J0aCJ9CgpldmVudDogcmVzcG9uc2Uub3V0cHV0X2l0ZW0uZG9uZQpkYXRhOiB7InR5cGUiOiJyZXNwb25zZS5vdXRwdQ=="
+				},
+				"t_item.done\",\"sequence_number\":11,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_ad5cf1c7714274ea1\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"amber cloud 🇯🇵 stone seven north\",\"annotatio",
+				"ns\":[]}]}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

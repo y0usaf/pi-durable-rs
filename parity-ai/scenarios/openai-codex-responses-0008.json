@@ -1,0 +1,99 @@
+{
+	"name": "openai-codex-responses-0008",
+	"seed": "8419c14d24096172",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.1-codex",
+		"name": "gpt-5.1-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.25,
+			"output": 1.25,
+			"cacheRead": 1,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone seven river 🇯🇵 stone lamp stone river cloud",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north field north lamp quiet quiet lamp"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 747,
+					"output": 283,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 1030,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "seven ñandú seven 漢字 field lamp",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF8xNDE5MTkwNzc0ZWUifX0.sig",
+		"reasoning": "xhigh",
+		"cacheRetention": "long",
+		"temperature": 0.5,
+		"sessionId": "session-734d9362",
+		"headers": {
+			"x-parity-test": "ed0f7f"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_c95d8fcf029d74fd\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.1-codex\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_c95d8fcf029d74fd0\",\"summary\":[]}}\n\nevent: response.reasoning_summary_pa",
+				"rt.added\ndata: {\"type\":\"",
+				"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_c95d8fcf029d74fd0\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_c95d8fcf029d74fd0\",\"output_index\":0,\"summary_index\":0,\"delta\":\"qui\"}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":4,\"item_id\":\"rs_c95d8fcf02",
+				"9d74fd0\",\"output_index\":0,\"summary_index\":0,\"delta\":\"et\"}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":5,\"item_id\":\"rs_c95d8fcf029d74fd0\",\"output_index\":0,\"summary_index\":0,\"delta\":\" cloud sev\"}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":6,\"item_id\":\"rs_c95d8fcf029d74fd0\",\"output_index\":0,\"summary_index\":0,\"delta\":\"en\"}\n\nevent: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":7,\"item_id\":\"rs_c95d8fcf029d74fd0\",\"output_index\":0,\"summary_index\":0,\"text\":\"quiet cloud seven\"}\n\nevent: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":8,\"item_id\":\"rs_c95d8fcf029d74fd0\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"quiet cloud seven\"}}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":9,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_c95d8fcf029d74fd0\",\"s",
+				"ummary\":[{\"type\":\"summary_text\",\"text\":\"quiet cloud seven\"}],\"encrypted_content\":\"86fb140144084b0d9e5bf34e8e5f93c64d3d23c0\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":10,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_c95d8fcf029d74fd1\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":11,\"item_id\":\"msg_c95d8fcf029d74fd1\",\"output_index\":1,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":12,\"item_id\":\"msg_c95d8fcf029d74fd1\",\"output_index\":1,\"content_index\":0,\"delta\":\"field\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":13,\"item_id\":\"msg_c95d8fcf029d74fd1\",\"output_index\":1,\"content_index\":0,\"delta\":\" seven north lamp quiet\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":14,\"item_id\":\"msg_c95d8fcf029d74fd1\",\"output_index\":1,\"content_index\":0,\"text\":\"field seven north lamp quiet\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":15,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_c95d8fcf029d74fd1\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"field seven north lamp quiet\",\"annotations\":[]}]}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}
