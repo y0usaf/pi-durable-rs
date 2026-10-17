@@ -1,0 +1,265 @@
+{
+	"name": "openai-completions-0015",
+	"seed": "9befa79f2774e0ea",
+	"api": "openai-completions",
+	"provider": "deepseek",
+	"model": {
+		"id": "o3-mini",
+		"name": "o3-mini",
+		"api": "openai-completions",
+		"provider": "deepseek",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.5,
+			"output": 13.75,
+			"cacheRead": 0.5,
+			"cacheWrite": 2
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "seven seven lamp lamp",
+		"messages": [
+			{
+				"role": "user",
+				"content": "river alpha north stone",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻 river 𝄞 🇯🇵 north lamp lamp cloud"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_8b8de5c81c",
+						"name": "count_items",
+						"arguments": {
+							"n": 21,
+							"flag": false
+						}
+					}
+				],
+				"api": "openai-completions",
+				"provider": "deepseek",
+				"model": "o3-mini",
+				"usage": {
+					"input": 817,
+					"output": 66,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 883,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_8b8de5c81c",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet field Привет ñandú river"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field field cloud north north lamp"
+					}
+				],
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber seven stone cloud north lamp"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 500,
+					"output": 248,
+					"cacheRead": 0,
+					"cacheWrite": 111,
+					"totalTokens": 859,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": "cloud stone cloud stone river lamp",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "north field river field",
+						"thinkingSignature": "9fc21efceb1bf60340e0c462f232805c"
+					},
+					{
+						"type": "text",
+						"text": "👩‍💻 𝄞 𐐷 🦀"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "deepseek",
+				"model": "o3-mini",
+				"usage": {
+					"input": 646,
+					"output": 248,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 894,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "user",
+				"content": "seven river field north alpha",
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-0e70d1c37048",
+		"reasoning": "medium",
+		"cacheRetention": "long",
+		"maxTokens": 256,
+		"toolChoice": "none",
+		"headers": {
+			"x-parity-test": "dcfccd"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-c31ef23e029e7f53\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-c31ef23e029e7f53\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"stone cloud alpha alp\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-c31ef23e029e7f53\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ha lamp\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-c31ef23e029e7f53\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\" stone ston",
+				"e cl\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-c31ef23e029e7f",
+				"53\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"oud amber\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-c31ef23e029e7f53\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}\n\ndata: {\"id\":\"chatcmpl-c31ef23e029e7f53\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":412,\"completion_tokens\":197,\"total_tokens\":609,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":161}}}\n\ndata: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "stone cloud alpha alpha lamp stone stone cloud amber"
+			}
+		],
+		"usage": {
+			"input": 251,
+			"output": 197,
+			"cacheRead": 0,
+			"cacheWrite": 161
+		},
+		"responseId": "chatcmpl-c31ef23e029e7f53"
+	}
+}

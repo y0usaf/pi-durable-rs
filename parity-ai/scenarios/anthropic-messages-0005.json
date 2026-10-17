@@ -1,0 +1,218 @@
+{
+	"name": "anthropic-messages-0005",
+	"seed": "097801fd439ff6dc",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-3-5-haiku-20241022",
+		"name": "claude-3-5-haiku-20241022",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2,
+			"output": 0.25,
+			"cacheRead": 0.5,
+			"cacheWrite": 2.5
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsEagerToolInputStreaming": true,
+			"supportsStrictTools": true,
+			"supportsTemperature": true
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "river stone cloud quiet cloud north cloud",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha alpha"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-3-5-haiku-20241022",
+				"usage": {
+					"input": 54,
+					"output": 237,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 291,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "river river field quiet cloud",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud seven amber stone river stone"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_c047f84082",
+						"name": "noop",
+						"arguments": {}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_8b09537588",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 3,
+								"h": 4.5
+							}
+						}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-3-5-haiku-20241022",
+				"usage": {
+					"input": 823,
+					"output": 179,
+					"cacheRead": 496,
+					"cacheWrite": 0,
+					"totalTokens": 1498,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_c047f84082",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_8b09537588",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone stone field stone 🇯🇵 🇯🇵"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-3c0f0720ca43",
+		"cacheRetention": "long",
+		"temperature": 0.9,
+		"headers": {
+			"x-parity-test": "0e8fea"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_d429b5237c5ab0fc\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-3-5-haiku-20241022\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":337,\"output_tokens\":1,\"cache_read_input_tokens\":122,\"cache_creation_input_tokens\":0}}}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"text\",\"text\":\"\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"field\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n",
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":49}}\n\n",
+				"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "field"
+			}
+		],
+		"usage": {
+			"input": 337,
+			"output": 49,
+			"cacheRead": 122,
+			"cacheWrite": 0
+		},
+		"responseId": "msg_d429b5237c5ab0fc"
+	}
+}

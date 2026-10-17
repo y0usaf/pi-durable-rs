@@ -1,0 +1,200 @@
+{
+	"name": "anthropic-messages-0018",
+	"seed": "720a91da6e57babc",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-opus-4-6",
+		"name": "claude-opus-4-6",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1,
+			"output": 12,
+			"cacheRead": 0.375,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384,
+		"compat": {
+			"sessionAffinityFormat": "openrouter",
+			"supportsStrictTools": false
+		}
+	},
+	"context": {
+		"systemPrompt": "north alpha lamp cloud cloud amber seven",
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp field alpha river alpha lamp lamp quiet",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha alpha lamp seven amber north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_212156b7f8",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-opus-4-6",
+				"usage": {
+					"input": 137,
+					"output": 113,
+					"cacheRead": 231,
+					"cacheWrite": 106,
+					"totalTokens": 587,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_212156b7f8",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "north lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": "river field field stone cloud lamp alpha lamp",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet quiet cloud field alpha amber river"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_9a7b9bd506",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-opus-4-6",
+				"usage": {
+					"input": 543,
+					"output": 250,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 793,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_9a7b9bd506",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "river stone"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "🇯🇵 alpha"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "sk-ant-oat01-f5d304d2a7d11b00f24d5963",
+		"reasoning": "minimal",
+		"cacheRetention": "short",
+		"sessionId": "session-3f297051",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_c0bc7943b3794599\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-opus-4-6\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":267,\"output_tokens\":1,\"cache_read_input_tokens\":0,\"cache_creation_input_tokens\":0}}}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"text\",\"text\":\"\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"lamp river al\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"pha lamp rive\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"r seven quiet river\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n",
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":142}}\n\n",
+				"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "lamp river alpha lamp river seven quiet river"
+			}
+		],
+		"usage": {
+			"input": 267,
+			"output": 142,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "msg_c0bc7943b3794599"
+	}
+}

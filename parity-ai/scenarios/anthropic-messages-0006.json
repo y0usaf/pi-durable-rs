@@ -1,0 +1,109 @@
+{
+	"name": "anthropic-messages-0006",
+	"seed": "780d8bb1cf1918cd",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 7.25,
+			"output": 13.75,
+			"cacheRead": 0.75,
+			"cacheWrite": 3.25
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "alpha field amber stone cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻 alpha 🇯🇵 river"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 488,
+					"output": 209,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 697,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber amber stone stone field"
+					}
+				],
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-6365912a73be",
+		"cacheRetention": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"even",
+				"t: message_st",
+				"art\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_085b86e5cc4aa734\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-sonnet-4-5\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens",
+				"\":131,\"output_tokens\":1,\"cache_read_input_tokens\":0,\"cache_creation_input_tokens\":19}}}\n\nevent: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":258}}\n\nevent: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 131,
+			"output": 258,
+			"cacheRead": 0,
+			"cacheWrite": 19
+		},
+		"responseId": "msg_085b86e5cc4aa734"
+	}
+}

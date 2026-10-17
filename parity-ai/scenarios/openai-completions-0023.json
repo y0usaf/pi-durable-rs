@@ -1,0 +1,205 @@
+{
+	"name": "openai-completions-0023",
+	"seed": "eb170d49c960d4db",
+	"api": "openai-completions",
+	"provider": "zai",
+	"model": {
+		"id": "gpt-4o-mini",
+		"name": "gpt-4o-mini",
+		"api": "openai-completions",
+		"provider": "zai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 7.25,
+			"cacheRead": 0.875,
+			"cacheWrite": 3.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "cloud cloud seven seven 🦀 😀",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "🦀 😀 seven",
+						"thinkingSignature": ""
+					},
+					{
+						"type": "text",
+						"text": "stone"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_11f7283a1c",
+						"name": "count_items",
+						"arguments": {
+							"n": 2,
+							"flag": false
+						}
+					}
+				],
+				"api": "openai-completions",
+				"provider": "zai",
+				"model": "gpt-4o-mini",
+				"usage": {
+					"input": 261,
+					"output": 108,
+					"cacheRead": 289,
+					"cacheWrite": 96,
+					"totalTokens": 754,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_11f7283a1c",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "north"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": "cloud cloud lamp alpha seven river seven",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field quiet seven field seven river field"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "zai",
+				"model": "gpt-4o-mini",
+				"usage": {
+					"input": 457,
+					"output": 173,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 630,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": "field stone 漢字 alpha",
+				"timestamp": 1700000006000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-9e659f289e96",
+		"cacheRetention": "long",
+		"sessionId": "session-088e5db0",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"reasoning\":\"Привет amber\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"clou\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"d field \"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":",
+				"\"Grüße quiet Ωmega héll\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"o river field lamp\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"call_d43b894c8329\",\"type\":\"function\",\"function\":{\"name\":\"count_items\",\"arguments\":\"\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"c",
+				"hat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{\\\"n\\\":68,\\\"flag\\\":true}\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"id\":\"call_695fcd9e8a94\",\"type\":\"function\",\"function\":{\"name\":\"count_items\",\"arguments\":\"\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"{\\\"n\\\":14,\\\"flag\\\"\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"ind",
+				"ex\":1,\"function\":{\"arguments\":\":true}\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"tool_calls\"}]}\n\ndata: {\"id\":\"chatcmpl-35043789754e94f6\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-4o-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":362,\"completion_tokens\":117,\"total_tokens\":479,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0}}}\n\ndata: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "Привет amber"
+			},
+			{
+				"type": "text",
+				"text": "cloud field Grüße quiet Ωmega héllo river field lamp"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_d43b894c8329",
+				"name": "count_items",
+				"arguments": {
+					"n": 68,
+					"flag": true
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_695fcd9e8a94",
+				"name": "count_items",
+				"arguments": {
+					"n": 14,
+					"flag": true
+				}
+			}
+		],
+		"usage": {
+			"input": 362,
+			"output": 117,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "chatcmpl-35043789754e94f6"
+	}
+}

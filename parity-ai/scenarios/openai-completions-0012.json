@@ -1,0 +1,106 @@
+{
+	"name": "openai-completions-0012",
+	"seed": "ac2a4628c0fc579d",
+	"api": "openai-completions",
+	"provider": "deepseek",
+	"model": {
+		"id": "o3-mini",
+		"name": "o3-mini",
+		"api": "openai-completions",
+		"provider": "deepseek",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 2.75,
+			"output": 4.25,
+			"cacheRead": 0.375,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096,
+		"compat": {
+			"cacheControlFormat": "anthropic",
+			"zaiToolStream": false
+		}
+	},
+	"context": {
+		"systemPrompt": "field river quiet field river seven north field lamp river",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-85d92a33678f",
+		"reasoning": "medium",
+		"temperature": 0.2,
+		"toolChoice": "auto",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 500,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"cloud quiet\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

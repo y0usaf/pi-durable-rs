@@ -1,0 +1,86 @@
+{
+	"name": "anthropic-messages-0002",
+	"seed": "71204b131f16392b",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-opus-4-6",
+		"name": "claude-opus-4-6",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.5,
+			"output": 4.75,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096,
+		"compat": {
+			"allowEmptySignature": false
+		}
+	},
+	"context": {
+		"systemPrompt": "north stone amber lamp cloud cloud cloud seven alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north lamp cloud cloud"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-0699baffabb7",
+		"reasoning": "xhigh",
+		"cacheRetention": "none",
+		"headers": {
+			"x-parity-test": "42e187"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_a0ac9d7b8a121c3c\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-opus-4-6\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":772,\"output_tokens\":1,\"cache_read_input_tokens\":0,\"cache_creation_input_tokens\":0}}}\n\n",
+				"event: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"text\",\"text\":\"\"}}\n\n",
+				"event: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"text_delta\",\"text\":\"river 🦀 cloud 𐐷 cloud 😀 alpha 🇯🇵 quiet\"}}\n\n",
+				"event: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\n",
+				"event: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":203}}\n\n",
+				"event: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "river 🦀 cloud 𐐷 cloud 😀 alpha 🇯🇵 quiet"
+			}
+		],
+		"usage": {
+			"input": 772,
+			"output": 203,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "msg_a0ac9d7b8a121c3c"
+	}
+}

@@ -1,0 +1,191 @@
+{
+	"name": "openai-completions-0004",
+	"seed": "32f50bf8f583fc8c",
+	"api": "openai-completions",
+	"provider": "groq",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "openai-completions",
+		"provider": "groq",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.25,
+			"output": 11,
+			"cacheRead": 0,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "field Ωmega café amber",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "ñandú north 漢字 seven"
+					},
+					{
+						"type": "text",
+						"text": "café Привет ñandú Ωmega field"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "groq",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 494,
+					"output": 3,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 497,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "river",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "cloud field Привет",
+						"thinkingSignature": "337c5b2f5e7e1dec1cc02b56e74c285f"
+					},
+					{
+						"type": "text",
+						"text": "north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_7e38f50753",
+						"name": "count_items",
+						"arguments": {
+							"n": 63,
+							"flag": true
+						}
+					}
+				],
+				"api": "openai-completions",
+				"provider": "groq",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 306,
+					"output": 214,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 520,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_7e38f50753",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone alpha ñandú"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-1e7f858d7bae",
+		"temperature": 0.6,
+		"sessionId": "session-bb08c6f9",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-179ad0c9b8655b0c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-179ad0c9b8655b0c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"lamp river field river seven ",
+				"river nort\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-179ad0c9b8655b0c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"h lamp\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-179ad0c9b8655b0c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}\n\ndata: {\"id\":\"chatcmpl-179ad0c9b8655b0c\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":789,\"completion_tokens\":60,\"total_tokens\":849,\"prompt_tokens_details\":{\"cached_tokens\":116,\"cache_write_tokens\":0}}}\n\ndata: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "lamp river field river seven river north lamp"
+			}
+		],
+		"usage": {
+			"input": 673,
+			"output": 60,
+			"cacheRead": 116,
+			"cacheWrite": 0
+		},
+		"responseId": "chatcmpl-179ad0c9b8655b0c"
+	}
+}

@@ -1,0 +1,181 @@
+{
+	"name": "openai-completions-0020",
+	"seed": "995abf12bacfa008",
+	"api": "openai-completions",
+	"provider": "openrouter",
+	"model": {
+		"id": "o3-mini",
+		"name": "o3-mini",
+		"api": "openai-completions",
+		"provider": "openrouter",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 6,
+			"output": 11.5,
+			"cacheRead": 0.75,
+			"cacheWrite": 0.5
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsDeveloperRole": true
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "alpha lamp cloud lamp quiet alpha amber amber alpha",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "alpha seven cloud"
+					},
+					{
+						"type": "text",
+						"text": "cloud lamp cloud lamp field"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_73001a176d",
+						"name": "lookup",
+						"arguments": {
+							"q": "alpha north north"
+						}
+					}
+				],
+				"api": "openai-completions",
+				"provider": "openrouter",
+				"model": "o3-mini",
+				"usage": {
+					"input": 437,
+					"output": 38,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 475,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_73001a176d",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone seven stone 漢字 field field"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "🦀 river"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "openrouter",
+				"model": "o3-mini",
+				"usage": {
+					"input": 188,
+					"output": 17,
+					"cacheRead": 179,
+					"cacheWrite": 164,
+					"totalTokens": 548,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "north alpha amber lamp cloud lamp stone field",
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-3df585deadd5",
+		"reasoning": "low",
+		"maxTokens": 4096,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-be9634d8680fa4d5\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":n",
+				"ull}]}\n\ndata: {\"id\":\"chatcmpl-be9634d8680fa4d5\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":",
+				"\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"amber alpha stone field \"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-be9634d8680fa4d5\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"cloud stone\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-be9634d8680fa4d5\",\"object\":\"chat.completion.chunk\",\"c",
+				"reat",
+				"ed\":0,\"model\":\"o3-m",
+				"ini\",\"choices\":[{\"i",
+				"ndex\":0,\"delta\":{},\"finish_reason\":\"length\"}]}\n\ndata: {\"id\":\"chatcmpl-be9634d8680fa4d5\",\"object\":\"chat.completion.chunk",
+				"\",\"created\":0,\"model\":\"o3-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":1097,\"completion_tokens\":174,\"total_tokens\":1271,\"prompt_tokens_details\":{\"cached_tokens\":282,\"cache_write_tokens\":135}}}\n\ndata: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "text",
+				"text": "amber alpha stone field cloud stone"
+			}
+		],
+		"usage": {
+			"input": 680,
+			"output": 174,
+			"cacheRead": 282,
+			"cacheWrite": 135
+		},
+		"responseId": "chatcmpl-be9634d8680fa4d5"
+	}
+}

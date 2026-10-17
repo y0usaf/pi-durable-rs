@@ -1,0 +1,283 @@
+{
+	"name": "openai-completions-0002",
+	"seed": "098134e00d0c4bd2",
+	"api": "openai-completions",
+	"provider": "openai",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "openai-completions",
+		"provider": "openai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.25,
+			"output": 13.5,
+			"cacheRead": 1,
+			"cacheWrite": 1.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "alpha Ωmega Ωmega 漢字 ñandú seven héllo héllo héllo",
+		"messages": [
+			{
+				"role": "user",
+				"content": "Grüße field Привет",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north quiet alpha lamp seven"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "openai",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 252,
+					"output": 185,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 437,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "river north field seven lamp field alpha field quiet amber",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "field cloud stone cloud 😀 river"
+					},
+					{
+						"type": "text",
+						"text": "field 𝄞 quiet 🦀"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_79f30653bf",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 564,
+					"output": 186,
+					"cacheRead": 0,
+					"cacheWrite": 81,
+					"totalTokens": 831,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_79f30653bf",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet field quiet quiet lamp north"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": "field river amber north 👩‍💻 field river north lamp",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north river 😀"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_889b7d19f6",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "openai-completions",
+				"provider": "openai",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 463,
+					"output": 217,
+					"cacheRead": 334,
+					"cacheWrite": 0,
+					"totalTokens": 1014,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_889b7d19f6",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻 😀"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-4dee061ecc21",
+		"cacheRetention": "none",
+		"headers": {
+			"x-parity-test": "a56998"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"reasoning_content\":\"north lamp stone lamp\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"north north north lamp cloud cloud amber seven field\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"call_a1006767a2f9\",\"type\":\"function\",\"function\":{\"name\":\"tag_list\",\"arguments\":\"\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"\\\"i\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"tems\\\":[]}\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"id\":\"call_a1e27fb66a86\",\"type\":\"function\",\"function\":{\"name\":\"tag_list\",\"arguments\":\"\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"{\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"\\\"\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"it\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"ems\\\":[]}\"}}]},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"tool_calls\"}]}\n\n",
+				"data: {\"id\":\"chatcmpl-6a33897a8b7058f9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":284,\"completion_tokens\":8,\"total_tokens\":292,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":42}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "north lamp stone lamp"
+			},
+			{
+				"type": "text",
+				"text": "north north north lamp cloud cloud amber seven field"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_a1006767a2f9",
+				"name": "tag_list",
+				"arguments": {
+					"items": []
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_a1e27fb66a86",
+				"name": "tag_list",
+				"arguments": {
+					"items": []
+				}
+			}
+		],
+		"usage": {
+			"input": 242,
+			"output": 8,
+			"cacheRead": 0,
+			"cacheWrite": 42
+		},
+		"responseId": "chatcmpl-6a33897a8b7058f9"
+	}
+}

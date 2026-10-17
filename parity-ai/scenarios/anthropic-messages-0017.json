@@ -1,0 +1,82 @@
+{
+	"name": "anthropic-messages-0017",
+	"seed": "25885d93e50ba62e",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-opus-4-6",
+		"name": "claude-opus-4-6",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2.5,
+			"output": 9,
+			"cacheRead": 0.625,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "alpha field cloud field amber river river field cloud north north",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha café"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-eb48a8c93905",
+		"reasoning": "low",
+		"sessionId": "session-01449ae8",
+		"headers": {
+			"x-parity-test": "dad4db"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 529,
+			"headers": {
+				"content-type": "text/plain"
+			},
+			"chunks": [
+				"cloud lamp quiet cloud"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

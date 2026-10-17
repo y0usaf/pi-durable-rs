@@ -1,0 +1,94 @@
+{
+	"name": "anthropic-messages-0019",
+	"seed": "ac9e3634908f642e",
+	"api": "anthropic-messages",
+	"provider": "anthropic",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "anthropic-messages",
+		"provider": "anthropic",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 5.75,
+			"output": 14,
+			"cacheRead": 0.25,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096,
+		"compat": {
+			"sendSessionAffinityHeaders": false,
+			"supportsLongCacheRetention": true,
+			"supportsMidConvoToolChanges": false
+		}
+	},
+	"context": {
+		"systemPrompt": "ñandú amber alpha field seven field ñandú cloud river héllo Grüße alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": "seven stone alpha lamp seven alpha lamp field alpha quiet",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-3475e5201bd8",
+		"reasoning": "minimal",
+		"temperature": 0.6,
+		"toolChoice": "auto",
+		"sessionId": "session-6ff2cd06",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: message_start\ndata: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_fbba809f3c2098b7\",\"type\":\"message\",\"role\":\"assistant\",\"model\":\"claude-sonnet-4-5\",\"content\":[],\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":700,\"output_tokens\":1,\"cache_read_input_tokens\":116,\"cache_creation_input_tokens\":144}}}\n\nevent: content_block_start\ndata: {\"type\":\"content_block_start\",\"index\":0,\"content_block\":{\"type\":\"thinking\",\"thinking\":\"\",\"signature\":\"\"}}\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"quie\"}}\n\nevent: content_block_delta\ndata: {\"type",
+				"\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"t cloud a\"}}\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"lpha cloud lamp quie\"}}\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"thinking_delta\",\"thinking\":\"t\"}}\n\nevent: content_block_delta\ndata: {\"type\":\"content_block_delta\",\"index\":0,\"delta\":{\"type\":\"signature_delta\",\"signature\":\"4e6ad5a4a0aa38ea1d249613d09978861dcccea9\"}}\n\nevent: content_block_stop\ndata: {\"type\":\"content_block_stop\",\"index\":0}\n\nevent: message_delta\ndata: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null},\"usage\":{\"output_tokens\":111}}\n\nevent: message_stop\ndata: {\"type\":\"message_stop\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "quiet cloud alpha cloud lamp quiet"
+			}
+		],
+		"usage": {
+			"input": 700,
+			"output": 111,
+			"cacheRead": 116,
+			"cacheWrite": 144
+		},
+		"responseId": "msg_fbba809f3c2098b7"
+	}
+}

@@ -1,0 +1,160 @@
+{
+	"name": "openai-completions-0003",
+	"seed": "93375ad129970d36",
+	"api": "openai-completions",
+	"provider": "openai",
+	"model": {
+		"id": "deepseek-chat",
+		"name": "deepseek-chat",
+		"api": "openai-completions",
+		"provider": "openai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 0.25,
+			"output": 11.75,
+			"cacheRead": 0,
+			"cacheWrite": 2
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "north alpha field north stone cloud quiet north",
+		"messages": [
+			{
+				"role": "user",
+				"content": "quiet lamp alpha stone quiet",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven stone north north lamp cloud stone"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_f99140b2c2",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 193,
+					"output": 199,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 392,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_f99140b2c2",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone north"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻 😀 seven 𐐷 𝄞"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000004000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ec7c12fd4bd1",
+		"cacheRetention": "short",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-9e3b10ae495bb264\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-9e3b10ae495bb264\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"a\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-9e3b10ae495bb264\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"lp\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-9e3b10ae495bb264\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"ha\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-9e3b10ae495bb264\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}\n\n",
+				"data: {\"id\":\"chatcmpl-9e3b10ae495bb264\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[],\"usage\":{\"prompt_tokens\":448,\"completion_tokens\":257,\"total_tokens\":705,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "alpha"
+			}
+		],
+		"usage": {
+			"input": 448,
+			"output": 257,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "chatcmpl-9e3b10ae495bb264"
+	}
+}

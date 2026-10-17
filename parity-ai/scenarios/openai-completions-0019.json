@@ -1,0 +1,128 @@
+{
+	"name": "openai-completions-0019",
+	"seed": "534739b78247a7c8",
+	"api": "openai-completions",
+	"provider": "zai",
+	"model": {
+		"id": "deepseek-chat",
+		"name": "deepseek-chat",
+		"api": "openai-completions",
+		"provider": "zai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7,
+			"output": 14,
+			"cacheRead": 0.875,
+			"cacheWrite": 0
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384,
+		"compat": {
+			"cacheControlFormat": "anthropic",
+			"supportsMidConvoToolAdditions": false
+		}
+	},
+	"context": {
+		"systemPrompt": "alpha lamp amber",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "ñandú Grüße seven"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "café field"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 159,
+					"output": 243,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 402,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "field north",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-657a8a424880",
+		"reasoning": "minimal",
+		"cacheRetention": "long",
+		"maxTokens": 256,
+		"sessionId": "session-3b9fe1a1",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-543a0c1fffbb6df9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-543a0c1fffbb6df9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"reasoning\":\"field river amber seven\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-543a0c1fffbb6df9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"amber amber alpha stone seven cloud lamp stone stone\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-543a0c1fffbb6df9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}\n\n",
+				"data: {\"id\":\"chatcmpl-543a0c1fffbb6df9\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"deepseek-chat\",\"choices\":[],\"usage\":{\"prompt_tokens\":844,\"completion_tokens\":149,\"total_tokens\":993,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "field river amber seven"
+			},
+			{
+				"type": "text",
+				"text": "amber amber alpha stone seven cloud lamp stone stone"
+			}
+		],
+		"usage": {
+			"input": 844,
+			"output": 149,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "chatcmpl-543a0c1fffbb6df9"
+	}
+}

@@ -1,0 +1,133 @@
+{
+	"name": "openai-completions-0011",
+	"seed": "45ba14d06a4ec0d3",
+	"api": "openai-completions",
+	"provider": "xai",
+	"model": {
+		"id": "o3-mini",
+		"name": "o3-mini",
+		"api": "openai-completions",
+		"provider": "xai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2.25,
+			"output": 2,
+			"cacheRead": 0.875,
+			"cacheWrite": 1.25
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha 👩‍💻 stone lamp seven alpha"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "xai",
+				"model": "o3-mini",
+				"usage": {
+					"input": 602,
+					"output": 5,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 607,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven quiet Grüße stone Ωmega north"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "river north"
+					}
+				],
+				"api": "openai-completions",
+				"provider": "xai",
+				"model": "o3-mini",
+				"usage": {
+					"input": 109,
+					"output": 7,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 116,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "héllo river amber field alpha alpha naïve",
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-becbe55e0799",
+		"reasoning": "xhigh",
+		"cacheRetention": "none",
+		"sessionId": "session-53eb5b8e",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 429,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"quiet quiet amber river amber seven\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

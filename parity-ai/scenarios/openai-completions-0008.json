@@ -1,0 +1,235 @@
+{
+	"name": "openai-completions-0008",
+	"seed": "0f426214520d5d78",
+	"api": "openai-completions",
+	"provider": "cerebras",
+	"model": {
+		"id": "grok-4",
+		"name": "grok-4",
+		"api": "openai-completions",
+		"provider": "cerebras",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5,
+			"output": 10.75,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000,
+		"compat": {
+			"requiresAssistantAfterToolResult": false,
+			"supportsDeveloperRole": true,
+			"supportsThinkingTokenBudget": false
+		}
+	},
+	"context": {
+		"systemPrompt": "stone 漢字 Ωmega field héllo naïve Привет seven lamp cloud stone field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "field stone cloud alpha lamp 😀 alpha cloud 🦀",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "a4de7a053f3445f8634d25fd",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "seven alpha quiet"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_b326f617c7",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 3,
+								"h": 3
+							}
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_7617fad199",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "openai-completions",
+				"provider": "cerebras",
+				"model": "grok-4",
+				"usage": {
+					"input": 339,
+					"output": 127,
+					"cacheRead": 0,
+					"cacheWrite": 183,
+					"totalTokens": 649,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_b326f617c7",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "🦀 quiet 🦀 north 🇯🇵 field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_7617fad199",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "north lamp quiet cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "river café",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "river Привет Ωmega Grüße alpha Привет Привет Привет"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 548,
+					"output": 123,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 671,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "👩‍💻 amber 🇯🇵 𐐷 quiet field 🦀 field amber amber",
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-9af361b7e0ce",
+		"reasoning": "minimal",
+		"cacheRetention": "long",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"river alpha s\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"tone\"},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"id\":\"call_00ef3a0cc04e\",\"type\":\"function\",\"function\":{\"name\":\"noop\",\"arguments\":\"\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.c",
+				"hunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":0,\"function\":{\"arguments\":\"{}\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"id\":\"call_15d22c481341\",\"type\":\"function\",\"function\":{\"name\":\"noop\",\"arguments\":\"\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"{\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[{\"index\":0,\"delta\":{\"tool_calls\":[{\"index\":1,\"function\":{\"arguments\":\"}\"}}]},\"finish_reason\":null}]}\n\ndata: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"tool_calls\"}]}\n\ndata: {\"id\":\"chatcmpl-612ce45d38bc0778\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"grok-4\",\"choices\":[],\"usage\":{\"prompt_tokens\":779,\"completion_tokens\":2,\"total_tokens\":781,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0}}}\n\ndata: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "river alpha stone"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_00ef3a0cc04e",
+				"name": "noop",
+				"arguments": {}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_15d22c481341",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 779,
+			"output": 2,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "chatcmpl-612ce45d38bc0778"
+	}
+}

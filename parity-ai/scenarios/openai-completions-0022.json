@@ -1,0 +1,164 @@
+{
+	"name": "openai-completions-0022",
+	"seed": "27c0eaccbee2ccd7",
+	"api": "openai-completions",
+	"provider": "groq",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "openai-completions",
+		"provider": "groq",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 3.75,
+			"output": 13,
+			"cacheRead": 0.75,
+			"cacheWrite": 2
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "river Ωmega north quiet Привет quiet cloud field stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp quiet cloud stone seven quiet",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp quiet quiet north quiet"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 264,
+					"output": 236,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 500,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "cloud seven stone Привет quiet alpha",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud stone river quiet stone field"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_42e82a959b",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "openai-completions",
+				"provider": "groq",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 704,
+					"output": 111,
+					"cacheRead": 98,
+					"cacheWrite": 0,
+					"totalTokens": 913,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_42e82a959b",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp 🇯🇵 cloud 🦀 🦀 cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-6168b6fa7ecc",
+		"reasoning": "minimal",
+		"cacheRetention": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"id\":\"chatcmpl-f033c2c03c97b655\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"role\":\"assistant\",\"content\":\"\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-f033c2c03c97b655\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"quiet r\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-f033c2c03c97b655\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"iv\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-f033c2c03c97b655\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"er north\"},\"finish_reason\":null}]}\n\n",
+				"data: {\"id\":\"chatcmpl-f033c2c03c97b655\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[{\"index\":0,\"delta\":{},\"finish_reason\":\"stop\"}]}\n\n",
+				"data: {\"id\":\"chatcmpl-f033c2c03c97b655\",\"object\":\"chat.completion.chunk\",\"created\":0,\"model\":\"gpt-5-mini\",\"choices\":[],\"usage\":{\"prompt_tokens\":818,\"completion_tokens\":142,\"total_tokens\":960,\"prompt_tokens_details\":{\"cached_tokens\":484,\"cache_write_tokens\":157}}}\n\n",
+				"data: [DONE]\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "quiet river north"
+			}
+		],
+		"usage": {
+			"input": 177,
+			"output": 142,
+			"cacheRead": 484,
+			"cacheWrite": 157
+		},
+		"responseId": "chatcmpl-f033c2c03c97b655"
+	}
+}
