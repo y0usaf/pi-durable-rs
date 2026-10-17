@@ -1,0 +1,93 @@
+{
+	"name": "pi-messages-0019",
+	"seed": "704038d6abf6d048",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.75,
+			"output": 11,
+			"cacheRead": 0.25,
+			"cacheWrite": 4
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "amber field field amber",
+		"messages": [
+			{
+				"role": "user",
+				"content": "river stone quiet north field lamp north north cloud stone",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven river amber amber field alpha north"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 140,
+					"output": 277,
+					"cacheRead": 468,
+					"cacheWrite": 0,
+					"totalTokens": 885,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "amber",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-7a6bec0ffc9e",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"lamp\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\" amber quiet cl\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"oud lamp lamp seven\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"lamp amber quiet cloud lamp lamp seven\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

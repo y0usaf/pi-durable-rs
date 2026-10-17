@@ -1,0 +1,75 @@
+{
+	"name": "pi-messages-0016",
+	"seed": "95ef94680173dc51",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5.5,
+			"output": 9.75,
+			"cacheRead": 0.375,
+			"cacheWrite": 4
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "alpha seven cloud river north north stone lamp field",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-04f1832fb9f1",
+		"reasoning": "high",
+		"cacheRetention": "none",
+		"maxTokens": 1024,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"qu\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"iet lamp river\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"quiet lamp river\"}\n\n",
+				"data: {\"type\":\"done\",\"reason\":\"stop\",\"usage\":{\"input\":857,\"output\":18,\"cacheRead\":496,\"cacheWrite\":0,\"totalTokens\":1371,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"fe9341d8d635294e\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "quiet lamp river"
+			}
+		],
+		"usage": {
+			"input": 857,
+			"output": 18,
+			"cacheRead": 496,
+			"cacheWrite": 0
+		},
+		"responseId": "fe9341d8d635294e"
+	}
+}

@@ -1,0 +1,247 @@
+{
+	"name": "pi-messages-0011",
+	"seed": "d32aa298c389b47f",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 7.5,
+			"output": 1,
+			"cacheRead": 0.5,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "😀 river cloud alpha river 🦀"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "river seven amber Grüße stone north"
+					},
+					{
+						"type": "text",
+						"text": "lamp Ωmega stone 漢字 field naïve café"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_da5ad705a9",
+						"name": "count_items",
+						"arguments": {
+							"n": 17,
+							"flag": true
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_de06da6511",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 164,
+					"output": 138,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 302,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_da5ad705a9",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber alpha"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_de06da6511",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha stone amber river"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "Привет river seven cloud Grüße Grüße quiet seven alpha",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "seven stone 👩‍💻 cloud lamp"
+					},
+					{
+						"type": "text",
+						"text": "river stone 🇯🇵"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_2f0288f7bb",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 13,
+					"output": 7,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 20,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_2f0288f7bb",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven alpha"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "user",
+				"content": "seven",
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ec4d4b89118a",
+		"reasoning": "xhigh",
+		"maxTokens": 32000,
+		"temperature": 0.1,
+		"headers": {
+			"x-parity-test": "f60e31"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"river 👩\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"‍\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"💻 field stone\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"river 👩‍💻 field stone\"}\n\n",
+				"data: {\"type\":\"done\",\"reason\":\"stop\",\"usage\":{\"input\":831,\"output\":144,\"cacheRead\":0,\"cacheWrite\":0,\"totalTokens\":975,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"59d003cab0ecc371\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "river 👩‍💻 field stone"
+			}
+		],
+		"usage": {
+			"input": 831,
+			"output": 144,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "59d003cab0ecc371"
+	}
+}

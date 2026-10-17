@@ -1,0 +1,228 @@
+{
+	"name": "pi-messages-0003",
+	"seed": "323fb3a8a840ec6d",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gpt-5",
+		"name": "gpt-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2.5,
+			"output": 2.25,
+			"cacheRead": 1,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "river lamp amber amber seven alpha quiet north amber",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_3072fe1e4a",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"quiet",
+								"amber quiet amber",
+								"quiet amber north"
+							]
+						}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gpt-5",
+				"usage": {
+					"input": 873,
+					"output": 178,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 1051,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_3072fe1e4a",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "river"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "amber 🦀 alpha",
+						"thinkingSignature": "22f365426e5ee02445d11bc03a6fcbbe"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_3c601f72c5",
+						"name": "count_items",
+						"arguments": {
+							"n": 69,
+							"flag": false
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_3ed98b5d13",
+						"name": "tag_list",
+						"arguments": {
+							"items": []
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 897,
+					"output": 61,
+					"cacheRead": 302,
+					"cacheWrite": 0,
+					"totalTokens": 1260,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_3c601f72c5",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud quiet river amber lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_3ed98b5d13",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp lamp 🦀"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-5db33a8800f5",
+		"reasoning": "medium",
+		"temperature": 1,
+		"headers": {
+			"x-parity-test": "749a2f"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"thinking_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"🦀 👩‍💻 seven 🇯🇵 alpha seven\"}\n\n",
+				"data: {\"type\":\"thinking_end\",\"contentIndex\":0,\"content\":\"🦀 👩‍💻 seven 🇯🇵 alpha seven\",\"contentSignature\":\"60654d2ee539aebfcd77becbb6fe417f0e0c899c\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":1}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"🦀 north ston\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"e\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":1,\"content\":\"🦀 north stone\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

@@ -1,0 +1,198 @@
+{
+	"name": "pi-messages-0010",
+	"seed": "e2e522b92e7d3f90",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 4,
+			"output": 4.5,
+			"cacheRead": 0.375,
+			"cacheWrite": 3.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "quiet héllo quiet lamp Привет quiet cloud ñandú ñandú alpha seven",
+		"messages": [
+			{
+				"role": "user",
+				"content": "𝄞 river",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field quiet north Ωmega river field amber"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 66,
+					"output": 71,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 137,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "𐐷 🇯🇵 amber 🇯🇵 quiet quiet stone",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "😀 amber field 🦀 stone amber 🇯🇵"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 519,
+					"output": 198,
+					"cacheRead": 134,
+					"cacheWrite": 198,
+					"totalTokens": 1049,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "Grüße amber field Привет Grüße quiet",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field stone 🇯🇵 lamp stone"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 485,
+					"output": 210,
+					"cacheRead": 0,
+					"cacheWrite": 116,
+					"totalTokens": 811,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud lamp cloud alpha"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-171b283c5639",
+		"reasoning": "medium",
+		"toolChoice": "none",
+		"headers": {
+			"x-parity-test": "9b1592"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"field\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\" naïve \"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"quie\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"t quiet 漢字 cloud ñandú\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"field naïve quiet quiet 漢字 cloud ñandú\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

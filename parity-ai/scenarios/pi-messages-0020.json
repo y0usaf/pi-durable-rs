@@ -1,0 +1,289 @@
+{
+	"name": "pi-messages-0020",
+	"seed": "8c6807fc4af8b4ef",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6,
+			"output": 7.5,
+			"cacheRead": 0.375,
+			"cacheWrite": 2.5
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "alpha stone cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone field quiet héllo lamp seven river",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven cloud"
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 747,
+					"output": 66,
+					"cacheRead": 389,
+					"cacheWrite": 0,
+					"totalTokens": 1202,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "😀"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "naïve naïve café seven",
+						"thinkingSignature": "771543fb2f95ce6c4eab19f658bb396d"
+					},
+					{
+						"type": "text",
+						"text": "naïve river café héllo"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 333,
+					"output": 182,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 515,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "river 😀 quiet"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "quiet quiet cloud field"
+					},
+					{
+						"type": "text",
+						"text": "cloud river north cloud alpha lamp alpha field"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_4cfb7a57e3",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 5,
+								"h": 3.5
+							}
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_b189db3a87",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 784,
+					"output": 153,
+					"cacheRead": 482,
+					"cacheWrite": 0,
+					"totalTokens": 1419,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_4cfb7a57e3",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_b189db3a87",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp north lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000008000
+			},
+			{
+				"role": "user",
+				"content": "seven",
+				"timestamp": 1700000009000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-88a31b9827de",
+		"reasoning": "xhigh",
+		"cacheRetention": "none",
+		"temperature": 0.2,
+		"toolChoice": "auto",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\ndata: {\"type\":\"thinking_start\",\"contentIndex\":0}\n\ndata: {\"type",
+				"\":\"thinking_delta\",\"contentInd",
+				"ex\":0,\"delta\":\"north 🦀 field 🦀 \"}\n\ndata: {\"type\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"𝄞 f\"}\n\ndata: {\"type\":\"thinking_delta\",\"contentIndex\":0,\"delta\":\"ield\"}\n\ndata: {\"type\":\"thinking_end\",\"contentIndex\":0,\"content\":\"north 🦀 field 🦀 𝄞 field\",\"contentSignature\":\"1d4e460a225d4123b3759acaaddf4c4d54982f2d\"}\n\ndata: {\"type\":\"text_start\",\"content",
+				"Index\":1}\n\ndata: {\"type\":\"te",
+				"xt_delta\",\"contentIndex\":1,\"delta\":\"seve\"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":1,\"delta\":\"n\"}\n\ndata: {\"type\":\"text_end\",\"contentIndex\":1,\"content\":\"seven\"}\n\ndata: {\"type\":\"done\",\"re",
+				"ason\":\"length\",\"usage\":{\"input\":654,\"output\":82,\"cacheRead\":103,\"cacheWrite\":0,\"totalTokens\":839,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"d0fc539162bc14c1\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "north 🦀 field 🦀 𝄞 field"
+			},
+			{
+				"type": "text",
+				"text": "seven"
+			}
+		],
+		"usage": {
+			"input": 654,
+			"output": 82,
+			"cacheRead": 103,
+			"cacheWrite": 0
+		},
+		"responseId": "d0fc539162bc14c1"
+	}
+}

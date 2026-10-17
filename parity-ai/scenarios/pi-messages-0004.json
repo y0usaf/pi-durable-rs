@@ -1,0 +1,96 @@
+{
+	"name": "pi-messages-0004",
+	"seed": "39d6d59f01416cd5",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.25,
+			"output": 0,
+			"cacheRead": 0.625,
+			"cacheWrite": 3.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "Ωmega alpha north ñandú stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha quiet alpha amber"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ebe46b4a3bb8",
+		"cacheRetention": "long",
+		"maxTokens": 256,
+		"toolChoice": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"seven amber stone café stone seven amber\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\" lamp \"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"ñandú héllo\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"seven amber stone café stone seven amber lamp ñandú héllo\"}\n\n",
+				"data: {\"type\":\"toolcall_start\",\"contentIndex\":1,\"id\":\"call_93e263f78167\",\"toolName\":\"lookup\"}\n\n",
+				"data: {\"type\":\"toolcall_delta\",\"contentIndex\":1,\"delta\":\"{\\\"q\\\":\\\"r\"}\n\n",
+				"data: {\"type\":\"toolcall_delta\",\"contentIndex\":1,\"delta\":\"i\"}\n\n",
+				"data: {\"type\":\"toolcall_delta\",\"contentIndex\":1,\"delta\":\"ver\\\"\"}\n\n",
+				"data: {\"type\":\"toolcall_delta\",\"contentIndex\":1,\"delta\":\"}\"}\n\n",
+				"data: {\"type\":\"toolcall_end\",\"contentIndex\":1,\"toolCall\":{\"type\":\"toolCall\",\"id\":\"call_93e263f78167\",\"name\":\"lookup\",\"arguments\":{\"q\":\"river\"}}}\n\n",
+				"data: {\"type\":\"done\",\"reason\":\"toolUse\",\"usage\":{\"input\":13,\"output\":15,\"cacheRead\":0,\"cacheWrite\":0,\"totalTokens\":28,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"804380eebf0a49b4\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "seven amber stone café stone seven amber lamp ñandú héllo"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_93e263f78167",
+				"name": "lookup",
+				"arguments": {
+					"q": "river"
+				}
+			}
+		],
+		"usage": {
+			"input": 13,
+			"output": 15,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "804380eebf0a49b4"
+	}
+}

@@ -1,0 +1,313 @@
+{
+	"name": "pi-messages-0007",
+	"seed": "ffbb4d499365e0d7",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 11,
+			"cacheRead": 0.25,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "amber Ωmega",
+		"messages": [
+			{
+				"role": "user",
+				"content": "alpha field river quiet lamp amber river seven north",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet seven stone cloud quiet"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_7856d88351",
+						"name": "count_items",
+						"arguments": {
+							"n": 31,
+							"flag": false
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_47e0a64550",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"quiet amber"
+							]
+						}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 584,
+					"output": 290,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 874,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_7856d88351",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven seven alpha alpha alpha"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_47e0a64550",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber 🦀 river 🇯🇵 🇯🇵 cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud alpha alpha alpha stone north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_e9b74976c7",
+						"name": "count_items",
+						"arguments": {
+							"n": 55,
+							"flag": false
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_4a6102ab0f",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"stone cloud seven",
+								"cloud field stone",
+								"stone"
+							]
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 89,
+					"output": 112,
+					"cacheRead": 320,
+					"cacheWrite": 0,
+					"totalTokens": 521,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_e9b74976c7",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "field cloud river héllo seven"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_4a6102ab0f",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber alpha lamp north stone"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "user",
+				"content": "🦀 cloud lamp 𝄞 𐐷 alpha 𐐷",
+				"timestamp": 1700000008000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_d965c354e4",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"north seven cloud",
+								"seven stone seven",
+								"north lamp amber"
+							]
+						}
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 818,
+					"output": 97,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 915,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000009000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_d965c354e4",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber north"
+					}
+				],
+				"isError": true,
+				"timestamp": 1700000010000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000011000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-41fe9e6199fd",
+		"maxTokens": 4096,
+		"temperature": 1,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 529,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"cloud field amber lamp seven\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

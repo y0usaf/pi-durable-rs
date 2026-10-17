@@ -1,0 +1,192 @@
+{
+	"name": "pi-messages-0000",
+	"seed": "48ece38a83e42636",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3.5,
+			"output": 1.75,
+			"cacheRead": 0.375,
+			"cacheWrite": 0
+		},
+		"contextWindow": 200000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "stone lamp stone amber north north cloud alpha stone seven amber",
+		"messages": [
+			{
+				"role": "user",
+				"content": "héllo river café field cloud naïve",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "river cloud quiet Привет 漢字"
+					},
+					{
+						"type": "text",
+						"text": "漢字"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_862416e36b",
+						"name": "noop",
+						"arguments": {}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_55e1d8a9f4",
+						"name": "lookup",
+						"arguments": {
+							"q": "amber naïve Привет"
+						}
+					}
+				],
+				"api": "pi-messages",
+				"provider": "radius",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 544,
+					"output": 265,
+					"cacheRead": 0,
+					"cacheWrite": 47,
+					"totalTokens": 856,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_862416e36b",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "river quiet field alpha field cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_55e1d8a9f4",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud stone field stone cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-3cd62d96acb9",
+		"cacheRetention": "short",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\n",
+				"data: {\"type\":\"text_start\",\"contentIndex\":0}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"漢字 Привет Привет\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\" ñandú Grüße Ωmega naï\"}\n\n",
+				"data: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"ve\"}\n\n",
+				"data: {\"type\":\"text_end\",\"contentIndex\":0,\"content\":\"漢字 Привет Привет ñandú Grüße Ωmega naïve\"}\n\n",
+				"data: {\"type\":\"done\",\"reason\":\"stop\",\"usage\":{\"input\":118,\"output\":199,\"cacheRead\":0,\"cacheWrite\":0,\"totalTokens\":317,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"4e68faeecf890031\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "漢字 Привет Привет ñandú Grüße Ωmega naïve"
+			}
+		],
+		"usage": {
+			"input": 118,
+			"output": 199,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "4e68faeecf890031"
+	}
+}

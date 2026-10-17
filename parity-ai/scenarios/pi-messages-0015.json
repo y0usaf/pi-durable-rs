@@ -1,0 +1,131 @@
+{
+	"name": "pi-messages-0015",
+	"seed": "4971a9a98f345f66",
+	"api": "pi-messages",
+	"provider": "radius",
+	"model": {
+		"id": "claude-sonnet-4-5",
+		"name": "claude-sonnet-4-5",
+		"api": "pi-messages",
+		"provider": "radius",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7,
+			"output": 2.5,
+			"cacheRead": 0.75,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "漢字 Ωmega north Привет lamp naïve café amber",
+		"messages": [
+			{
+				"role": "user",
+				"content": "stone 😀",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-f1a45c9941c3",
+		"cacheRetention": "short",
+		"maxTokens": 4096,
+		"toolChoice": "none",
+		"sessionId": "session-beeeef2d",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"type\":\"start\"}\n\nd",
+				"ata: {\"type\":\"text_start\",\"contentIndex\":0}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"seven quiet stone \\ud801\"}\n\ndata: {\"type\":\"text_delta\",\"contentIndex\":0,\"delta\":\"\\udc37\"}\n\ndata: {\"type\":\"text_end\",\"co",
+				"ntentIndex\":0,\"content\":\"seven quiet stone 𐐷\"}\n\ndata: {\"type\":\"done\",\"reason\":\"stop\",\"usage\":{\"input\":297,\"output\":272,\"cacheRead\":",
+				"197,\"cacheWrite\":197,\"totalTokens\":963,\"cost\":{\"input\":0,\"output\":0,\"cacheRead\":0,\"cacheWrite\":0,\"total\":0}},\"responseId\":\"f877a8d1b0b88754\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "seven quiet stone 𐐷"
+			}
+		],
+		"usage": {
+			"input": 297,
+			"output": 272,
+			"cacheRead": 197,
+			"cacheWrite": 197
+		},
+		"responseId": "f877a8d1b0b88754"
+	}
+}
