@@ -1,0 +1,78 @@
+{
+	"name": "azure-openai-responses-0022",
+	"seed": "4106aff72a3a3ede",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 3,
+			"output": 2.75,
+			"cacheRead": 0.375,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsExplicitPromptCacheMode": true,
+			"supportsMidConvoSystemMessages": true
+		}
+	},
+	"context": {
+		"systemPrompt": "amber alpha stone alpha river",
+		"messages": [
+			{
+				"role": "user",
+				"content": "𐐷 🦀",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-532ec61cd0d2",
+		"reasoning": "low",
+		"cacheRetention": "long",
+		"temperature": 0.6,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_40d9b89f5fe24cd3\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_40d9b89f5fe24cd30\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_40d9b89f5fe24cd30\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_40d9b89f5fe24cd30\",\"output_index\":0,\"content_index\":0,\"delta\":\"alpha north seven north seven river hél\"}\n\nev",
+				"ent: respo",
+				"nse.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_40d9b89f5fe24cd30\",\"output_index\":0,\"content_index\":0,\"delta\":\"lo a\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_40d9b89f5fe24cd30\",\"output_index\":0,\"content_index\":0,\"delta\":\"lpha Ωmega\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_40d9b89f5fe24cd30\",\"output_index\":0,\"content_index\":0,\"text\":\"alpha north seven north seven river héllo alpha Ωmega\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_inde",
+				"x\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_40d9b89f5fe24cd30\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"alpha north seven north seven river héllo alpha Ωmega\",\"annotations\":[]}]}}\n\nevent: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":8,\"response\":{\"id\":\"resp_40d9b89f5fe24cd3\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[{\"type\":\"message\",\"id\":\"msg_40d9b89f5fe24cd30\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"alpha north seven north seven river héllo alpha Ωmega\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":521,\"output_tokens\":74,\"total_tokens\":595,\"input_tokens_details\":{\"cached_tokens\":338,\"cache_write_tokens\":95},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "alpha north seven north seven river héllo alpha Ωmega"
+			}
+		],
+		"usage": {
+			"input": 88,
+			"output": 74,
+			"cacheRead": 338,
+			"cacheWrite": 95
+		},
+		"responseId": "resp_40d9b89f5fe24cd3"
+	}
+}

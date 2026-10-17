@@ -1,0 +1,145 @@
+{
+	"name": "azure-openai-responses-0009",
+	"seed": "541defb6cffc62ae",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 6.75,
+			"output": 2,
+			"cacheRead": 0.375,
+			"cacheWrite": 0.5
+		},
+		"contextWindow": 32000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsDeveloperRole": false
+		}
+	},
+	"context": {
+		"systemPrompt": "alpha alpha Ωmega ñandú Ωmega north Ωmega river field",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven seven seven alpha cloud quiet"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-0d0e701a3c48",
+		"reasoning": "high",
+		"maxTokens": 256,
+		"temperature": 0.4,
+		"sessionId": "session-141bd9c2",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_f6b9790ed1a54ae4\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_f6b9790ed1a54ae40\",\"summary\":[]}}\n\nevent: response.reasoning_summary_part.added\ndata: {\"type\":\"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_f6b9790ed1a54ae40\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_f6b9790ed1a54ae40\",\"output_index\":0,\"summary_index\":0,\"delta\":\"👩‍\"}\n\nevent: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":4,\"item_id\":\"rs_f6b9790ed1a54ae40\",\"output_index\":0,\"summary_index\":0,\"delta\":\"💻\"}\n\nevent: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":5,\"item_id\":\"rs_f6b9790ed1a54ae40\",\"output_index\":0,\"summary_index\":0,\"text\":\"👩‍💻\"}\n\nevent: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":6,\"item_id\":\"rs_f6b9790ed1a54ae40\",\"output_index\":0,\"summary_index\"",
+				":0,\"part\":{\"type\":\"summary_text\",\"text\":\"👩‍💻\"}}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_f6b9790ed1a54ae40\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"👩‍💻\"}],\"encrypted_content\":\"7fd9202ac4327f168b4e8ee67a95fe1e4f802a5b\"}}\n\nevent: response.out",
+				"put_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":8,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_f6b9790ed1a54ae41\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":9,\"item_id\":\"msg_f6b9790ed1a54ae41\",\"output_index\":1,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":10,\"item_id\":\"msg_f6b",
+				"9790ed1a54ae41\",\"output_index\":1,\"content_index\":0,\"delta\":\"seven\"}\n\nevent: respons",
+				"e.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":11,\"item_id\":\"msg_f6b9790ed1a54ae41\",\"output_index\":1,\"content_index\":0,\"text\":\"seven\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":12,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_f6b9790ed1a54ae41\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven\",\"annotations\":[]}]}}\n\nevent: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":13,\"response\":{\"id\":\"resp_f6b9790ed1a54ae4\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-mini\",\"output\":[{\"t",
+				"ype\":\"reasoning\",\"id\":\"rs_f6b9790ed1a54ae40\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"👩‍💻\"}],\"encrypted_content\":\"7fd9202ac4327f168b4e8ee67a95fe1e4f802a5b\"},{\"type\":\"message\",\"id\":\"msg_f6b9790ed1a54ae41\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":483,\"output_tokens\":221,\"total_tokens\":704,\"input_tokens_details\":{\"cached_tokens\":0},\"output_t",
+				"okens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "👩‍💻"
+			},
+			{
+				"type": "text",
+				"text": "seven"
+			}
+		],
+		"usage": {
+			"input": 483,
+			"output": 221,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_f6b9790ed1a54ae4"
+	}
+}

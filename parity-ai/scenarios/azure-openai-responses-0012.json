@@ -1,0 +1,176 @@
+{
+	"name": "azure-openai-responses-0012",
+	"seed": "aae9cdaa31e80c98",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 2.75,
+			"output": 13,
+			"cacheRead": 0.125,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsDeveloperRole": false
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "alpha",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "seven cloud",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_3d691c9096d35415\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"seven cloud\"}],\"encrypted_content\":\"3d691c9096d35415503a44145932a945\"}"
+					},
+					{
+						"type": "text",
+						"text": "stone seven field cloud seven alpha"
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 103,
+					"output": 219,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 322,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field river lamp seven"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "field field field",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_0f9dfe0ded0cf6d7\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"field field field\"}],\"encrypted_content\":\"0f9dfe0ded0cf6d73f3966e96ca904fc\"}"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 716,
+					"output": 137,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 853,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "café lamp field field stone amber Ωmega naïve naïve 漢字",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "amber amber amber cloud field alpha"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 36,
+					"output": 227,
+					"cacheRead": 380,
+					"cacheWrite": 10,
+					"totalTokens": 653,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "north river ñandú",
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-b0d2758bf56c",
+		"reasoning": "xhigh",
+		"sessionId": "session-b7563794",
+		"headers": {
+			"x-parity-test": "a07c34"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_bda1d4708f017b6d\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

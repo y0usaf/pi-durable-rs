@@ -1,0 +1,229 @@
+{
+	"name": "azure-openai-responses-0018",
+	"seed": "0e8d2715e1b07315",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-5",
+		"name": "gpt-5",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 1.25,
+			"cacheRead": 0.625,
+			"cacheWrite": 2.75
+		},
+		"contextWindow": 200000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsMidConvoSystemMessages": false,
+			"supportsStrictMode": false
+		}
+	},
+	"context": {
+		"systemPrompt": "north cloud amber cloud stone quiet field quiet alpha river cloud seven",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber north"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "north lamp cloud stone alpha seven",
+						"thinkingSignature": "b4cf98724937d9d75633ba014461cc89"
+					},
+					{
+						"type": "text",
+						"text": "stone cloud amber field"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 35,
+					"output": 11,
+					"cacheRead": 61,
+					"cacheWrite": 136,
+					"totalTokens": 243,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud stone amber amber amber"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north river"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 351,
+					"output": 143,
+					"cacheRead": 263,
+					"cacheWrite": 0,
+					"totalTokens": 757,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp seven seven quiet cloud"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "🦀 quiet",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_4717f8e86f8f7773\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"🦀 quiet\"}],\"encrypted_content\":\"4717f8e86f8f77732e885dbf8ef21bb9\"}"
+					},
+					{
+						"type": "text",
+						"text": "🇯🇵 river field 𝄞 north seven seven"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 371,
+					"output": 82,
+					"cacheRead": 253,
+					"cacheWrite": 0,
+					"totalTokens": 706,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "stone seven 🦀 lamp north north seven",
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-b14ecacca164",
+		"headers": {
+			"x-parity-test": "b25931"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_9afee4d3316250ee\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_9afee4d3316250ee0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_9afee4d3316250ee0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_9afee4d3316250ee0\",\"output_index\":0,\"content_index\":0,\"delta\":\"quiet amber river stone cloud north\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":4,\"item_id\":\"msg_9afee4d3316250ee0\",\"output_index\":0,\"content_index\":0,\"text\":\"quiet amber river stone cloud north\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":5,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_9afee4d3316250ee0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"quiet amber river stone cloud north\",\"annotations\":[]}]}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":6,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_0257bf13db10\",\"call_id\":\"call_0257bf13db10\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":7,\"item_id\":\"fc_0257bf13db10\",\"output_index\":1,\"delta\":\"{\\\"q\\\"\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":8,\"item_id\":\"fc_0257bf13db10\",\"output_index\":1,\"delta\":\":\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":9,\"item_id\":\"fc_0257bf13db10\",\"output_index\":1,\"delta\":\"\\\"river stone\\\"}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":10,\"item_id\":\"fc_0257bf13db10\",\"output_index\":1,\"arguments\":\"{\\\"q\\\":\\\"river stone\\\"}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":11,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_0257bf13db10\",\"call_id\":\"call_0257bf13db10\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"river stone\\\"}\",\"status\":\"completed\"}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":12,\"response\":{\"id\":\"resp_9afee4d3316250ee\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[{\"type\":\"message\",\"id\":\"msg_9afee4d3316250ee0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"quiet amber river stone cloud north\",\"annotations\":[]}]},{\"type\":\"function_call\",\"id\":\"fc_0257bf13db10\",\"call_id\":\"call_0257bf13db10\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"river stone\\\"}\",\"status\":\"completed\"}],\"status\":\"completed\",\"usage\":{\"input_tokens\":477,\"output_tokens\":31,\"total_tokens\":508,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "quiet amber river stone cloud north"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_0257bf13db10|fc_0257bf13db10",
+				"name": "lookup",
+				"arguments": {
+					"q": "river stone"
+				}
+			}
+		],
+		"usage": {
+			"input": 477,
+			"output": 31,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_9afee4d3316250ee"
+	}
+}

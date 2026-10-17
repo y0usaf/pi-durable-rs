@@ -1,0 +1,125 @@
+{
+	"name": "azure-openai-responses-0021",
+	"seed": "6ddf9536d7a3c573",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.25,
+			"output": 1.25,
+			"cacheRead": 0,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "field field cloud alpha river"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-7f875286373f",
+		"reasoning": "low",
+		"cacheRetention": "none",
+		"sessionId": "session-70df2381",
+		"headers": {
+			"x-parity-test": "0623e7"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_1ccddbdc2d53b56d\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.",
+				"added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_1ccddbdc2d53b56d0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_numbe",
+				"r\":2,\"item_id\":\"msg_1cc",
+				"ddbdc2d53b56d0\",\"o",
+				"utput_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_1ccddbdc2d53b56d0\",\"output_index\":0,\"content_index\":0,\"delta\":\"cloud cloud quiet seven seve\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_1ccddbdc2d53b56d0\",\"output_index\":0,\"content_index\":0,\"delta\":\"n\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_1ccddbdc2d53b56d0\",\"output_index\":0,\"content_index\":0,\"delta\":\" stone amber river\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_1ccddbdc2d53b56d0\",\"output_index\":0,\"content_index\":0,\"text\":\"cloud cloud quiet seven seven stone amber river\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":",
+				"{\"type\":\"message\",\"id\":\"msg_1ccddbdc2d53b56d0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"cloud cloud quiet seven seven stone amber river\",\"annotations\":[]}]}}\n\nevent: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":8,\"response\":{\"id\":\"resp_1ccddbdc2d53b56d\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[{\"type\":\"message\",\"id\":\"msg_1ccddbdc2",
+				"d53b56d0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"cloud cloud quiet seven seven stone amber river\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":701,\"output_tokens\":176,\"total_tokens\":877,\"input_tokens_details\":{\"cached_tokens\":148,\"cache_write_tokens\":32},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "cloud cloud quiet seven seven stone amber river"
+			}
+		],
+		"usage": {
+			"input": 521,
+			"output": 176,
+			"cacheRead": 148,
+			"cacheWrite": 32
+		},
+		"responseId": "resp_1ccddbdc2d53b56d"
+	}
+}

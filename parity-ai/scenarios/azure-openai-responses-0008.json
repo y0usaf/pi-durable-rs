@@ -1,0 +1,58 @@
+{
+	"name": "azure-openai-responses-0008",
+	"seed": "c1a3d57ad08e75eb",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0,
+			"output": 10.25,
+			"cacheRead": 0.625,
+			"cacheWrite": 2
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "quiet north alpha stone lamp north alpha",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ac2d3ca88e37",
+		"reasoning": "low",
+		"cacheRetention": "long",
+		"temperature": 1,
+		"sessionId": "session-7de2facf",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 404,
+			"headers": {
+				"content-type": "text/plain"
+			},
+			"chunks": [
+				"north field river amber seven stone"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

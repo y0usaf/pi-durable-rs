@@ -1,0 +1,177 @@
+{
+	"name": "azure-openai-responses-0005",
+	"seed": "39f35aeb6ab5848c",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6,
+			"output": 10.75,
+			"cacheRead": 0.25,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000,
+		"compat": {
+			"sessionAffinityFormat": "openrouter"
+		}
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber Grüße"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud lamp 🇯🇵 alpha 👩‍💻 lamp river"
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 564,
+					"output": 172,
+					"cacheRead": 406,
+					"cacheWrite": 128,
+					"totalTokens": 1270,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "alpha amber seven field alpha seven 🦀 field alpha",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "river north"
+					},
+					{
+						"type": "text",
+						"text": "𝄞 stone"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 234,
+					"output": 224,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 458,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "lamp river north stone field amber river",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "héllo ñandú héllo Ωmega 漢字 Привет north naïve"
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 652,
+					"output": 80,
+					"cacheRead": 344,
+					"cacheWrite": 0,
+					"totalTokens": 1076,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "漢字 seven lamp Ωmega Привет cloud héllo",
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-f3418295291f",
+		"reasoning": "xhigh",
+		"maxTokens": 4096,
+		"sessionId": "session-198153b7",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_9023b0af7dfe088e\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":1,\"response\":{\"id\":\"resp_9023b0af7dfe088e\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-mini\",\"output\":[],\"status\":\"completed\",\"usage\":{\"input_tokens\":1157,\"output_tokens\":41,\"total_tokens\":1198,\"input_tokens_details\":{\"cached_tokens\":327},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 830,
+			"output": 41,
+			"cacheRead": 327,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_9023b0af7dfe088e"
+	}
+}

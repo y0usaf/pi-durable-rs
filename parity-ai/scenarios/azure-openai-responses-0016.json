@@ -1,0 +1,137 @@
+{
+	"name": "azure-openai-responses-0016",
+	"seed": "461224fb6c427c15",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.75,
+			"output": 9.75,
+			"cacheRead": 0.75,
+			"cacheWrite": 3.75
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsAdditionalTools": false,
+			"supportsDeveloperRole": true,
+			"supportsOpenAIGrammarTools": false
+		}
+	},
+	"context": {
+		"systemPrompt": "quiet river cloud lamp river cloud cloud lamp amber amber cloud cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "😀 𝄞 quiet river 😀 👩‍💻 👩‍💻 𝄞 cloud 👩‍💻",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north quiet stone alpha cloud north cloud"
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "o4-mini",
+				"usage": {
+					"input": 675,
+					"output": 145,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 820,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber lamp north"
+					}
+				],
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-79d6ad8e31fd",
+		"reasoning": "medium",
+		"cacheRetention": "short",
+		"temperature": 0.3,
+		"sessionId": "session-4fdd5043",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_84e6a5f328d830a1\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_84e6a5f328d830a10\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",",
+				"\"sequence_number\":2,\"item_id\":\"msg_84e6a5f328d830a10\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_84e6a5f328d830a10\",\"output_index\":0,\"content_ind",
+				"ex\":0,\"delta\":\"🇯🇵 alpha river seven stone stone 👩‍💻 𝄞\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":4,\"item_id\":\"msg_84e6a5f328d830a10\",\"output_index\":0,\"content_index\":0,\"text\":\"🇯🇵 alpha river seven stone stone 👩‍💻 𝄞\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":5,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_84e6a5f328d830a10\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"🇯🇵 alpha river seven stone stone 👩‍💻 𝄞\",\"annotations\":[]}]}}\n\nevent: error\ndata: {\"type\":\"error\",\"sequence_number\":6,\"code\":\"server_error\",\"message\":\"Upstream overloaded\",\"param\":null}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

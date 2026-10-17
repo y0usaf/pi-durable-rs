@@ -1,0 +1,111 @@
+{
+	"name": "azure-openai-responses-0003",
+	"seed": "02e2a3c0904d9587",
+	"api": "azure-openai-responses",
+	"provider": "azure",
+	"model": {
+		"id": "gpt-5",
+		"name": "gpt-5",
+		"api": "azure-openai-responses",
+		"provider": "azure",
+		"baseUrl": "http://127.0.0.1:PORT/openai/v1",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 0.5,
+			"output": 3.75,
+			"cacheRead": 1,
+			"cacheWrite": 2.5
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsDeveloperRole": true
+		}
+	},
+	"context": {
+		"systemPrompt": "river amber amber quiet north",
+		"messages": [
+			{
+				"role": "user",
+				"content": "café lamp Ωmega lamp quiet",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "river north"
+					}
+				],
+				"api": "azure-openai-responses",
+				"provider": "azure",
+				"model": "gpt-5",
+				"usage": {
+					"input": 811,
+					"output": 163,
+					"cacheRead": 98,
+					"cacheWrite": 0,
+					"totalTokens": 1072,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "lamp lamp stone",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-c0c5e0f9c72c",
+		"maxTokens": 1024,
+		"toolChoice": "none",
+		"sessionId": "session-4ea4f2a1",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_73983a526d6ae054\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_73983a526d6ae0540\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_73983a526d6ae0540\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_73983a526d6ae0540\",\"output_index\":0,\"content_index\":0,\"delta\":\"amber 👩‍💻 alpha 🦀 quiet alpha \"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_numbe",
+				"r\":4,\"item_id\":\"msg_73983a526d6ae0540\",\"output_index\":0,\"content_index\":0,\"delta\":\"alp\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_73983a526d6ae",
+				"0540\",\"output_index\":0,\"content_index\":0,\"delta\":\"ha\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_73983a526d6ae0540\",\"output_index\":0,\"content_index\":0,\"text\":\"amber 👩‍💻 alpha 🦀 quiet alpha alpha\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":{\"type\":\"",
+				"message\",\"id\":\"msg_73983a526d6ae0540\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"amber 👩‍💻 alpha 🦀 quiet alpha alpha\",\"annotations\":[]}]}}\n\nevent: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":8,\"response\":{\"id\":\"resp_73983a526d6ae054\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[{\"type\":\"message\",\"id\":\"msg_73983a526d6ae0540\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"amber 👩‍💻 alpha 🦀 quiet alpha alpha\",\"annotations\":[]}]}],\"status\":\"co",
+				"mpleted\",\"usage\":{\"input_tokens\":539,\"output_tokens\":290,\"total_tokens\":829,\"input_tokens_details\":{\"cached_token",
+				"s\":0,\"cache_write_tokens\":166},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "amber 👩‍💻 alpha 🦀 quiet alpha alpha"
+			}
+		],
+		"usage": {
+			"input": 373,
+			"output": 290,
+			"cacheRead": 0,
+			"cacheWrite": 166
+		},
+		"responseId": "resp_73983a526d6ae054"
+	}
+}
