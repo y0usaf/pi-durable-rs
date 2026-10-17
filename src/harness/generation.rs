@@ -12,7 +12,7 @@ use crate::entries::assistant_entry;
 use crate::errors::{Error, Result};
 use crate::harness::compaction::{create_compaction, estimate_context, select_cut};
 use crate::harness::context::ContextView;
-use crate::harness::inbox::QueueModes;
+use crate::harness::inbox::{Boundary, Phase, QueueModes, apply_boundary, prepare_boundary};
 use crate::harness::live::live_doc;
 use crate::harness::live::{GenerationStatus, LiveState, RunState};
 use crate::harness::prompt::{plan_system_entries, render_sections, replay_sections};
@@ -252,6 +252,25 @@ pub fn end_run(
     Ok(())
 }
 
+pub fn fail_run(
+    tx: &mut dyn Tx,
+    boundary: &mut Boundary,
+    live: &mut LiveState,
+    task_id: TaskId,
+    settlement: SubmissionSettlement,
+    now: u64,
+) -> Result<()> {
+    end_run(tx, live, task_id, settlement)?;
+    if live.run.is_some() {
+        return Ok(());
+    }
+    let result = apply_boundary(tx, boundary, Phase::Final, now)?;
+    if !result.users.is_empty() {
+        start_run(tx, boundary.conversation_id, live, result.users)?;
+    }
+    Ok(())
+}
+
 pub fn queue_modes(settings: &Settings) -> QueueModes {
     QueueModes {
         steering_mode: settings.steering_mode,
@@ -401,10 +420,20 @@ fn settle(
 ) -> Result<()> {
     let conversation_id = runtime.conversation_id();
     let task_id = runtime.task_id();
+    let modes = queue_modes(runtime.settings());
+    let now = runtime.now();
     runtime.commit(
         Box::new(move |tx, _task| {
+            let mut boundary = prepare_boundary(tx, conversation_id, modes)?;
             let mut live = read_live(tx, conversation_id)?;
-            end_run(tx, &mut live, erase(task_id), settlement)?;
+            fail_run(
+                tx,
+                &mut boundary,
+                &mut live,
+                erase(task_id),
+                settlement,
+                now,
+            )?;
             write_live(tx, conversation_id, &live)?;
             Ok(Some(NextTaskState::Terminal { outcome }))
         }),
