@@ -1,0 +1,20 @@
+{
+	"anthropic-messages:requests[].headers.user-agent": "Rust anthropic sets no user-agent outside OAuth (src/ai/api/anthropic/mod.rs:139-157), so http.rs:445 sends pi-durable/<version>; TS defaults to getPiUserAgent() (anthropic-messages.ts:304)",
+	"anthropic-messages:requests[].body.temperature": "Rust build() never reads options.temperature (src/ai/api/anthropic/request.rs:65-130); TS sets params.temperature (anthropic-messages.ts:1196-1201)",
+	"anthropic-messages:requests[].body.tool_choice": "Rust build() never reads options.tool_choice (src/ai/api/anthropic/request.rs:65-130); TS sets params.tool_choice (anthropic-messages.ts:1275)",
+	"anthropic-messages:requests[].body.messages[].content[].content[]": "Rust replaces images in error tool results with OMITTED_ERROR_IMAGE text (src/ai/api/anthropic/request.rs:741-742); TS 1.1.0 sends the image block",
+	"anthropic-messages:message.errorMessage": "Rust formats HTTP errors as `<status>: <body>` or the bare error.message (src/ai/api/anthropic/mod.rs:91-101, error_body.rs:38); TS shows the SDK APIError message `<status> <body>`",
+	"anthropic-messages-0007:message.errorMessage": "Rust serde_json rejects a lone UTF-16 surrogate escape split across SSE deltas and aborts the stream (src/ai/api/anthropic/stream.rs:60); V8 JSON.parse accepts it and the halves rejoin",
+	"anthropic-messages-0008:message.stopReason": "Rust serde_json rejects a lone UTF-16 surrogate escape split across SSE deltas and aborts the stream (src/ai/api/anthropic/stream.rs:60); V8 JSON.parse accepts it and the halves rejoin",
+	"openai-completions:requests.length": "Rust rejects compat keys it does not model (cacheControlFormat, supportsThinkingTokenBudget, supportsOpenAIGrammarTools, ...) before sending (src/ai/api/openai_completions/compat.rs:234-237); TS accepts every compat-schema.ts key",
+	"openai-completions:requests[].headers.accept": "the openai SDK sends Accept: application/json; Rust openai_completions headers() sets none (src/ai/api/openai_completions.rs:115-135)",
+	"openai-completions:requests[].headers.user-agent": "Rust sends http.rs:445 pi-durable/<version>; TS sets User-Agent getPiUserAgent() (openai-completions.ts:766)",
+	"openai-completions:requests[].body.temperature": "Rust build() never reads options.temperature (src/ai/api/openai_completions/request.rs:33-60); TS sets it (openai-completions.ts:851-852)",
+	"openai-completions:requests[].body.tool_choice": "Rust build() never reads options.tool_choice (src/ai/api/openai_completions/request.rs:33-60); TS sets it (openai-completions.ts:870)",
+	"openai-completions:requests[].body.tools[].function.strict": "Rust defaults supports_strict_mode to true (src/ai/api/openai_completions/compat.rs:145) and emits strict:false (request.rs:261-262); TS detection defaults supportsStrictMode false (openai-completions.ts:1675) and omits it",
+	"openai-completions:requests[].body.reasoning": "Rust off_value() returns None when the model has no thinkingLevelMap (src/ai/api/openai_completions/request.rs:161-166); TS sends reasoning.effort = thinkingLevelMap?.off ?? \"none\" (openai-completions.ts:946)",
+	"openai-completions:message.errorMessage": "Rust prints `<status>: <text>` and keeps the whole JSON body (src/ai/error_body.rs:38); TS uses the SDK APIError: `<status> <text>` for plain text and body.error for JSON",
+	"openai-completions-0017:message.stopReason": "Rust serde_json rejects a lone UTF-16 surrogate escape split across chunks and fails the stream (src/ai/api/openai_completions/stream.rs:52); V8 JSON.parse accepts it",
+	"parseStreamingJson#7:parseStreamingJson.value": "a Rust String cannot hold a lone UTF-16 surrogate, so parse_streaming_json drops the dangling \\ud83d (src/ai/json_parse.rs:323); TS keeps it",
+	"truncateErrorText#3:truncateErrorText.value": "truncate_error_text cuts on UTF-16 units but must return valid UTF-8, so a split surrogate becomes U+FFFD (src/ai/error_body.rs:7); TS keeps the lone half"
+}
