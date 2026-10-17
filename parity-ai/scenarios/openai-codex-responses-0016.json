@@ -1,0 +1,128 @@
+{
+	"name": "openai-codex-responses-0016",
+	"seed": "0f60b7d34efc07fa",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.2",
+		"name": "gpt-5.2",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7,
+			"output": 3.75,
+			"cacheRead": 0.25,
+			"cacheWrite": 3.75
+		},
+		"contextWindow": 32000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsOpenAIGrammarTools": false,
+			"supportsToolSearch": false
+		}
+	},
+	"context": {
+		"systemPrompt": "quiet amber alpha river cloud north amber amber",
+		"messages": [
+			{
+				"role": "user",
+				"content": "north amber river quiet north alpha",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF83OTY5NWMxNmZjMTcifX0.sig",
+		"reasoning": "medium",
+		"cacheRetention": "none",
+		"maxTokens": 1024,
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_bfba850a52841821\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.2\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_bfba850a528418210\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_bfba850a528418210\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_bfba850a528418210\",\"output_index\":0,\"content_index\":0,\"delta\":\"river am\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_bfba850a528418210\",\"output_index\":0,\"content_index\":0,\"delta\":\"ber 🦀 lamp 𝄞 field r\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_bfba850a528418210\",\"output_index\":0,\"content_index\":0,\"delta\":\"iver\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_bfba850a528418210\",\"output_index\":0,\"content_index\":0,\"text\":\"river amber 🦀 lamp 𝄞 field river\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_bfba850a528418210\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"river amber 🦀 lamp 𝄞 field river\",\"annotations\":[]}]}}\n\nevent: response.outp",
+				"ut_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":8,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_d87e33c1a64d\",\"call_id\":\"call_d87e33c1a64d\",\"name",
+				"\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":9,\"item_id\":\"fc_d87e33c1a64d\",\"output_index\":1,\"delta\":\"{\\\"q\\\":\\\"🇯🇵 lamp cloud\\\"}\"}\n\nevent: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":10,\"item_id\":\"fc_d87e33c1a64d\",\"output_index\":1,",
+				"\"arguments\":\"{\\\"q\\\":\\\"🇯🇵 lamp cloud\\\"}\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":11,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_d87e33c1a64d\",\"call_id\":\"call_d87e33c1a64d\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"🇯🇵 lamp cloud\\\"}\",\"status\":\"completed\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":12,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_8c338c9570ba\",\"call_id\":\"call_8c338c9570ba\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":13,\"item_id\":\"fc_8c338c9570ba\",\"output_index\":2,\"delta\":\"{\\\"q\\\":\\\"🇯\"}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":14,\"item_id\":\"fc_8c338c9570ba\",\"output_index\":2,\"delta\":\"🇵 𐐷 seven\"}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":15,\"item_id\":\"fc_8c338c9570ba\",\"output_index\":2,\"delta\":\"\\\"}\"}\n\nevent: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":16,\"item_id\":\"fc_8c338c9570ba\",\"output_index\":2,\"arguments\":\"{\\\"q\\\":\\\"🇯🇵 𐐷 seven\\\"}\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":17,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_8c338c9570ba\",\"call_id\":\"call_8c338c9570ba\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"🇯🇵 𐐷 seven\\\"}\",\"status\":\"completed\"}}\n\nevent: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":18,\"response\":{\"id\":\"resp_bfba850a52841821\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.2\",\"output\":[{\"type\":\"message\",\"id\":\"msg_bfba850a528418210\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"river amber 🦀 lamp 𝄞 field river\",\"annotations\":[]}]},{\"type\":\"function_call\",\"id\":\"fc_d87e33c1a64d\",\"call_id\":\"call_d87e33c1a64d\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"🇯🇵 lamp cloud\\\"}\",\"status\":\"completed\"},{\"type\":\"function_call\",\"id\":\"fc_8c338c9570ba\",\"call_id\":\"call_8c338c9570ba\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"🇯🇵 𐐷 seven\\\"}\",\"status\":\"completed\"}],\"status\":\"completed\",\"usage\":{\"input_tokens\":591,\"output_tokens\":269,\"total_tokens\":860,\"input_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":11},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "river amber 🦀 lamp 𝄞 field river"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_d87e33c1a64d|fc_d87e33c1a64d",
+				"name": "lookup",
+				"arguments": {
+					"q": "🇯🇵 lamp cloud"
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_8c338c9570ba|fc_8c338c9570ba",
+				"name": "lookup",
+				"arguments": {
+					"q": "🇯🇵 𐐷 seven"
+				}
+			}
+		],
+		"usage": {
+			"input": 580,
+			"output": 269,
+			"cacheRead": 0,
+			"cacheWrite": 11
+		},
+		"responseId": "resp_bfba850a52841821"
+	}
+}

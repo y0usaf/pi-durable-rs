@@ -1,0 +1,98 @@
+{
+	"name": "openai-codex-responses-0021",
+	"seed": "fec2b9cdcc959a7e",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.2",
+		"name": "gpt-5.2",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 5,
+			"output": 3,
+			"cacheRead": 0.625,
+			"cacheWrite": 1
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "漢字 héllo amber seven lamp lamp",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud cloud lamp north lamp north"
+					}
+				],
+				"api": "anthropic-messages",
+				"provider": "anthropic",
+				"model": "claude-sonnet-4-5",
+				"usage": {
+					"input": 321,
+					"output": 126,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 447,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "cloud amber river 👩‍💻 lamp lamp quiet 🇯🇵",
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF83OTFkYjJkN2RlYmQifX0.sig",
+		"maxTokens": 32000,
+		"sessionId": "session-ab794418",
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 500,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"stone seven cloud\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

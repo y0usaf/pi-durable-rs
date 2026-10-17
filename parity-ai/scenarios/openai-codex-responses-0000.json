@@ -1,0 +1,81 @@
+{
+	"name": "openai-codex-responses-0000",
+	"seed": "976f515092ce0a05",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5-codex",
+		"name": "gpt-5-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2,
+			"output": 1.75,
+			"cacheRead": 0.375,
+			"cacheWrite": 2.5
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": "cloud",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF9hMTY0YmFmODgwYTgifX0.sig",
+		"maxTokens": 256,
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 400,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"north seven north\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

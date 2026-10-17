@@ -1,0 +1,83 @@
+{
+	"name": "openai-codex-responses-0004",
+	"seed": "c12dd099b735fc7a",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5-codex",
+		"name": "gpt-5-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2.25,
+			"output": 9.75,
+			"cacheRead": 0.75,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384,
+		"compat": {
+			"supportsAdditionalTools": true,
+			"supportsToolSearch": false
+		}
+	},
+	"context": {
+		"systemPrompt": "river alpha alpha alpha alpha north lamp field seven north field alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": "café north Ωmega stone stone héllo river",
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF9lMDg3OTIyYzYzODYifX0.sig",
+		"maxTokens": 1024,
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_29be379beff75f0b\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-codex\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_29be379beff75f0b0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_29be379beff75f0b0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_29be379beff75f0b0\",\"output_index\":0,\"content_index\":0,\"delta\":\"qu\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_29be379beff75f0b0\",\"output_index\":0,\"content_index\":0,\"delta\":\"iet field 🇯🇵 alpha 😀 north \"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_29be379beff75f0b0\",\"output_index\":0,\"content_index\":0,\"delta\":\"cl\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":6,\"item_id\":\"msg_29be379beff75f0b0\",\"output_index\":0,\"content_index\":0,\"delta\":\"oud amber field\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":7,\"item_id\":\"msg_29be379beff75f0b0\",\"output_index\":0,\"content_index\":0,\"text\":\"quiet field 🇯🇵 alpha 😀 north cloud amber field\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":8,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_29be379beff75f0b0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"quiet field 🇯🇵 alpha 😀 north cloud amber field\",\"annotations\":[]}]}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":9,\"response\":{\"id\":\"resp_29be379beff75f0b\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-codex\",\"output\":[{\"type\":\"message\",\"id\":\"msg_29be379beff75f0b0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"quiet field 🇯🇵 alpha 😀 north cloud amber field\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":664,\"output_tokens\":121,\"total_tokens\":785,\"input_tokens_details\":{\"cached_tokens\":350},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "quiet field 🇯🇵 alpha 😀 north cloud amber field"
+			}
+		],
+		"usage": {
+			"input": 314,
+			"output": 121,
+			"cacheRead": 350,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_29be379beff75f0b"
+	}
+}

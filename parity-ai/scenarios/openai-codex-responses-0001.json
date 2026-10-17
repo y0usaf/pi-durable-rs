@@ -1,0 +1,133 @@
+{
+	"name": "openai-codex-responses-0001",
+	"seed": "37a12bd529972110",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5.1-codex-mini",
+		"name": "gpt-5.1-codex-mini",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 1,
+			"output": 14.25,
+			"cacheRead": 0,
+			"cacheWrite": 4
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsLongCacheRetention": false,
+			"supportsMaxOutputTokens": false
+		}
+	},
+	"context": {
+		"systemPrompt": "漢字 north cloud 漢字 cloud café seven",
+		"messages": [
+			{
+				"role": "user",
+				"content": "seven river",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF81NzczNTYzZGI3YzIifX0.sig",
+		"reasoning": "high",
+		"cacheRetention": "none",
+		"maxTokens": 256,
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":",
+				"\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_131ba0277044be26\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.1-codex-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_131ba0277044be260\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\nevent: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_131ba0277044be260\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\nevent: response.output_t",
+				"ext.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_131ba0277044be260\",\"output_index\":0,\"content_index\":0,\"delta\":\"ambe\"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_131ba0277044be260\",\"output_index\":0,\"content_index\":0,\"delta\":\"r \"}\n\nevent: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_131ba0277044be260\",\"output_index\":0,\"content_index\":0,\"delta\":\"c\"}\n\nevent: response.output_text.delta\ndata: {\"ty",
+				"pe\":\"response.output_text.delta\",\"sequence_number\":6,\"item_id\":\"msg_131ba0277044be260\",\"output_index\":0,\"content_index\":0,\"delta\":\"loud\"}\n\nevent: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":7,\"item_id\":\"msg_131ba0277044be260\",\"output_index\":0,\"content_index\":0,\"text\":\"amber cloud\"}\n\nevent: response.output_ite",
+				"m.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":8,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_131ba0277044be260\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"amber cloud\",\"annotations\":[]}]}}\n\nevent: response.output_item.added\ndata: {",
+				"\"type\":\"response.output_item.added\",\"sequence_number\":9,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_1cd86eb5fbf3\",\"call_id\":\"call_1cd86eb5fbf3\",\"name\"",
+				":\"nested_shape\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":10,\"item_id\":\"fc_1cd86eb5fbf3\",\"output_index\":1,\"delta\":\"{\\\"box\\\":{\\\"w\\\":6,\\\"h\\\":0.5}}\"}\n\nevent: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":11,\"item_id\":\"fc_1cd86eb5fbf3\",\"output_index\":1,\"arguments\":\"{\\\"box\\\":{\\\"w\\\":6,\\\"h\\\":0.5}}\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":12,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_1cd86eb5fbf3\",\"call_id\":\"call_1cd86eb5fbf3\",\"name\":\"nested_shape\",\"arguments\":\"{\\\"box\\\":{\\\"w\\\":6,\\\"h\\\":0.5}}\",\"status\":\"completed\"}}\n\nevent: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":13,\"response\":{\"id\":\"resp_131ba0277044be26\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5.1-codex-mini\",\"output\":[{\"type\":\"message\",\"id\":\"msg_131ba0277044be260\",",
+				"\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"amber cloud\",\"annotations\":[]}]},{\"type\":\"function_call\",\"id\":\"fc_1cd86eb5fbf3\",\"call_id\":\"call_1cd86eb5fbf3\",\"name\":\"nested_shape\",\"arguments\":\"{\\\"box\\\":{\\\"w\\\":6,\\\"h\\\":0.5}}\",\"status\":\"completed\"}],\"status\":\"completed\",\"usage\":{\"input_tokens\":935,\"output_tokens\":27,\"total_tokens\":962,\"input_tokens_details\":{\"cached_tokens\":238},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "amber cloud"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_1cd86eb5fbf3|fc_1cd86eb5fbf3",
+				"name": "nested_shape",
+				"arguments": {
+					"box": {
+						"w": 6,
+						"h": 0.5
+					}
+				}
+			}
+		],
+		"usage": {
+			"input": 697,
+			"output": 27,
+			"cacheRead": 238,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_131ba0277044be26"
+	}
+}

@@ -1,0 +1,211 @@
+{
+	"name": "openai-codex-responses-0005",
+	"seed": "ee874449f4f6aa2b",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5-codex",
+		"name": "gpt-5-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 1.75,
+			"output": 3.25,
+			"cacheRead": 0.5,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 64000,
+		"compat": {
+			"supportsAdditionalTools": true,
+			"supportsMidConvoSystemMessages": false
+		}
+	},
+	"context": {
+		"systemPrompt": "north stone cloud quiet north cloud amber river field stone cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "lamp",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "river amber field"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_77b5bea6fa",
+						"name": "noop",
+						"arguments": {}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_9cc03fe051",
+						"name": "lookup",
+						"arguments": {
+							"q": "stone alpha cloud"
+						}
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5-codex",
+				"usage": {
+					"input": 154,
+					"output": 65,
+					"cacheRead": 71,
+					"cacheWrite": 0,
+					"totalTokens": 290,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_77b5bea6fa",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "river cloud stone quiet north"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_9cc03fe051",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_caf73ee319",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "openai-codex-responses",
+				"provider": "openai-codex",
+				"model": "gpt-5-codex",
+				"usage": {
+					"input": 127,
+					"output": 259,
+					"cacheRead": 0,
+					"cacheWrite": 103,
+					"totalTokens": 489,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_caf73ee319",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven 😀 𐐷 𝄞 seven cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000006000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF80NDI0YzllOGI1OWQifX0.sig",
+		"sessionId": "session-a2d5fe1b",
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 401,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"message\":\"north lamp\",\"type\":\"invalid_request_error\",\"code\":null}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

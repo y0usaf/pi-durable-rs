@@ -58,11 +58,13 @@ const MODELS = {
 	"anthropic-messages": { providers: ["anthropic"], ids: ["claude-sonnet-4-5", "claude-opus-4-6", "claude-haiku-4-5", "claude-3-5-haiku-20241022"], path: "" },
 	"openai-completions": { providers: ["openai", "openrouter", "xai", "groq", "deepseek", "cerebras", "zai"], ids: ["gpt-4o-mini", "gpt-5-mini", "o3-mini", "deepseek-chat", "grok-4", "llama-3.3-70b"], path: "/v1" },
 	"openai-responses": { providers: ["openai", "openrouter", "xai"], ids: ["gpt-5", "gpt-5-mini", "o4-mini", "gpt-4.1", "grok-4"], path: "/v1" },
+	"openai-codex-responses": { providers: ["openai-codex"], ids: ["gpt-5.1-codex", "gpt-5-codex", "gpt-5.2", "gpt-5.1-codex-mini"], path: "" },
 };
 const COMPAT = {
 	"anthropic-messages": schemas.AnthropicMessagesCompatSchema,
 	"openai-completions": schemas.OpenAICompletionsCompatSchema,
 	"openai-responses": schemas.OpenAIResponsesCompatSchema,
+	"openai-codex-responses": schemas.OpenAIResponsesCompatSchema,
 };
 const RESPONSES = new Set(["openai-responses", "openai-codex-responses", "azure-openai-responses"]);
 const FOREIGN = [
@@ -201,6 +203,11 @@ function options(r, api) {
 		maxRetries: 0,
 		timeoutMs: 10000,
 	};
+	if (api === "openai-codex-responses") {
+		const claims = { "https://api.openai.com/auth": { chatgpt_account_id: "acct_" + o.apiKey.slice(-12) } };
+		o.apiKey = "eyJhbGciOiJub25lIn0." + Buffer.from(JSON.stringify(claims)).toString("base64url") + ".sig";
+		o.transport = "sse";
+	}
 	return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined));
 }
 
@@ -375,10 +382,11 @@ function responsesEvents(c, model, terminal) {
 	return terminal ? terminal(out) : out;
 }
 ENCODE["openai-responses"] = (c, model) => responsesEvents(c, model);
+ENCODE["openai-codex-responses"] = (c, model) => responsesEvents(c, model);
 
-const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"] };
-const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_" };
-const TOOL_ID = { "openai-responses": (id) => id + "|fc_" + id.slice(5) };
+const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"], "openai-codex-responses": ["thinking", "text", "toolCall"] };
+const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_", "openai-codex-responses": "resp_" };
+const TOOL_ID = { "openai-responses": (id) => id + "|fc_" + id.slice(5), "openai-codex-responses": (id) => id + "|fc_" + id.slice(5) };
 
 function expectOf(c, api, model) {
 	const lenient = api === "openai-completions" && c.tail === "truncated" && model.compat?.supportsFinishReason === false;

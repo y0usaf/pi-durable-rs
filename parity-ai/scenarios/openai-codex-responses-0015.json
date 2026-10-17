@@ -1,0 +1,168 @@
+{
+	"name": "openai-codex-responses-0015",
+	"seed": "6179f5e70869a9de",
+	"api": "openai-codex-responses",
+	"provider": "openai-codex",
+	"model": {
+		"id": "gpt-5-codex",
+		"name": "gpt-5-codex",
+		"api": "openai-codex-responses",
+		"provider": "openai-codex",
+		"baseUrl": "http://127.0.0.1:PORT",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.5,
+			"output": 0.75,
+			"cacheRead": 0.5,
+			"cacheWrite": 1.25
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsDeveloperRole": false
+		}
+	},
+	"context": {
+		"systemPrompt": "amber river lamp river amber field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "seven cloud seven north amber cloud 😀 north",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field alpha field field cloud"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_6bd8a9d75a",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 593,
+					"output": 161,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 754,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_6bd8a9d75a",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "🦀 amber lamp 🦀"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": "seven river amber cloud river",
+				"timestamp": 1700000004000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "eyJhbGciOiJub25lIn0.eyJodHRwczovL2FwaS5vcGVuYWkuY29tL2F1dGgiOnsiY2hhdGdwdF9hY2NvdW50X2lkIjoiYWNjdF82OWI2YjRkODg2MTAifX0.sig",
+		"reasoning": "minimal",
+		"cacheRetention": "long",
+		"maxTokens": 4096,
+		"temperature": 0.4,
+		"maxRetries": 0,
+		"timeoutMs": 10000,
+		"transport": "sse"
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_366baf0d45cccae5\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-codex\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_366baf0d45cccae50\",\"summary\":[]}}\n\n",
+				"event: response.reasoning_summary_part.added\ndata: {\"type\":\"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_366baf0d45cccae50\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_366baf0d45cccae50\",\"output_index\":0,\"summary_index\":0,\"delta\":\"a\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":4,\"item_id\":\"rs_366baf0d45cccae50\",\"output_index\":0,\"summary_index\":0,\"delta\":\"mber seven\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":5,\"item_id\":\"rs_366baf0d45cccae50\",\"output_index\":0,\"summary_index\":0,\"delta\":\" \"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":6,\"item_id\":\"rs_366baf0d45cccae50\",\"output_index\":0,\"summary_index\":0,\"delta\":\"quiet\"}\n\n",
+				"event: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":7,\"item_id\":\"rs_366baf0d45cccae50\",\"output_index\":0,\"summary_index\":0,\"text\":\"amber seven quiet\"}\n\n",
+				"event: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":8,\"item_id\":\"rs_366baf0d45cccae50\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"amber seven quiet\"}}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":9,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_366baf0d45cccae50\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"amber seven quiet\"}],\"encrypted_content\":\"d24a4cb918cb6da49d91c93cead4f747f2dd4247\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":10,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_366baf0d45cccae51\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":11,\"item_id\":\"msg_366baf0d45cccae51\",\"output_index\":1,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":12,\"item_id\":\"msg_366baf0d45cccae51\",\"output_index\":1,\"content_index\":0,\"delta\":\"seven clo\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":13,\"item_id\":\"msg_366baf0d45cccae51\",\"output_index\":1,\"content_index\":0,\"delta\":\"ud\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":14,\"item_id\":\"msg_366baf0d45cccae51\",\"output_index\":1,\"content_index\":0,\"text\":\"seven cloud\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":15,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_366baf0d45cccae51\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven cloud\",\"annotations\":[]}]}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":16,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_cc9dd08ff25e\",\"call_id\":\"call_cc9dd08ff25e\",\"name\":\"noop\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":17,\"item_id\":\"fc_cc9dd08ff25e\",\"output_index\":2,\"delta\":\"{\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":18,\"item_id\":\"fc_cc9dd08ff25e\",\"output_index\":2,\"delta\":\"}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":19,\"item_id\":\"fc_cc9dd08ff25e\",\"output_index\":2,\"arguments\":\"{}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":20,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_cc9dd08ff25e\",\"call_id\":\"call_cc9dd08ff25e\",\"name\":\"noop\",\"arguments\":\"{}\",\"status\":\"completed\"}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":21,\"response\":{\"id\":\"resp_366baf0d45cccae5\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-codex\",\"output\":[{\"type\":\"reasoning\",\"id\":\"rs_366baf0d45cccae50\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"amber seven quiet\"}],\"encrypted_content\":\"d24a4cb918cb6da49d91c93cead4f747f2dd4247\"},{\"type\":\"message\",\"id\":\"msg_366baf0d45cccae51\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven cloud\",\"annotations\":[]}]},{\"type\":\"function_call\",\"id\":\"fc_cc9dd08ff25e\",\"call_id\":\"call_cc9dd08ff25e\",\"name\":\"noop\",\"arguments\":\"{}\",\"status\":\"completed\"}],\"status\":\"completed\",\"usage\":{\"input_tokens\":91,\"output_tokens\":80,\"total_tokens\":171,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "amber seven quiet"
+			},
+			{
+				"type": "text",
+				"text": "seven cloud"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_cc9dd08ff25e|fc_cc9dd08ff25e",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 91,
+			"output": 80,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_366baf0d45cccae5"
+	}
+}

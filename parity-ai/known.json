@@ -21,5 +21,12 @@
 	"openai-responses:requests[].headers.user-agent": "Rust sends http.rs:445 pi-durable/<version>; TS sets User-Agent getPiUserAgent() (openai-responses.ts:267)",
 	"openai-responses:requests[].body.temperature": "Rust build() never reads options.temperature (src/ai/api/openai_responses/request.rs:72-115); TS sets it (openai-responses.ts:344-345)",
 	"openai-responses:requests[].body.tool_choice": "Rust build() never reads options.tool_choice and only forces \"auto\" internally (src/ai/api/openai_responses/request.rs:110); TS sends options.toolChoice (openai-responses.ts:360)",
-	"openai-responses:message.errorMessage": "Rust formats an SSE error event as `Error Code <code>: <message>` (src/ai/api/openai_responses/events.rs:169), the pi-ai branch the openai SDK never reaches: its Stream throws APIError(data) first, so TS shows only the message"
+	"openai-responses:message.errorMessage": "Rust formats an SSE error event as `Error Code <code>: <message>` (src/ai/api/openai_responses/events.rs:169), the pi-ai branch the openai SDK never reaches: its Stream throws APIError(data) first, so TS shows only the message",
+	"openai-codex-responses:requests[].headers.accept": "codex HEADERS lists accept: text/event-stream (src/ai/api/openai_responses/codex.rs:21) but headers() filters accept out (src/ai/api/openai_responses/mod.rs:252); TS sets it (openai-codex-responses.ts:1672)",
+	"openai-codex-responses:requests[].headers.originator": "Rust ORIGINATOR is \"pig\" (src/ai/oauth/openai_codex.rs:13); TS sends originator: pi (openai-codex-responses.ts:1647)",
+	"openai-codex-responses:requests[].headers.user-agent": "Rust sends http.rs:445 pi-durable/<version>; TS sets User-Agent getPiUserAgent() (openai-codex-responses.ts:1647)",
+	"openai-codex-responses:requests[].body.temperature": "Rust build() never reads options.temperature (src/ai/api/openai_responses/request.rs:72-115); TS sets it (openai-codex-responses.ts:566-567)",
+	"openai-codex-responses:requests[].body.tool_choice": "Rust hardcodes tool_choice \"auto\" (src/ai/api/openai_responses/request.rs:110); TS sends options.toolChoice ?? \"auto\" (openai-codex-responses.ts:562)",
+	"openai-codex-responses:requests[].body.tools[].strict": "Rust emits strict only when compat.supportsStrictMode (src/ai/api/openai_responses/request.rs:180-181); TS codex passes strict: null through convertResponsesTools (openai-codex-responses.ts:575, openai-responses-shared.ts:393)",
+	"openai-codex-responses-0011:message.stopReason": "Rust serde_json rejects a lone UTF-16 surrogate escape split across deltas and fails the stream (src/ai/api/openai_responses/events.rs:61); V8 JSON.parse accepts it"
 }

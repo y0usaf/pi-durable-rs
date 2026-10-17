@@ -1,12 +1,15 @@
 import { appendFileSync, readdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { join } from "node:path";
+import { gunzipSync, inflateSync, zstdDecompressSync } from "node:zlib";
 
 const [scenarioDir, outDir, ...sides] = process.argv.slice(2);
 if (!scenarioDir || !outDir || sides.length === 0) throw new Error("usage: server.mjs <scenarios-dir> <out-dir> <side>...");
 const log = join(outDir, "requests.jsonl");
 writeFileSync(log, "");
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const DECODE = { zstd: zstdDecompressSync, gzip: gunzipSync, deflate: inflateSync };
+const decode = (bytes, encoding) => (encoding && DECODE[encoding] ? DECODE[encoding](bytes) : bytes);
 
 function listen(side, scenario) {
 	const queue = [...scenario.script];
@@ -16,7 +19,7 @@ function listen(side, scenario) {
 		const reply = queue.shift() ?? { status: 599, headers: { "content-type": "text/plain" }, chunks: ["parity-ai: script exhausted"] };
 		appendFileSync(
 			log,
-			JSON.stringify({ side, name: scenario.name, method: req.method, url: req.url, headers: req.headers, body: Buffer.concat(chunks).toString("utf8") }) + "\n",
+			JSON.stringify({ side, name: scenario.name, method: req.method, url: req.url, headers: req.headers, body: decode(Buffer.concat(chunks), req.headers["content-encoding"]).toString("utf8") }) + "\n",
 		);
 		res.writeHead(reply.status, reply.headers);
 		for (const chunk of reply.chunks) {
