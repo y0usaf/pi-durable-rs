@@ -1,0 +1,171 @@
+{
+	"name": "openai-responses-0003",
+	"seed": "77e3c092a86de566",
+	"api": "openai-responses",
+	"provider": "openrouter",
+	"model": {
+		"id": "gpt-4.1",
+		"name": "gpt-4.1",
+		"api": "openai-responses",
+		"provider": "openrouter",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.75,
+			"output": 2.75,
+			"cacheRead": 0,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "north lamp field field lamp field river seven river north north",
+		"messages": [
+			{
+				"role": "user",
+				"content": "amber north quiet seven seven lamp river north lamp",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "café naïve cloud Grüße quiet river"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "gpt-4.1",
+				"usage": {
+					"input": 590,
+					"output": 274,
+					"cacheRead": 0,
+					"cacheWrite": 33,
+					"totalTokens": 897,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber alpha amber"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_1d2efac922716089\",\"summary\":[],\"encrypted_content\":\"1d2efac92271608938297284\"}",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "north amber seven cloud amber field north"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "gpt-4.1",
+				"usage": {
+					"input": 779,
+					"output": 112,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 891,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "quiet 👩‍💻 cloud river",
+				"timestamp": 1700000005000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-158907d286ee",
+		"reasoning": "minimal",
+		"toolChoice": "auto",
+		"sessionId": "session-08a76c5f",
+		"headers": {
+			"x-parity-test": "922ead"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_288ff6d489d28ed0\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-4.1\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_288ff6d489d28ed00\",\"summary\":[]}}\n\n",
+				"event: response.reasoning_summary_part.added\ndata: {\"type\":\"response.reasoning_summary_part.added\",\"sequence_number\":2,\"item_id\":\"rs_288ff6d489d28ed00\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"\"}}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":3,\"item_id\":\"rs_288ff6d489d28ed00\",\"output_index\":0,\"summary_index\":0,\"delta\":\"G\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":4,\"item_id\":\"rs_288ff6d489d28ed00\",\"output_index\":0,\"summary_index\":0,\"delta\":\"rüß\"}\n\n",
+				"event: response.reasoning_summary_text.delta\ndata: {\"type\":\"response.reasoning_summary_text.delta\",\"sequence_number\":5,\"item_id\":\"rs_288ff6d489d28ed00\",\"output_index\":0,\"summary_index\":0,\"delta\":\"e\"}\n\n",
+				"event: response.reasoning_summary_text.done\ndata: {\"type\":\"response.reasoning_summary_text.done\",\"sequence_number\":6,\"item_id\":\"rs_288ff6d489d28ed00\",\"output_index\":0,\"summary_index\":0,\"text\":\"Grüße\"}\n\n",
+				"event: response.reasoning_summary_part.done\ndata: {\"type\":\"response.reasoning_summary_part.done\",\"sequence_number\":7,\"item_id\":\"rs_288ff6d489d28ed00\",\"output_index\":0,\"summary_index\":0,\"part\":{\"type\":\"summary_text\",\"text\":\"Grüße\"}}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":8,\"output_index\":0,\"item\":{\"type\":\"reasoning\",\"id\":\"rs_288ff6d489d28ed00\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"Grüße\"}],\"encrypted_content\":\"60eab6cf9ab301473381ef97fb5ffe6018495395\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":9,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_288ff6d489d28ed01\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":10,\"item_id\":\"msg_288ff6d489d28ed01\",\"output_index\":1,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":11,\"item_id\":\"msg_288ff6d489d28ed01\",\"output_index\":1,\"content_index\":0,\"delta\":\"Привет héllo ñandú Grüße héllo 漢字 field amber \"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":12,\"item_id\":\"msg_288ff6d489d28ed01\",\"output_index\":1,\"content_index\":0,\"delta\":\"café rive\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":13,\"item_id\":\"msg_288ff6d489d28ed01\",\"output_index\":1,\"content_index\":0,\"delta\":\"r\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":14,\"item_id\":\"msg_288ff6d489d28ed01\",\"output_index\":1,\"content_index\":0,\"text\":\"Привет héllo ñandú Grüße héllo 漢字 field amber café river\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":15,\"output_index\":1,\"item\":{\"type\":\"message\",\"id\":\"msg_288ff6d489d28ed01\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"Привет héllo ñandú Grüße héllo 漢字 field amber café river\",\"annotations\":[]}]}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":16,\"response\":{\"id\":\"resp_288ff6d489d28ed0\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-4.1\",\"output\":[{\"type\":\"reasoning\",\"id\":\"rs_288ff6d489d28ed00\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"Grüße\"}],\"encrypted_content\":\"60eab6cf9ab301473381ef97fb5ffe6018495395\"},{\"type\":\"message\",\"id\":\"msg_288ff6d489d28ed01\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"Привет héllo ñandú Grüße héllo 漢字 field amber café river\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":536,\"output_tokens\":80,\"total_tokens\":616,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "Grüße"
+			},
+			{
+				"type": "text",
+				"text": "Привет héllo ñandú Grüße héllo 漢字 field amber café river"
+			}
+		],
+		"usage": {
+			"input": 536,
+			"output": 80,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_288ff6d489d28ed0"
+	}
+}

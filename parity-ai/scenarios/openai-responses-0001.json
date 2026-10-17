@@ -1,0 +1,196 @@
+{
+	"name": "openai-responses-0001",
+	"seed": "e22fe80ecef8a589",
+	"api": "openai-responses",
+	"provider": "openrouter",
+	"model": {
+		"id": "o4-mini",
+		"name": "o4-mini",
+		"api": "openai-responses",
+		"provider": "openrouter",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 1.75,
+			"cacheRead": 0.375,
+			"cacheWrite": 1.25
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsDeveloperRole": false
+		}
+	},
+	"context": {
+		"systemPrompt": "north alpha lamp quiet amber",
+		"messages": [
+			{
+				"role": "user",
+				"content": "alpha quiet cloud alpha field field quiet",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud field 𐐷 seven 𝄞 stone lamp field"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "o4-mini",
+				"usage": {
+					"input": 285,
+					"output": 116,
+					"cacheRead": 462,
+					"cacheWrite": 0,
+					"totalTokens": 863,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "stone stone cloud north river lamp seven",
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "quiet héllo",
+						"thinkingSignature": "{\"type\":\"reasoning\",\"id\":\"rs_83a2beb5bd7fff34\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"quiet héllo\"}],\"encrypted_content\":\"83a2beb5bd7fff345e8fd4b3ba5b4e44\"}"
+					},
+					{
+						"type": "text",
+						"text": "café alpha lamp ñandú lamp Привет"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 855,
+					"output": 264,
+					"cacheRead": 402,
+					"cacheWrite": 0,
+					"totalTokens": 1521,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "stone field Привет quiet naïve",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber amber lamp"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "o4-mini",
+				"usage": {
+					"input": 879,
+					"output": 156,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 1035,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp field héllo"
+					}
+				],
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-e9aa09a89cbd",
+		"reasoning": "minimal",
+		"cacheRetention": "long",
+		"sessionId": "session-d342033b",
+		"headers": {
+			"x-parity-test": "545e5e"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_8fecbff3d937bfa5\",\"object\":\"response\",\"created_at\":0,\"model\":\"o4-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_8fecbff3d937bfa50\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_8fecbff3d937bfa50\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_8fecbff3d937bfa50\",\"output_index\":0,\"content_index\":0,\"delta\":\"q\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_8fecbff3d937bfa50\",\"output_index\":0,\"content_index\":0,\"delta\":\"uiet quiet Gr\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_8fecbff3d937bfa50\",\"output_index\":0,\"content_index\":0,\"delta\":\"üße Grü\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":6,\"item_id\":\"msg_8fecbff3d937bfa50\",\"output_index\":0,\"content_index\":0,\"delta\":\"ße Привет\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":7,\"item_id\":\"msg_8fecbff3d937bfa50\",\"output_index\":0,\"content_index\":0,\"text\":\"quiet quiet Grüße Grüße Привет\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":8,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_8fecbff3d937bfa50\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"quiet quiet Grüße Grüße Привет\",\"annotations\":[]}]}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":9,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_c78b5560f46f\",\"call_id\":\"call_c78b5560f46f\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":10,\"item_id\":\"fc_c78b5560f46f\",\"output_index\":1,\"delta\":\"{\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":11,\"item_id\":\"fc_c78b5560f46f\",\"output_index\":1,\"delta\":\"\\\"q\\\":\\\"river ñandú Прив\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":12,\"item_id\":\"fc_c78b5560f46f\",\"output_index\":1,\"delta\":\"ет\\\"\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":13,\"item_id\":\"fc_c78b5560f46f\",\"output_index\":1,\"delta\":\"}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":14,\"item_id\":\"fc_c78b5560f46f\",\"output_index\":1,\"arguments\":\"{\\\"q\\\":\\\"river ñandú Привет\\\"}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":15,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_c78b5560f46f\",\"call_id\":\"call_c78b5560f46f\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"river ñandú Привет\\\"}\",\"status\":\"completed\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":16,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_e69ea1b69647\",\"call_id\":\"call_e69ea1b69647\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":17,\"item_id\":\"fc_e69ea1b69647\",\"output_index\":2,\"delta\":\"{\\\"q\\\":\\\"ñ\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":18,\"item_id\":\"fc_e69ea1b69647\",\"output_index\":2,\"delta\":\"andú Grüß\"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":19,\"item_id\":\"fc_e69ea1b69647\",\"output_index\":2,\"delta\":\"e \"}\n\n",
+				"event: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":20,\"item_id\":\"fc_e69ea1b69647\",\"output_index\":2,\"delta\":\"quiet\\\"}\"}\n\n",
+				"event: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":21,\"item_id\":\"fc_e69ea1b69647\",\"output_index\":2,\"arguments\":\"{\\\"q\\\":\\\"ñandú Grüße quiet\\\"}\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":22,\"output_index\":2,\"item\":{\"type\":\"function_call\",\"id\":\"fc_e69ea1b69647\",\"call_id\":\"call_e69ea1b69647\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"ñandú Grüße quiet\\\"}\",\"status\":\"completed\"}}\n\n",
+				"event: error\ndata: {\"type\":\"error\",\"sequence_number\":23,\"code\":\"server_error\",\"message\":\"Upstream overloaded\",\"param\":null}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

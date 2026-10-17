@@ -1,0 +1,209 @@
+{
+	"name": "openai-responses-0011",
+	"seed": "2dd5cdebb7dd1b76",
+	"api": "openai-responses",
+	"provider": "openrouter",
+	"model": {
+		"id": "grok-4",
+		"name": "grok-4",
+		"api": "openai-responses",
+		"provider": "openrouter",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.75,
+			"output": 1.75,
+			"cacheRead": 0,
+			"cacheWrite": 1.25
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000,
+		"compat": {
+			"sessionAffinityFormat": "openai",
+			"supportsStrictMode": true,
+			"supportsToolSearch": true
+		}
+	},
+	"context": {
+		"systemPrompt": "cloud north alpha cloud café amber Привет amber Привет field north",
+		"messages": [
+			{
+				"role": "user",
+				"content": "seven seven north seven lamp river",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_b160ff804e",
+						"name": "tag_list",
+						"arguments": {
+							"items": []
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_7a6de0d85f",
+						"name": "count_items",
+						"arguments": {
+							"n": 21,
+							"flag": false
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 150,
+					"output": 162,
+					"cacheRead": 317,
+					"cacheWrite": 0,
+					"totalTokens": 629,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_b160ff804e",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "river"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_7a6de0d85f",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "héllo naïve Ωmega Ωmega cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-143204a6af3d",
+		"reasoning": "low",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_6a984ff56cfa5526\",\"object\":\"response\",\"created_at\":0,\"model\":\"grok-4\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_6a984ff56cfa55260\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_6a984ff56cfa55260\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_6a984ff56cfa55260\",\"output_index\":0,\"content_index\":0,\"delta\":\"seven cloud 🇯🇵 🇯🇵 seven north\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":4,\"item_id\":\"msg_6a984ff56cfa55260\",\"output_index\":0,\"content_index\":0,\"text\":\"seven cloud 🇯🇵 🇯🇵 seven north\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":5,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_6a984ff56cfa55260\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven cloud 🇯🇵 🇯🇵 seven north\",\"annotations\":[]}]}}\n\n",
+				"event: response.incomplete\ndata: {\"type\":\"response.incomplete\",\"sequence_number\":6,\"response\":{\"id\":\"resp_6a984ff56cfa5526\",\"object\":\"response\",\"created_at\":0,\"model\":\"grok-4\",\"output\":[{\"type\":\"message\",\"id\":\"msg_6a984ff56cfa55260\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"seven cloud 🇯🇵 🇯🇵 seven north\",\"annotations\":[]}]}],\"status\":\"incomplete\",\"incomplete_details\":{\"reason\":\"max_output_tokens\"},\"usage\":{\"input_tokens\":107,\"output_tokens\":146,\"total_tokens\":253,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "length",
+		"content": [
+			{
+				"type": "text",
+				"text": "seven cloud 🇯🇵 🇯🇵 seven north"
+			}
+		],
+		"usage": {
+			"input": 107,
+			"output": 146,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_6a984ff56cfa5526"
+	}
+}

@@ -16,5 +16,10 @@
 	"openai-completions:message.errorMessage": "Rust prints `<status>: <text>` and keeps the whole JSON body (src/ai/error_body.rs:38); TS uses the SDK APIError: `<status> <text>` for plain text and body.error for JSON",
 	"openai-completions-0017:message.stopReason": "Rust serde_json rejects a lone UTF-16 surrogate escape split across chunks and fails the stream (src/ai/api/openai_completions/stream.rs:52); V8 JSON.parse accepts it",
 	"parseStreamingJson#7:parseStreamingJson.value": "a Rust String cannot hold a lone UTF-16 surrogate, so parse_streaming_json drops the dangling \\ud83d (src/ai/json_parse.rs:323); TS keeps it",
-	"truncateErrorText#3:truncateErrorText.value": "truncate_error_text cuts on UTF-16 units but must return valid UTF-8, so a split surrogate becomes U+FFFD (src/ai/error_body.rs:7); TS keeps the lone half"
+	"truncateErrorText#3:truncateErrorText.value": "truncate_error_text cuts on UTF-16 units but must return valid UTF-8, so a split surrogate becomes U+FFFD (src/ai/error_body.rs:7); TS keeps the lone half",
+	"openai-responses:requests[].headers.accept": "the openai SDK sends Accept: application/json; Rust drops accept from its header list (src/ai/api/openai_responses/mod.rs:252)",
+	"openai-responses:requests[].headers.user-agent": "Rust sends http.rs:445 pi-durable/<version>; TS sets User-Agent getPiUserAgent() (openai-responses.ts:267)",
+	"openai-responses:requests[].body.temperature": "Rust build() never reads options.temperature (src/ai/api/openai_responses/request.rs:72-115); TS sets it (openai-responses.ts:344-345)",
+	"openai-responses:requests[].body.tool_choice": "Rust build() never reads options.tool_choice and only forces \"auto\" internally (src/ai/api/openai_responses/request.rs:110); TS sends options.toolChoice (openai-responses.ts:360)",
+	"openai-responses:message.errorMessage": "Rust formats an SSE error event as `Error Code <code>: <message>` (src/ai/api/openai_responses/events.rs:169), the pi-ai branch the openai SDK never reaches: its Stream throws APIError(data) first, so TS shows only the message"
 }

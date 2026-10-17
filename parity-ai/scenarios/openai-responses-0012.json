@@ -1,0 +1,178 @@
+{
+	"name": "openai-responses-0012",
+	"seed": "f62cbe2e26e02c12",
+	"api": "openai-responses",
+	"provider": "xai",
+	"model": {
+		"id": "gpt-5-mini",
+		"name": "gpt-5-mini",
+		"api": "openai-responses",
+		"provider": "xai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.75,
+			"output": 14.25,
+			"cacheRead": 0.25,
+			"cacheWrite": 0
+		},
+		"contextWindow": 1000000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsAdditionalTools": true
+		}
+	},
+	"context": {
+		"systemPrompt": "field Grüße ñandú 漢字 naïve north stone café amber Grüße",
+		"messages": [
+			{
+				"role": "user",
+				"content": "漢字 Grüße quiet Ωmega",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_6d1f756e2c",
+						"name": "count_items",
+						"arguments": {
+							"n": 43,
+							"flag": true
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "xai",
+				"model": "gpt-5-mini",
+				"usage": {
+					"input": 444,
+					"output": 163,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 607,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_6d1f756e2c",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber Привет lamp"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-95d8d11bf2d4",
+		"reasoning": "xhigh",
+		"temperature": 0,
+		"headers": {
+			"x-parity-test": "f016e9"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.creat",
+				"ed\",\"sequence_number\"",
+				":0,\"response\":{\"id\":\"resp_22d83a8afb51f2d4\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-",
+				"5-mini\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.completed\ndata: ",
+				"{\"type\":\"response.completed\",\"sequence_number\":1,\"response\":{\"id\":\"resp_22d83a8afb51f2d4\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5-mini\",\"output\":[],\"status\":\"completed\",\"usage\":{\"input_tokens\":429,\"output_tokens\":48,\"total_tokens\":477,\"input_tokens_details\":{\"cached_tokens\":84},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 345,
+			"output": 48,
+			"cacheRead": 84,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_22d83a8afb51f2d4"
+	}
+}

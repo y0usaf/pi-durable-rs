@@ -1,0 +1,121 @@
+{
+	"name": "openai-responses-0014",
+	"seed": "10960202f5e84e31",
+	"api": "openai-responses",
+	"provider": "xai",
+	"model": {
+		"id": "grok-4",
+		"name": "grok-4",
+		"api": "openai-responses",
+		"provider": "xai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.5,
+			"output": 8,
+			"cacheRead": 0.5,
+			"cacheWrite": 1
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"sessionAffinityFormat": "openai-nosession"
+		}
+	},
+	"context": {
+		"systemPrompt": "amber amber café amber naïve",
+		"messages": [
+			{
+				"role": "user",
+				"content": "cloud river seven seven lamp field Grüße",
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-a1db09edae53",
+		"cacheRetention": "short",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_60e534891512052c\",\"object\":\"response\",\"created_at\":0,\"model\":\"grok-4\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_60e534891512052c0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_60e534891512052c0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_60e534891512052c0\",\"output_index\":0,\"content_index\":0,\"delta\":\"🇯🇵 🇯\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":4,\"item_id\":\"msg_60e534891512052c0\",\"output_index\":0,\"content_index\":0,\"delta\":\"🇵 quiet 👩‍💻\"}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":5,\"item_id\":\"msg_60e534891512052c0\",\"output_index\":0,\"content_index\":0,\"delta\":\" amber\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":6,\"item_id\":\"msg_60e534891512052c0\",\"output_index\":0,\"content_index\":0,\"text\":\"🇯🇵 🇯🇵 quiet 👩‍💻 amber\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":7,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_60e534891512052c0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"🇯🇵 🇯🇵 quiet 👩‍💻 amber\",\"annotations\":[]}]}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":8,\"response\":{\"id\":\"resp_60e534891512052c\",\"object\":\"response\",\"created_at\":0,\"model\":\"grok-4\",\"output\":[{\"type\":\"message\",\"id\":\"msg_60e534891512052c0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"🇯🇵 🇯🇵 quiet 👩‍💻 amber\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":305,\"output_tokens\":20,\"total_tokens\":325,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "🇯🇵 🇯🇵 quiet 👩‍💻 amber"
+			}
+		],
+		"usage": {
+			"input": 305,
+			"output": 20,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_60e534891512052c"
+	}
+}

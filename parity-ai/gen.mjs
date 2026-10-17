@@ -57,11 +57,14 @@ const TOOLS = [
 const MODELS = {
 	"anthropic-messages": { providers: ["anthropic"], ids: ["claude-sonnet-4-5", "claude-opus-4-6", "claude-haiku-4-5", "claude-3-5-haiku-20241022"], path: "" },
 	"openai-completions": { providers: ["openai", "openrouter", "xai", "groq", "deepseek", "cerebras", "zai"], ids: ["gpt-4o-mini", "gpt-5-mini", "o3-mini", "deepseek-chat", "grok-4", "llama-3.3-70b"], path: "/v1" },
+	"openai-responses": { providers: ["openai", "openrouter", "xai"], ids: ["gpt-5", "gpt-5-mini", "o4-mini", "gpt-4.1", "grok-4"], path: "/v1" },
 };
 const COMPAT = {
 	"anthropic-messages": schemas.AnthropicMessagesCompatSchema,
 	"openai-completions": schemas.OpenAICompletionsCompatSchema,
+	"openai-responses": schemas.OpenAIResponsesCompatSchema,
 };
+const RESPONSES = new Set(["openai-responses", "openai-codex-responses", "azure-openai-responses"]);
 const FOREIGN = [
 	{ api: "openai-responses", provider: "openai", model: "gpt-5" },
 	{ api: "google-generative-ai", provider: "google", model: "gemini-2.5-pro" },
@@ -127,11 +130,14 @@ function assistantHistory(r, model, tools, at) {
 	const kind = r.pick(UNICODE.slice(0, 4));
 	const content = [];
 	if (r.chance(0.35)) {
-		content.push(
-			r.chance(0.15)
-				? { type: "thinking", thinking: "[Reasoning redacted]", thinkingSignature: r.hex(24), redacted: true }
-				: { type: "thinking", thinking: text(r, kind, r.range(2, 6)), ...(r.chance(0.7) ? { thinkingSignature: r.chance(0.2) ? "" : r.hex(32) } : {}) },
-		);
+		const block = r.chance(0.15)
+			? { type: "thinking", thinking: "[Reasoning redacted]", thinkingSignature: r.hex(24), redacted: true }
+			: { type: "thinking", thinking: text(r, kind, r.range(2, 6)), ...(r.chance(0.7) ? { thinkingSignature: r.chance(0.2) ? "" : r.hex(32) } : {}) };
+		if (RESPONSES.has(origin.api) && block.thinkingSignature) {
+			const summary = block.redacted ? [] : [{ type: "summary_text", text: block.thinking }];
+			block.thinkingSignature = JSON.stringify({ type: "reasoning", id: "rs_" + block.thinkingSignature.slice(0, 16), summary, encrypted_content: block.thinkingSignature });
+		}
+		content.push(block);
 	}
 	if (r.chance(0.8)) content.push({ type: "text", text: text(r, kind, r.range(1, 8)) });
 	const calls = tools.length > 0 && r.chance(0.5) ? r.sample(tools, r.range(1, 2)) : [];
@@ -306,7 +312,73 @@ const ENCODE = {
 	},
 };
 
-const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"] };
+const responsesUsage = (c) => ({
+	input_tokens: c.usage.input + c.usage.cacheRead + c.usage.cacheWrite,
+	output_tokens: c.usage.output,
+	total_tokens: c.usage.input + c.usage.cacheRead + c.usage.cacheWrite + c.usage.output,
+	input_tokens_details: { cached_tokens: c.usage.cacheRead, ...(c.usage.cacheWrite > 0 ? { cache_write_tokens: c.usage.cacheWrite } : {}) },
+	output_tokens_details: { reasoning_tokens: 0 },
+});
+
+function responsesEvents(c, model, terminal) {
+	const out = [];
+	let seq = 0;
+	const ev = (type, data) => sse(type, { type, sequence_number: seq++, ...data });
+	const base = { id: "resp_" + c.id, object: "response", created_at: 0, model: model.id, output: [] };
+	out.push(ev("response.created", { response: { ...base, status: "in_progress" } }));
+	const done = [];
+	c.blocks.forEach((block, output_index) => {
+		const suffix = block.type === "toolCall" ? block.id.slice(5) : c.id + output_index;
+		if (block.type === "thinking") {
+			const id = "rs_" + suffix;
+			out.push(ev("response.output_item.added", { output_index, item: { type: "reasoning", id, summary: [] } }));
+			out.push(ev("response.reasoning_summary_part.added", { item_id: id, output_index, summary_index: 0, part: { type: "summary_text", text: "" } }));
+			for (const delta of block.pieces) out.push(ev("response.reasoning_summary_text.delta", { item_id: id, output_index, summary_index: 0, delta }));
+			out.push(ev("response.reasoning_summary_text.done", { item_id: id, output_index, summary_index: 0, text: block.thinking }));
+			out.push(ev("response.reasoning_summary_part.done", { item_id: id, output_index, summary_index: 0, part: { type: "summary_text", text: block.thinking } }));
+			const item = { type: "reasoning", id, summary: [{ type: "summary_text", text: block.thinking }], encrypted_content: block.signature };
+			out.push(ev("response.output_item.done", { output_index, item }));
+			done.push(item);
+		}
+		if (block.type === "text") {
+			const id = "msg_" + suffix;
+			out.push(ev("response.output_item.added", { output_index, item: { type: "message", id, role: "assistant", status: "in_progress", content: [] } }));
+			out.push(ev("response.content_part.added", { item_id: id, output_index, content_index: 0, part: { type: "output_text", text: "", annotations: [] } }));
+			for (const delta of block.pieces) out.push(ev("response.output_text.delta", { item_id: id, output_index, content_index: 0, delta }));
+			out.push(ev("response.output_text.done", { item_id: id, output_index, content_index: 0, text: block.text }));
+			const item = { type: "message", id, role: "assistant", status: "completed", content: [{ type: "output_text", text: block.text, annotations: [] }] };
+			out.push(ev("response.output_item.done", { output_index, item }));
+			done.push(item);
+		}
+		if (block.type === "toolCall") {
+			const id = "fc_" + suffix;
+			const args = JSON.stringify(block.arguments);
+			out.push(ev("response.output_item.added", { output_index, item: { type: "function_call", id, call_id: block.id, name: block.name, arguments: "", status: "in_progress" } }));
+			for (const delta of block.pieces) out.push(ev("response.function_call_arguments.delta", { item_id: id, output_index, delta }));
+			out.push(ev("response.function_call_arguments.done", { item_id: id, output_index, arguments: args }));
+			const item = { type: "function_call", id, call_id: block.id, name: block.name, arguments: args, status: "completed" };
+			out.push(ev("response.output_item.done", { output_index, item }));
+			done.push(item);
+		}
+	});
+	if (c.tail === "error") {
+		out.push(ev("error", { code: "server_error", message: "Upstream overloaded", param: null }));
+		return out;
+	}
+	if (c.tail === "truncated") return out;
+	const incomplete = c.stop === "length";
+	out.push(
+		ev(incomplete ? "response.incomplete" : "response.completed", {
+			response: { ...base, status: incomplete ? "incomplete" : "completed", ...(incomplete ? { incomplete_details: { reason: "max_output_tokens" } } : {}), output: done, usage: responsesUsage(c) },
+		}),
+	);
+	return terminal ? terminal(out) : out;
+}
+ENCODE["openai-responses"] = (c, model) => responsesEvents(c, model);
+
+const ORDER = { "anthropic-messages": ["thinking", "text", "toolCall"], "openai-completions": ["thinking", "text", "toolCall"], "openai-responses": ["thinking", "text", "toolCall"] };
+const RESPONSE_ID = { "anthropic-messages": "msg_", "openai-completions": "chatcmpl-", "openai-responses": "resp_" };
+const TOOL_ID = { "openai-responses": (id) => id + "|fc_" + id.slice(5) };
 
 function expectOf(c, api, model) {
 	const lenient = api === "openai-completions" && c.tail === "truncated" && model.compat?.supportsFinishReason === false;
@@ -314,12 +386,12 @@ function expectOf(c, api, model) {
 	const order = ORDER[api];
 	const content = [...c.blocks]
 		.sort((a, b) => order.indexOf(a.type) - order.indexOf(b.type))
-		.map((b) => (b.type === "text" ? { type: "text", text: b.text } : b.type === "thinking" ? { type: "thinking", thinking: b.thinking } : { type: "toolCall", id: b.id, name: b.name, arguments: b.arguments }));
+		.map((b) => (b.type === "text" ? { type: "text", text: b.text } : b.type === "thinking" ? { type: "thinking", thinking: b.thinking } : { type: "toolCall", id: (TOOL_ID[api] ?? ((id) => id))(b.id), name: b.name, arguments: b.arguments }));
 	return {
 		stopReason: lenient ? (c.blocks.some((b) => b.type === "toolCall") ? "toolUse" : "stop") : c.stop,
 		content,
 		usage: c.usage,
-		responseId: (api === "anthropic-messages" ? "msg_" : "chatcmpl-") + c.id,
+		responseId: RESPONSE_ID[api] + c.id,
 	};
 }
 

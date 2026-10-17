@@ -1,0 +1,208 @@
+{
+	"name": "openai-responses-0000",
+	"seed": "d6c086794b134f5e",
+	"api": "openai-responses",
+	"provider": "xai",
+	"model": {
+		"id": "grok-4",
+		"name": "grok-4",
+		"api": "openai-responses",
+		"provider": "xai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2.5,
+			"output": 7,
+			"cacheRead": 0.125,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096,
+		"compat": {
+			"supportsStrictMode": false
+		}
+	},
+	"context": {
+		"systemPrompt": "field amber cloud north seven river lamp cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "漢字 alpha stone 漢字 cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber river amber quiet"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_51b7e42a99",
+						"name": "count_items",
+						"arguments": {
+							"n": 48,
+							"flag": false
+						}
+					},
+					{
+						"type": "toolCall",
+						"id": "call_516d3bc012",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "xai",
+				"model": "grok-4",
+				"usage": {
+					"input": 863,
+					"output": 283,
+					"cacheRead": 0,
+					"cacheWrite": 122,
+					"totalTokens": 1268,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_51b7e42a99",
+				"toolName": "count_items",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_516d3bc012",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone north lamp lamp alpha"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north cloud stone stone river amber"
+					}
+				],
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-f2af85911bc1",
+		"reasoning": "minimal",
+		"temperature": 0.9,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_da7706db3b558c1e\",\"object\":\"response\",\"created_at\":0,\"model\":\"grok-4\",\"output\":[],\"status\":\"in_progress\"}}\n\n",
+				"event: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_da7706db3b558c1e0\",\"role\":\"assistant\",\"status\":\"in_progress\",\"content\":[]}}\n\n",
+				"event: response.content_part.added\ndata: {\"type\":\"response.content_part.added\",\"sequence_number\":2,\"item_id\":\"msg_da7706db3b558c1e0\",\"output_index\":0,\"content_index\":0,\"part\":{\"type\":\"output_text\",\"text\":\"\",\"annotations\":[]}}\n\n",
+				"event: response.output_text.delta\ndata: {\"type\":\"response.output_text.delta\",\"sequence_number\":3,\"item_id\":\"msg_da7706db3b558c1e0\",\"output_index\":0,\"content_index\":0,\"delta\":\"river quiet amber lamp stone cloud cloud lamp\"}\n\n",
+				"event: response.output_text.done\ndata: {\"type\":\"response.output_text.done\",\"sequence_number\":4,\"item_id\":\"msg_da7706db3b558c1e0\",\"output_index\":0,\"content_index\":0,\"text\":\"river quiet amber lamp stone cloud cloud lamp\"}\n\n",
+				"event: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":5,\"output_index\":0,\"item\":{\"type\":\"message\",\"id\":\"msg_da7706db3b558c1e0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"river quiet amber lamp stone cloud cloud lamp\",\"annotations\":[]}]}}\n\n",
+				"event: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":6,\"response\":{\"id\":\"resp_da7706db3b558c1e\",\"object\":\"response\",\"created_at\":0,\"model\":\"grok-4\",\"output\":[{\"type\":\"message\",\"id\":\"msg_da7706db3b558c1e0\",\"role\":\"assistant\",\"status\":\"completed\",\"content\":[{\"type\":\"output_text\",\"text\":\"river quiet amber lamp stone cloud cloud lamp\",\"annotations\":[]}]}],\"status\":\"completed\",\"usage\":{\"input_tokens\":416,\"output_tokens\":99,\"total_tokens\":515,\"input_tokens_details\":{\"cached_tokens\":0},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "river quiet amber lamp stone cloud cloud lamp"
+			}
+		],
+		"usage": {
+			"input": 416,
+			"output": 99,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "resp_da7706db3b558c1e"
+	}
+}

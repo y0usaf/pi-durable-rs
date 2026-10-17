@@ -1,0 +1,207 @@
+{
+	"name": "openai-responses-0019",
+	"seed": "3351513e3f8c5794",
+	"api": "openai-responses",
+	"provider": "openrouter",
+	"model": {
+		"id": "gpt-5",
+		"name": "gpt-5",
+		"api": "openai-responses",
+		"provider": "openrouter",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 1.75,
+			"output": 1.25,
+			"cacheRead": 0.125,
+			"cacheWrite": 2.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "alpha quiet river alpha stone alpha alpha alpha field amber north alpha",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "river river river north"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "river seven lamp field amber",
+						"thinkingSignature": ""
+					},
+					{
+						"type": "text",
+						"text": "alpha quiet"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 419,
+					"output": 44,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 463,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp quiet lamp alpha"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud north stone cloud"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "gpt-5",
+				"usage": {
+					"input": 428,
+					"output": 267,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 695,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "amber cloud north seven quiet café",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber stone"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openrouter",
+				"model": "gpt-5",
+				"usage": {
+					"input": 638,
+					"output": 140,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 778,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "𝄞",
+				"timestamp": 1700000007000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-ca3fc5dc93ef",
+		"cacheRetention": "short",
+		"headers": {
+			"x-parity-test": "c8b35d"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_99efe97f74020734\",\"object\":\"",
+				"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[],\"status\":\"in_progress\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":1,\"output_index\":0,\"item\":{\"type\":\"function_call\",\"id\":\"fc_adec12fdaa69\",\"call_id\":\"call_adec12fdaa69\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_argum",
+				"ents.delta\",\"sequence_number\":2,\"item_id\":\"fc_adec12fdaa69\",\"output_index\":0,\"delta\":\"{\\\"q\\\":\\\"stone alpha north\\\"}\"}\n\nevent: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":3,\"item_id\":\"fc_adec12fdaa69\",\"output_index\":0,\"arguments\":\"{\\\"q\\\":\\\"stone alpha north\\\"}\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":4,\"output_index\":0,\"item\":{\"type\":\"function_call\",\"id\":\"fc_adec12fdaa69\",\"call_id\":\"call_adec12fdaa69\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"stone alpha north\\\"}\",\"status\":\"completed\"}}\n\nevent: response.output_item.added\ndata: {\"type\":\"response.output_item.added\",\"sequence_number\":5,\"output_index\":1,\"item\":{\"type\":\"function_call\",\"id\":\"fc_9b749ffb0765\",\"call_id\":\"call_9b749ffb0765\",\"name\":\"lookup\",\"arguments\":\"\",\"status\":\"in_progress\"}}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":6,\"item_id\":\"fc_9b749ffb0765\",\"output_index\":1,\"delta\":\"{\\\"q\\\":\\\"\"}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.",
+				"function_call_arguments.delta\",\"sequence_number\":7,\"item_id\":\"fc_9b749ffb0765\",\"output_index\":1,\"delta\":\"f\"}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.function_call_arguments.delta\",\"sequence_number\":8,\"item_id\":\"fc_9b749ffb0765\",\"output_index\":1,\"delta\":\"ield\"}\n\nevent: response.function_call_arguments.delta\ndata: {\"type\":\"response.",
+				"function_call_arguments.delta\",\"sequence_number\":9,\"item_id\":\"fc_9b749ffb0765\",\"output_index\":1,\"delta\":\"\\\"}\"}\n\nevent: response.function_call_arguments.done\ndata: {\"type\":\"response.function_call_arguments.done\",\"sequence_number\":10,\"item_id\":\"fc_9b749ffb0765\",\"output_index\":1,\"arguments\":\"{\\\"q\\\":\\\"field\\\"}\"}\n\nevent: response.output_item.done\ndata: {\"type\":\"response.output_item.done\",\"sequence_number\":11,\"output_index\":1,\"item\":{\"type\":\"function_call\",",
+				"\"id\":\"fc_9b749ffb0765\",\"call_id\":\"call_9b749ffb0765\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"field\\\"}\",\"status\":\"completed\"}}\n\nevent: response.completed\ndata: {\"type\":\"response.completed\",\"sequence_number\":12,\"response\":{\"id\":\"resp_99efe97f74020734\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[{\"type\":\"function_call\",\"id\":\"fc_adec12fdaa69\",\"call_id\":\"call_adec12fdaa69\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"stone alpha north\\\"}\",\"status\":\"completed\"},{\"type\":\"function_call\",\"id\":\"fc_9b749ffb0765\",\"call_id\":\"call_9b749ffb0765\",\"name\":\"lookup\",\"arguments\":\"{\\\"q\\\":\\\"field\\\"}\",\"status\":\"completed\"}],\"status\":\"completed\",\"usage\":{\"input_tokens\":567,\"output_tokens\":296,\"total_tokens\":863,\"input_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":21},\"output_tokens_details\":{\"reasoning_tokens\":0}}}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "toolCall",
+				"id": "call_adec12fdaa69|fc_adec12fdaa69",
+				"name": "lookup",
+				"arguments": {
+					"q": "stone alpha north"
+				}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_9b749ffb0765|fc_9b749ffb0765",
+				"name": "lookup",
+				"arguments": {
+					"q": "field"
+				}
+			}
+		],
+		"usage": {
+			"input": 546,
+			"output": 296,
+			"cacheRead": 0,
+			"cacheWrite": 21
+		},
+		"responseId": "resp_99efe97f74020734"
+	}
+}

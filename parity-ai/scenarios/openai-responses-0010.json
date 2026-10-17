@@ -1,0 +1,95 @@
+{
+	"name": "openai-responses-0010",
+	"seed": "922874758bc28793",
+	"api": "openai-responses",
+	"provider": "openai",
+	"model": {
+		"id": "gpt-5",
+		"name": "gpt-5",
+		"api": "openai-responses",
+		"provider": "openai",
+		"baseUrl": "http://127.0.0.1:PORT/v1",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.25,
+			"output": 14.75,
+			"cacheRead": 0.625,
+			"cacheWrite": 0.75
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384,
+		"compat": {
+			"sessionAffinityFormat": "openrouter",
+			"supportsLongCacheRetention": true
+		}
+	},
+	"context": {
+		"systemPrompt": "café field héllo quiet naïve ñandú cloud héllo field",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud amber 𝄞 stone"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-06ec078d80f2",
+		"maxTokens": 1024,
+		"temperature": 1,
+		"toolChoice": "auto",
+		"headers": {
+			"x-parity-test": "c69c7b"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"event: response.created\ndata: {\"type\":\"response.created\",\"sequence_number\":0,\"response\":{\"id\":\"resp_3b645f2833100501\",\"object\":\"response\",\"created_at\":0,\"model\":\"gpt-5\",\"output\":[],\"status\":\"in_progress\"}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}
