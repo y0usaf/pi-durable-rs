@@ -1,0 +1,154 @@
+{
+	"name": "google-generative-ai-0006",
+	"seed": "d98c2402af983a92",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.75,
+			"output": 13.5,
+			"cacheRead": 0,
+			"cacheWrite": 1
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "river north river ñandú",
+		"messages": [
+			{
+				"role": "user",
+				"content": "héllo 漢字 quiet",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "river seven stone quiet cloud lamp",
+						"thinkingSignature": "f04c861986bb47c99df1be8dfc3c1e70"
+					},
+					{
+						"type": "text",
+						"text": "lamp river amber north quiet river alpha stone"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-3-pro-preview",
+				"usage": {
+					"input": 267,
+					"output": 138,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 405,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven amber amber lamp seven"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 825,
+					"output": 298,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 1123,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": "amber stone alpha north north",
+				"timestamp": 1700000005000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-95b88475e95c",
+		"temperature": 0.2,
+		"sessionId": "session-30d36233",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"seven a\",\"thought\":true,\"thoughtSignature\":\"hrkLfYmaaWWQ47W2YEJMNLVNRVo=\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"fdad0c3fe804d1e3\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"mber\",\"thought\":true}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"fdad0c3fe804d1e3\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"😀 seven cloud river north lamp\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"fdad0c3fe804d1e3\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" river\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"fdad0c3fe804d1e3\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"SAFETY\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"fdad0c3fe804d1e3\",\"usageMetadata\":{\"promptTokenCount\":1175,\"candidatesTokenCount\":70,\"totalTokenCount\":1245,\"cachedContentTokenCount\":461}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

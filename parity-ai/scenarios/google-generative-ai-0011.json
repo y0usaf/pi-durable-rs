@@ -1,0 +1,162 @@
+{
+	"name": "google-generative-ai-0011",
+	"seed": "fa5343fecbfa6dec",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-flash",
+		"name": "gemini-2.5-flash",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 1.25,
+			"output": 7.5,
+			"cacheRead": 0.25,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "north river quiet alpha river cloud seven cloud cloud",
+		"messages": [
+			{
+				"role": "user",
+				"content": "héllo cloud Grüße river field 漢字",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "𝄞 𐐷 seven"
+					},
+					{
+						"type": "text",
+						"text": "seven quiet 𐐷"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 533,
+					"output": 63,
+					"cacheRead": 93,
+					"cacheWrite": 0,
+					"totalTokens": 689,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "quiet cloud 👩‍💻 lamp cloud north seven",
+				"timestamp": 1700000003000
+			}
+		],
+		"tools": [
+			{
+				"name": "count_items",
+				"description": "Count items",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"n": {
+							"type": "integer",
+							"minimum": 0
+						},
+						"flag": {
+							"type": "boolean"
+						}
+					}
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-bf49430ff545",
+		"cacheRetention": "none",
+		"maxTokens": 1024,
+		"temperature": 0.7,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"café quiet\"}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"c04",
+				"0487074a55a51\"}\n\ndata: {\"candidates",
+				"\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" \"}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"c040487074a55a51\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\"",
+				":\"model\",\"parts\":[{\"text\":\"Grüße\"}]}}],\"modelVersion\":\"gemi",
+				"ni-2.5-flash\",\"responseId\":\"c040487074a55a51\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_27f21e737cd1\",\"name\":\"noop\",\"args\":{}}}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"c040487074a55a51\"}\n\ndata: {\"candidates\":[{\"i",
+				"ndex\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"c040487074a55a51\",\"usageMetadata\":{\"promptTokenCount\":",
+				"505,\"candidatesTokenCount\":108,\"totalTokenCount\":613,\"cachedCo",
+				"ntentTokenCount\":131}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "café quiet Grüße"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_27f21e737cd1",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 374,
+			"output": 108,
+			"cacheRead": 131,
+			"cacheWrite": 0
+		},
+		"responseId": "c040487074a55a51"
+	}
+}

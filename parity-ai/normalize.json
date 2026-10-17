@@ -51,6 +51,14 @@
 	},
 	{
 		"scope": "e1",
+		"path": "requests[].headers.x-goog-api-client",
+		"action": "replace",
+		"pattern": "gl-node/v[0-9.]+$",
+		"with": "gl-node/<node>",
+		"reason": "@google/genai appends process.version of the Node runtime running the oracle, not anything pi-ai chose"
+	},
+	{
+		"scope": "e1",
 		"path": "message.timestamp",
 		"action": "blank",
 		"reason": "wall clock when the stream was created"

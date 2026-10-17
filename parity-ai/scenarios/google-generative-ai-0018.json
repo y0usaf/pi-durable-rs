@@ -1,0 +1,215 @@
+{
+	"name": "google-generative-ai-0018",
+	"seed": "ac79982049f224db",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-flash",
+		"name": "gemini-2.5-flash",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7.25,
+			"output": 2.5,
+			"cacheRead": 0.5,
+			"cacheWrite": 3.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 64000
+	},
+	"context": {
+		"systemPrompt": "cloud lamp",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven cloud cloud seven quiet"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_5341c1d89c",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"quiet seven field"
+							]
+						}
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 869,
+					"output": 94,
+					"cacheRead": 413,
+					"cacheWrite": 118,
+					"totalTokens": 1494,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_5341c1d89c",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": "cloud lamp river quiet alpha amber stone alpha alpha cloud",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "Grüße cloud Ωmega seven",
+						"thinkingSignature": "4dc731ee5a9a8c7e918eeb1292abb72e"
+					},
+					{
+						"type": "text",
+						"text": "café"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-flash",
+				"usage": {
+					"input": 786,
+					"output": 159,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 945,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": "seven seven north quiet seven amber lamp",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "north Привет Привет",
+						"thinkingSignature": "3b4c5f143645705f6a72f881e3ba8600"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-flash",
+				"usage": {
+					"input": 498,
+					"output": 184,
+					"cacheRead": 0,
+					"cacheWrite": 160,
+					"totalTokens": 842,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "user",
+				"content": "river river lamp",
+				"timestamp": 1700000008000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-261dd01c8e4b",
+		"cacheRetention": "short",
+		"temperature": 0.6,
+		"headers": {
+			"x-parity-test": "abe3cd"
+		},
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"ce63073269ef0305\",\"usageMetadata\":{\"promptTokenCount\":575,\"candidatesTokenCount\":33,\"totalTokenCount\":608}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 575,
+			"output": 33,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "ce63073269ef0305"
+	}
+}

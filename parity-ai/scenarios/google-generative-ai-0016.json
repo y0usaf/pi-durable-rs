@@ -1,0 +1,129 @@
+{
+	"name": "google-generative-ai-0016",
+	"seed": "3479fb4c5da18c70",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-flash-lite",
+		"name": "gemini-2.5-flash-lite",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 4.25,
+			"output": 5.75,
+			"cacheRead": 1,
+			"cacheWrite": 2.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "field amber stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "漢字"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "field river cloud field amber amber field"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-flash-lite",
+				"usage": {
+					"input": 97,
+					"output": 288,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 385,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": "stone stone stone cloud river quiet river quiet",
+				"timestamp": 1700000003000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-8f178ce9f021",
+		"reasoning": "high",
+		"temperature": 0.4,
+		"sessionId": "session-b1ac52bb",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"amber\",\"thought\":true,\"thoughtSignature\":\"3UP5ZuPhJTqhWBndN5a9XL8KePg=\"}]}}],\"modelVe",
+				"rsion\"",
+				":\"gemini-2.5-flash-lite\",\"responseId\":\"b8c95bc629515351\"}\n\ndata: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"part",
+				"s\":[{\"functionCall\":{\"id\":\"call_e4e994fdc166\",\"name\":\"lookup\",\"args\":{\"q\":\"north\"}}}]}}]",
+				",\"modelVersion\":\"gemini-2",
+				".5-flash-lite\",\"responseId\":\"b8c95bc629515351\"}\n\ndata: {\"candidates\":[{\"in",
+				"dex\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.5-flash-lite\",\"responseId\":\"b8c",
+				"95bc629515351\",\"usageMetadata\":{\"promptTokenCount\":621,\"candidatesTokenCount\":16,\"totalTokenCount\":637}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "thinking",
+				"thinking": "amber"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_e4e994fdc166",
+				"name": "lookup",
+				"arguments": {
+					"q": "north"
+				}
+			}
+		],
+		"usage": {
+			"input": 621,
+			"output": 16,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "b8c95bc629515351"
+	}
+}

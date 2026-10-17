@@ -1,0 +1,291 @@
+{
+	"name": "google-generative-ai-0002",
+	"seed": "abcb20c594f697a6",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 0.25,
+			"output": 12.75,
+			"cacheRead": 0.375,
+			"cacheWrite": 3.5
+		},
+		"contextWindow": 128000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "field quiet stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "quiet north 👩‍💻 river 🇯🇵"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "[Reasoning redacted]",
+						"thinkingSignature": "63b3a59fcc95f07e5c6677b0",
+						"redacted": true
+					},
+					{
+						"type": "text",
+						"text": "🦀"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_224a8b558a",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 6,
+								"h": 1
+							}
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 608,
+					"output": 218,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 826,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_224a8b558a",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone lamp cloud cloud quiet"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "Ωmega stone lamp ñandú"
+					}
+				],
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "river north",
+						"thinkingSignature": "bfe05a7bb1affadbad044bf8612a7738"
+					},
+					{
+						"type": "text",
+						"text": "alpha lamp amber alpha cloud field alpha lamp"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 522,
+					"output": 20,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 542,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north cloud café river amber"
+					}
+				],
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "toolCall",
+						"id": "call_93d4c647ff",
+						"name": "lookup",
+						"arguments": {
+							"q": "amber north river"
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-pro",
+				"usage": {
+					"input": 846,
+					"output": 120,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 966,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_93d4c647ff",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "café quiet"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000008000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "ñandú naïve stone lamp Привет"
+					}
+				],
+				"timestamp": 1700000009000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			},
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-917361ad56e0",
+		"cacheRetention": "none",
+		"sessionId": "session-de210867",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"𐐷 𐐷 seven seven \",\"thought\":true,\"thoughtSignature\":\"ehMvU5QFI9Bxqq31gh60jxn4pkk=\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"6bbdb11167ed3d51\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"c\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"6bbdb11167ed3d51\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"loud\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"6bbdb11167ed3d51\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" 𐐷\",\"thought\":true}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"6bbdb11167ed3d51\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"lamp 😀\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"6bbdb11167ed3d51\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" quiet qu\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"6bbdb11167ed3d51\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"iet\"}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"6bbdb11167ed3d51\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_2d987734b818\",\"name\":\"lookup\",\"args\":{\"q\":\"🇯🇵 field\"}}}]}}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"6bbdb11167ed3d51\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

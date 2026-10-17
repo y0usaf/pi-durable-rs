@@ -1,0 +1,69 @@
+{
+	"name": "google-generative-ai-0014",
+	"seed": "970ddbb083d68fe8",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-pro",
+		"name": "gemini-2.5-pro",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": false,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 3.75,
+			"output": 14.25,
+			"cacheRead": 0.875,
+			"cacheWrite": 1
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-643349badb74",
+		"reasoning": "medium",
+		"cacheRetention": "short",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.5-pro\",\"responseId\":\"d6c0e32f62ed7af5\",\"usageMe",
+				"tadata\":{\"promptTokenCount\":309,\"candidatesTokenCount\":71,\"totalTokenCount\":380}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [],
+		"usage": {
+			"input": 309,
+			"output": 71,
+			"cacheRead": 0,
+			"cacheWrite": 0
+		},
+		"responseId": "d6c0e32f62ed7af5"
+	}
+}

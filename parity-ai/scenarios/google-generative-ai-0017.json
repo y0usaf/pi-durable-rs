@@ -1,0 +1,192 @@
+{
+	"name": "google-generative-ai-0017",
+	"seed": "dcb97df0327ca481",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 6,
+			"output": 3.75,
+			"cacheRead": 0.625,
+			"cacheWrite": 1.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 16384
+	},
+	"context": {
+		"systemPrompt": "cloud cloud ñandú Grüße lamp ñandú stone Grüße 漢字 Привет ñandú héllo",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "north seven lamp"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "river cloud alpha amber alpha alpha lamp alpha"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_6470dba534",
+						"name": "lookup",
+						"arguments": {
+							"q": "seven amber"
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-3-pro-preview",
+				"usage": {
+					"input": 835,
+					"output": 136,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 971,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_6470dba534",
+				"toolName": "lookup",
+				"content": [
+					{
+						"type": "text",
+						"text": "field"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "amber cloud quiet cloud"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "river north alpha seven",
+						"thinkingSignature": ""
+					},
+					{
+						"type": "text",
+						"text": "field"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-3-pro-preview",
+				"usage": {
+					"input": 216,
+					"output": 5,
+					"cacheRead": 65,
+					"cacheWrite": 0,
+					"totalTokens": 286,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha cloud 𝄞 𐐷"
+					}
+				],
+				"timestamp": 1700000006000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-22485e5876b2",
+		"cacheRetention": "short",
+		"toolChoice": "none",
+		"sessionId": "session-79cb4a4b",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 400,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"code\":400,\"message\":\"lamp amber\",\"status\":\"INVALID_ARGUMENT\"}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

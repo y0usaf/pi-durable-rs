@@ -1,0 +1,235 @@
+{
+	"name": "google-generative-ai-0007",
+	"seed": "97e06ff1a348b649",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-flash",
+		"name": "gemini-2.5-flash",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": true,
+		"input": [
+			"text"
+		],
+		"cost": {
+			"input": 6.5,
+			"output": 2,
+			"cacheRead": 0.625,
+			"cacheWrite": 2.25
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "north lamp stone seven stone field",
+		"messages": [
+			{
+				"role": "user",
+				"content": "seven",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "stone north river cloud stone",
+						"thinkingSignature": "8ec9cdb5c63e90c1dcdcb3f96a626f0b"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_15bb44b7dc",
+						"name": "noop",
+						"arguments": {}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-flash",
+				"usage": {
+					"input": 582,
+					"output": 220,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 802,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_15bb44b7dc",
+				"toolName": "noop",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": "river north",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "north seven"
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-flash",
+				"usage": {
+					"input": 854,
+					"output": 97,
+					"cacheRead": 106,
+					"cacheWrite": 195,
+					"totalTokens": 1252,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "river quiet cloud river stone"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_3173c5ce89",
+						"name": "tag_list",
+						"arguments": {
+							"items": [
+								"seven amber seven",
+								"cloud",
+								"alpha"
+							]
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-2.5-flash",
+				"usage": {
+					"input": 774,
+					"output": 262,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 1036,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000007000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_3173c5ce89",
+				"toolName": "tag_list",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp 🦀 cloud"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000008000
+			},
+			{
+				"role": "user",
+				"content": "lamp stone cloud north alpha alpha north river cloud",
+				"timestamp": 1700000009000
+			}
+		],
+		"tools": [
+			{
+				"name": "tag_list",
+				"description": "Tag a list",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"items": {
+							"type": "array",
+							"items": {
+								"type": "string"
+							}
+						}
+					},
+					"additionalProperties": false
+				}
+			},
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-e115a128b423",
+		"cacheRetention": "short",
+		"temperature": 0.2,
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"alpha alpha cloud lamp lamp cloud seven north cloud\"}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"a56434b9e44232fd\"}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

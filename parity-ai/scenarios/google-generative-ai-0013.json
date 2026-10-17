@@ -1,0 +1,171 @@
+{
+	"name": "google-generative-ai-0013",
+	"seed": "7fd96c267770d607",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 2.25,
+			"output": 14.25,
+			"cacheRead": 0.25,
+			"cacheWrite": 2.75
+		},
+		"contextWindow": 128000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "lamp seven stone",
+		"messages": [
+			{
+				"role": "user",
+				"content": "cloud seven north north amber",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "thinking",
+						"thinking": "stone north river seven"
+					},
+					{
+						"type": "text",
+						"text": "amber quiet lamp amber alpha north cloud north"
+					},
+					{
+						"type": "toolCall",
+						"id": "call_d00f45ce5a",
+						"name": "nested_shape",
+						"arguments": {
+							"box": {
+								"w": 2,
+								"h": 0.5
+							}
+						}
+					}
+				],
+				"api": "google-generative-ai",
+				"provider": "google",
+				"model": "gemini-3-pro-preview",
+				"usage": {
+					"input": 293,
+					"output": 111,
+					"cacheRead": 0,
+					"cacheWrite": 0,
+					"totalTokens": 404,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "toolUse",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "toolResult",
+				"toolCallId": "call_d00f45ce5a",
+				"toolName": "nested_shape",
+				"content": [
+					{
+						"type": "text",
+						"text": "👩‍💻 𝄞 stone"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"isError": false,
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "Grüße lamp naïve"
+					}
+				],
+				"timestamp": 1700000004000
+			}
+		],
+		"tools": [
+			{
+				"name": "nested_shape",
+				"description": "Nested object",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"box": {
+							"type": "object",
+							"properties": {
+								"w": {
+									"type": "number"
+								},
+								"h": {
+									"type": "number"
+								}
+							},
+							"required": [
+								"w"
+							]
+						}
+					}
+				}
+			},
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-cf53dc9573bd",
+		"cacheRetention": "long",
+		"maxTokens": 32000,
+		"temperature": 0.7,
+		"toolChoice": "auto",
+		"sessionId": "session-8b3c8c16",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 401,
+			"headers": {
+				"content-type": "application/json"
+			},
+			"chunks": [
+				"{\"error\":{\"code\":401,\"message\":\"cloud river seven river north\",\"status\":\"UNAUTHENTICATED\"}}"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "error"
+	}
+}

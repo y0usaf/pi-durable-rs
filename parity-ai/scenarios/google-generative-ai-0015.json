@@ -1,0 +1,101 @@
+{
+	"name": "google-generative-ai-0015",
+	"seed": "25d48defc7b79677",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-2.5-flash",
+		"name": "gemini-2.5-flash",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": true,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 5.75,
+			"output": 14.25,
+			"cacheRead": 0.25,
+			"cacheWrite": 0.25
+		},
+		"contextWindow": 32000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "alpha north cloud quiet alpha stone north",
+		"messages": [
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "lamp lamp"
+					}
+				],
+				"timestamp": 1700000001000
+			}
+		],
+		"tools": [
+			{
+				"name": "noop",
+				"description": "Does nothing",
+				"parameters": {
+					"type": "object"
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-9a9e3058b513",
+		"reasoning": "high",
+		"sessionId": "session-3d0fa5b0",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"🦀 🦀\"}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"047900d3825e595f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\" 🦀 rive\"}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"047900d3825e595f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"r\"}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"047900d3825e595f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_76c0bed22167\",\"name\":\"noop\",\"args\":{}}}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"047900d3825e595f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"functionCall\":{\"id\":\"call_e3f8c52dd7fa\",\"name\":\"noop\",\"args\":{}}}]}}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"047900d3825e595f\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-2.5-flash\",\"responseId\":\"047900d3825e595f\",\"usageMetadata\":{\"promptTokenCount\":404,\"candidatesTokenCount\":272,\"totalTokenCount\":676,\"cachedContentTokenCount\":27}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "toolUse",
+		"content": [
+			{
+				"type": "text",
+				"text": "🦀 🦀 🦀 river"
+			},
+			{
+				"type": "toolCall",
+				"id": "call_76c0bed22167",
+				"name": "noop",
+				"arguments": {}
+			},
+			{
+				"type": "toolCall",
+				"id": "call_e3f8c52dd7fa",
+				"name": "noop",
+				"arguments": {}
+			}
+		],
+		"usage": {
+			"input": 377,
+			"output": 272,
+			"cacheRead": 27,
+			"cacheWrite": 0
+		},
+		"responseId": "047900d3825e595f"
+	}
+}

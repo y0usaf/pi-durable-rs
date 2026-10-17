@@ -1,0 +1,205 @@
+{
+	"name": "google-generative-ai-0001",
+	"seed": "fa5de7a133e8e700",
+	"api": "google-generative-ai",
+	"provider": "google",
+	"model": {
+		"id": "gemini-3-pro-preview",
+		"name": "gemini-3-pro-preview",
+		"api": "google-generative-ai",
+		"provider": "google",
+		"baseUrl": "http://127.0.0.1:PORT/v1beta",
+		"reasoning": false,
+		"input": [
+			"text",
+			"image"
+		],
+		"cost": {
+			"input": 7,
+			"output": 4,
+			"cacheRead": 0.875,
+			"cacheWrite": 1.5
+		},
+		"contextWindow": 200000,
+		"maxTokens": 4096
+	},
+	"context": {
+		"systemPrompt": "quiet cloud field lamp seven field quiet",
+		"messages": [
+			{
+				"role": "user",
+				"content": "north",
+				"timestamp": 1700000001000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "alpha seven naïve héllo seven ñandú"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 767,
+					"output": 66,
+					"cacheRead": 286,
+					"cacheWrite": 150,
+					"totalTokens": 1269,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000002000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "seven"
+					},
+					{
+						"type": "image",
+						"data": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+						"mimeType": "image/png"
+					}
+				],
+				"timestamp": 1700000003000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "stone stone alpha"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 59,
+					"output": 72,
+					"cacheRead": 86,
+					"cacheWrite": 86,
+					"totalTokens": 303,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000004000
+			},
+			{
+				"role": "user",
+				"content": [
+					{
+						"type": "text",
+						"text": "cloud"
+					}
+				],
+				"timestamp": 1700000005000
+			},
+			{
+				"role": "assistant",
+				"content": [
+					{
+						"type": "text",
+						"text": "Grüße Ωmega field"
+					}
+				],
+				"api": "openai-responses",
+				"provider": "openai",
+				"model": "gpt-5",
+				"usage": {
+					"input": 11,
+					"output": 180,
+					"cacheRead": 0,
+					"cacheWrite": 68,
+					"totalTokens": 259,
+					"cost": {
+						"input": 0,
+						"output": 0,
+						"cacheRead": 0,
+						"cacheWrite": 0,
+						"total": 0
+					}
+				},
+				"stopReason": "stop",
+				"timestamp": 1700000006000
+			},
+			{
+				"role": "user",
+				"content": "field",
+				"timestamp": 1700000007000
+			}
+		],
+		"tools": [
+			{
+				"name": "lookup",
+				"description": "Look up a term",
+				"parameters": {
+					"type": "object",
+					"properties": {
+						"q": {
+							"type": "string"
+						}
+					},
+					"required": [
+						"q"
+					]
+				}
+			}
+		]
+	},
+	"options": {
+		"apiKey": "test-key-e884d6cce5c1",
+		"reasoning": "medium",
+		"cacheRetention": "none",
+		"maxTokens": 256,
+		"temperature": 0.5,
+		"toolChoice": "none",
+		"maxRetries": 0,
+		"timeoutMs": 10000
+	},
+	"script": [
+		{
+			"status": 200,
+			"headers": {
+				"content-type": "text/event-stream"
+			},
+			"chunks": [
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[{\"text\":\"🦀 𐐷\"}]}}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"e74659ad41a86564\"}\n\n",
+				"data: {\"candidates\":[{\"index\":0,\"content\":{\"role\":\"model\",\"parts\":[]},\"finishReason\":\"STOP\"}],\"modelVersion\":\"gemini-3-pro-preview\",\"responseId\":\"e74659ad41a86564\",\"usageMetadata\":{\"promptTokenCount\":430,\"candidatesTokenCount\":139,\"totalTokenCount\":569,\"cachedContentTokenCount\":276}}\n\n"
+			]
+		}
+	],
+	"expect": {
+		"stopReason": "stop",
+		"content": [
+			{
+				"type": "text",
+				"text": "🦀 𐐷"
+			}
+		],
+		"usage": {
+			"input": 154,
+			"output": 139,
+			"cacheRead": 276,
+			"cacheWrite": 0
+		},
+		"responseId": "e74659ad41a86564"
+	}
+}
