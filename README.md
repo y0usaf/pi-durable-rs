@@ -189,7 +189,7 @@ The crate is 0.1.0 and its API is still moving.
 - **Bash output windows.** `ToolExecutionApi::outputWindow` does not exist; `skipped` is always `None` and chunk boundaries differ on large output. The retained tail matches.
 - **Unicode.** Strings cannot hold lone surrogates, so a cut through a surrogate pair yields U+FFFD; `t` counts stay UTF-16 units.
 - **Not ported from chord:** replicated state for views (`viewState` observers run synchronously on the commit path), `copyJson`, `isJsonValue`, the revision validator.
-- **Not ported** (from `docs/COVERAGE.md`): `HookApi` memo and models, a commit-subscribe callback (use `DocumentWatch`), coding services and resource loader, MCP, the codemode sandbox.
+- **Not ported**: `HookApi` memo and models, a commit-subscribe callback (use `DocumentWatch`), coding services and resource loader, MCP, the codemode sandbox.
 - **Process groups** use `process_group(0)` plus a two-line `extern "C"` call to `kill(2)`; temp-file names come from `RandomState` instead of a UUID. Unix only.
 - **Context budget (Rust only).** `AgentChange::context_budget_tokens` stores `contextBudgetTokens` in the conversation's agent document. Compaction thresholds then use the smaller of the model's context window and the budget (`budgeted_window`, `src/harness/generation.rs`), so a 1M-window model compacts near the budget; with no budget nothing changes, and a model with an unknown window (0) uses the budget alone. It is per conversation, because `CompactionPolicy` is harness-wide.
 - **Close.** `Harness::close` joins running invocations before closing the session; TypeScript seals admission first, so a task admitted during close can start in Rust and be refused in TypeScript.
@@ -242,8 +242,6 @@ nix flake check
 | `ids`, `errors`, `entries`, `documents`, `types`, `truncate`, `tasks` | `packages/durable/src/*.ts` |
 | `storage`, `session`, `env`, `tools`, `harness` | `packages/durable/src/{storage,session,env,tools,harness}` |
 | `ai` | `packages/ai/src/{types,api,utils,providers,auth/oauth}` |
-
-`docs/COVERAGE.md` lists which PiG calls a downstream agent (Boar) makes and whether this crate covers them.
 
 ## Licence
 
